@@ -47,3 +47,7 @@ npm run dev
 ```
 
 Sovellus on nyt käytettävissä osoitteessa `http://localhost:3000`.
+
+### Rajapinta
+
+Reseptidata haetaan [TheMealDB](https://www.themealdb.com/api.php) -rajapinnasta
