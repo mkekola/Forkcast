@@ -36,6 +36,22 @@
             >
               Avaa viikkosuunnitelma
             </NuxtLink>
+
+            <button
+              type="button"
+              class="rounded-full border border-orange-200 bg-orange-50 px-6 py-3 text-sm font-bold text-orange-700 transition hover:border-orange-300 hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="randomRecipePending"
+              @click="getRandomRecipe"
+            >
+              {{ randomRecipePending ? "Arvotaan..." : "Yllätä minut" }}
+            </button>
+            <p
+              v-if="randomRecipeError"
+              class="mt-4 text-sm font-semibold text-red-700"
+            >
+              Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
+              uudelleen.
+            </p>
           </div>
         </div>
 
@@ -219,6 +235,9 @@ type MealDbFilterMeal = {
 const searchInput = ref("");
 const searchTerm = ref("");
 
+const randomRecipePending = ref(false);
+const randomRecipeError = ref(false);
+
 const searchQuery = computed(() => searchTerm.value.trim());
 const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
@@ -262,6 +281,30 @@ function searchRecipes() {
 function selectQuickSearch(query: string) {
   searchInput.value = query;
   searchTerm.value = query;
+}
+
+async function getRandomRecipe() {
+  randomRecipePending.value = true;
+  randomRecipeError.value = false;
+
+  try {
+    const response = await $fetch<{ meals: MealDbMeal[] | null }>(
+      "https://www.themealdb.com/api/json/v1/1/random.php",
+    );
+
+    const randomMeal = response.meals?.[0];
+
+    if (!randomMeal) {
+      randomRecipeError.value = true;
+      return;
+    }
+
+    await navigateTo(`/recipes/${randomMeal.idMeal}`);
+  } catch {
+    randomRecipeError.value = true;
+  } finally {
+    randomRecipePending.value = false;
+  }
 }
 
 const recipes = computed(() => {
