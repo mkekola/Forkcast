@@ -18,6 +18,15 @@
           Lisää reseptejä viikkoon reseptien omilta sivuilta. Jokaisessa
           slotissa voi olla yksi ateria kerrallaan.
         </p>
+
+        <button
+          v-if="hasPlannedMeals"
+          type="button"
+          class="mt-6 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
+          @click="clearWeek"
+        >
+          Tyhjennä viikko
+        </button>
       </section>
 
       <div
@@ -244,5 +253,17 @@ const meals: { value: MealType; label: string }[] = [
 
 function getPlannedMeal(day: string, meal: MealType) {
   return plannerStore.getMeal(day, meal);
+}
+
+function clearWeek() {
+  const shouldClear = window.confirm(
+    "Haluatko varmasti tyhjentää koko viikkosuunnitelman?",
+  );
+
+  if (!shouldClear) {
+    return;
+  }
+
+  plannerStore.clearPlanner();
 }
 </script>
