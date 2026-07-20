@@ -1,5 +1,10 @@
 export type MealType = 'breakfast' | 'lunch' | 'dinner'
 
+export type Ingredient = {
+  name: string
+  measure: string
+}
+
 export type PlannedMeal = {
   day: string
   meal: MealType
@@ -7,25 +12,49 @@ export type PlannedMeal = {
   recipeName: string
   recipeImage: string
   category: string
+  ingredients?: Ingredient[]
+}
+
+type PlannerStorage = {
+  plannedMeals: PlannedMeal[]
+  checkedShoppingItems: string[]
 }
 
 const STORAGE_KEY = 'forkcast-planner'
 
 export const usePlannerStore = defineStore('planner', () => {
   const plannedMeals = ref<PlannedMeal[]>([])
+  const checkedShoppingItems = ref<string[]>([])
 
   function loadFromStorage() {
     if (!import.meta.client) {
       return
     }
 
-    const storedMeals = localStorage.getItem(STORAGE_KEY)
+    const storedPlanner = localStorage.getItem(STORAGE_KEY)
 
-    if (!storedMeals) {
+    if (!storedPlanner) {
       return
     }
 
-    plannedMeals.value = JSON.parse(storedMeals)
+    try {
+      const parsedPlanner = JSON.parse(storedPlanner)
+
+      // Backwards compatibility: old version stored only PlannedMeal[]
+      if (Array.isArray(parsedPlanner)) {
+        plannedMeals.value = parsedPlanner
+        checkedShoppingItems.value = []
+        return
+      }
+
+      const plannerStorage = parsedPlanner as PlannerStorage
+
+      plannedMeals.value = plannerStorage.plannedMeals ?? []
+      checkedShoppingItems.value = plannerStorage.checkedShoppingItems ?? []
+    } catch {
+      plannedMeals.value = []
+      checkedShoppingItems.value = []
+    }
   }
 
   function saveToStorage() {
@@ -33,7 +62,12 @@ export const usePlannerStore = defineStore('planner', () => {
       return
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(plannedMeals.value))
+    const plannerStorage: PlannerStorage = {
+      plannedMeals: plannedMeals.value,
+      checkedShoppingItems: checkedShoppingItems.value,
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerStorage))
   }
 
   function addMeal(meal: PlannedMeal) {
@@ -62,11 +96,30 @@ export const usePlannerStore = defineStore('planner', () => {
     )
   }
 
+  function isShoppingItemChecked(itemKey: string) {
+    return checkedShoppingItems.value.includes(itemKey)
+  }
+
+  function toggleShoppingItem(itemKey: string) {
+    if (isShoppingItemChecked(itemKey)) {
+      checkedShoppingItems.value = checkedShoppingItems.value.filter(
+        (checkedItem) => checkedItem !== itemKey,
+      )
+    } else {
+      checkedShoppingItems.value.push(itemKey)
+    }
+
+    saveToStorage()
+  }
+
   return {
     plannedMeals,
+    checkedShoppingItems,
     loadFromStorage,
     addMeal,
     removeMeal,
     getMeal,
+    isShoppingItemChecked,
+    toggleShoppingItem,
   }
 })

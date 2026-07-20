@@ -109,6 +109,76 @@
           </div>
         </article>
       </section>
+      <section
+        v-if="hasPlannedMeals"
+        class="mt-10 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
+      >
+        <div
+          class="flex flex-col justify-between gap-4 md:flex-row md:items-end"
+        >
+          <div>
+            <p
+              class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+            >
+              Ostoslista
+            </p>
+
+            <h2 class="mt-3 text-3xl font-black tracking-tight">
+              Viikon ostokset
+            </h2>
+          </div>
+
+          <p class="max-w-md text-sm leading-6 text-stone-600">
+            Lista muodostetaan viikkosuunnitelmaan lisättyjen reseptien
+            ainesosista.
+          </p>
+        </div>
+
+        <div
+          v-if="shoppingList.length === 0"
+          class="mt-6 rounded-2xl bg-stone-50 p-5 text-sm text-stone-600"
+        >
+          Ostoslistaa ei voitu vielä muodostaa. Lisää resepti uudelleen
+          viikkoon, jotta sen ainesosat tallentuvat mukaan.
+        </div>
+
+        <ul v-else class="mt-6 grid gap-3 md:grid-cols-2">
+          <li
+            v-for="item in shoppingList"
+            :key="item.key"
+            class="flex items-start justify-between gap-4 rounded-2xl bg-stone-50 px-4 py-3"
+          >
+            <div>
+              <p
+                class="font-bold text-stone-950"
+                :class="{
+                  'text-stone-400 line-through':
+                    plannerStore.isShoppingItemChecked(item.key),
+                }"
+              >
+                {{ item.name }}
+              </p>
+
+              <p
+                class="mt-1 text-sm text-stone-500"
+                :class="{
+                  'text-stone-400 line-through':
+                    plannerStore.isShoppingItemChecked(item.key),
+                }"
+              >
+                {{ item.measures.join(", ") }}
+              </p>
+            </div>
+
+            <input
+              type="checkbox"
+              class="mt-1 h-5 w-5 rounded border-stone-300"
+              :checked="plannerStore.isShoppingItemChecked(item.key)"
+              @change="plannerStore.toggleShoppingItem(item.key)"
+            />
+          </li>
+        </ul>
+      </section>
     </section>
   </main>
 </template>
@@ -118,7 +188,39 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 
 const plannerStore = usePlannerStore();
 
-const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0)
+const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
+
+const shoppingList = computed(() => {
+  const ingredientsByName = new Map<
+    string,
+    { key: string; name: string; measures: string[] }
+  >();
+
+  plannerStore.plannedMeals.forEach((plannedMeal) => {
+    plannedMeal.ingredients?.forEach((ingredient) => {
+      const key = ingredient.name.toLowerCase().trim();
+      const existingIngredient = ingredientsByName.get(key);
+
+      if (existingIngredient) {
+        if (ingredient.measure) {
+          existingIngredient.measures.push(ingredient.measure);
+        }
+
+        return;
+      }
+
+      ingredientsByName.set(key, {
+        key,
+        name: ingredient.name,
+        measures: ingredient.measure ? [ingredient.measure] : [],
+      });
+    });
+  });
+
+  return Array.from(ingredientsByName.values()).sort((firstItem, secondItem) =>
+    firstItem.name.localeCompare(secondItem.name, "fi"),
+  );
+});
 
 onMounted(() => {
   plannerStore.loadFromStorage();

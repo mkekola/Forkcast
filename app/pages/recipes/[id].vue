@@ -265,7 +265,8 @@ function addRecipeToPlanner() {
     recipeId: recipe.value.idMeal,
     recipeName: recipe.value.strMeal,
     recipeImage: recipe.value.strMealThumb,
-    category: recipe.value.strCategory ?? "Resepti",
+    category: recipe.value.strCategory ?? 'Resepti',
+    ingredients: ingredients.value,
   });
 
   wasAdded.value = true;
