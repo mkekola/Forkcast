@@ -13,28 +13,70 @@
         </h1>
 
         <p class="mt-4 max-w-2xl leading-7 text-stone-600">
-          Pian voit lisätä reseptejä suoraan aamu-, päivä- ja iltaruoiksi.
-          Tässä vaiheessa rakennetaan ensin selkeä viikkonäkymä.
+          Lisää reseptejä viikkoon reseptien omilta sivuilta. Jokaisessa slotissa
+          voi olla yksi ateria kerrallaan.
         </p>
       </section>
 
       <section class="grid gap-4 md:grid-cols-7">
         <article
           v-for="day in days"
-          :key="day"
+          :key="day.value"
           class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
         >
           <h2 class="font-black">
-            {{ day }}
+            {{ day.shortLabel }}
           </h2>
+
+          <p class="mt-1 text-xs font-semibold text-stone-500">
+            {{ day.label }}
+          </p>
 
           <div class="mt-4 space-y-3">
             <div
               v-for="meal in meals"
-              :key="meal"
-              class="rounded-2xl border border-dashed border-stone-300 p-3 text-sm text-stone-500"
+              :key="meal.value"
+              class="min-h-32 rounded-2xl border border-dashed border-stone-300 p-3 text-sm"
             >
-              {{ meal }}
+              <p class="mb-3 text-xs font-bold uppercase tracking-wide text-stone-500">
+                {{ meal.label }}
+              </p>
+
+              <div
+                v-if="getPlannedMeal(day.value, meal.value)"
+                class="overflow-hidden rounded-2xl bg-stone-50"
+              >
+                <img
+                  :src="getPlannedMeal(day.value, meal.value)?.recipeImage"
+                  :alt="getPlannedMeal(day.value, meal.value)?.recipeName"
+                  class="h-24 w-full object-cover"
+                >
+
+                <div class="p-3">
+                  <p class="font-black text-stone-950">
+                    {{ getPlannedMeal(day.value, meal.value)?.recipeName }}
+                  </p>
+
+                  <p class="mt-1 text-xs font-semibold text-orange-700">
+                    {{ getPlannedMeal(day.value, meal.value)?.category }}
+                  </p>
+
+                  <button
+                    type="button"
+                    class="mt-3 text-xs font-bold text-stone-500 hover:text-red-700"
+                    @click="plannerStore.removeMeal(day.value, meal.value)"
+                  >
+                    Poista
+                  </button>
+                </div>
+              </div>
+
+              <div
+                v-else
+                class="rounded-2xl bg-stone-50 p-4 text-stone-400"
+              >
+                Tyhjä
+              </div>
             </div>
           </div>
         </article>
@@ -44,7 +86,31 @@
 </template>
 
 <script setup lang="ts">
-const days = ['Ma', 'Ti', 'Ke', 'To', 'Pe', 'La', 'Su']
+import { usePlannerStore, type MealType } from '~/stores/planner'
 
-const meals = ['Aamupala', 'Lounas', 'Päivällinen']
+const plannerStore = usePlannerStore()
+
+onMounted(() => {
+  plannerStore.loadFromStorage()
+})
+
+const days = [
+  { value: 'monday', label: 'Maanantai', shortLabel: 'Ma' },
+  { value: 'tuesday', label: 'Tiistai', shortLabel: 'Ti' },
+  { value: 'wednesday', label: 'Keskiviikko', shortLabel: 'Ke' },
+  { value: 'thursday', label: 'Torstai', shortLabel: 'To' },
+  { value: 'friday', label: 'Perjantai', shortLabel: 'Pe' },
+  { value: 'saturday', label: 'Lauantai', shortLabel: 'La' },
+  { value: 'sunday', label: 'Sunnuntai', shortLabel: 'Su' },
+]
+
+const meals: { value: MealType; label: string }[] = [
+  { value: 'breakfast', label: 'Aamupala' },
+  { value: 'lunch', label: 'Lounas' },
+  { value: 'dinner', label: 'Päivällinen' },
+]
+
+function getPlannedMeal(day: string, meal: MealType) {
+  return plannerStore.getMeal(day, meal)
+}
 </script>

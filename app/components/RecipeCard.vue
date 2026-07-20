@@ -36,7 +36,7 @@
       <div class="mt-5 flex items-center justify-between gap-3">
         <button
           type="button"
-          class="rounded-full bg-stone-950 px-4 py-2 text-sm font-bold text-white transition hover:bg-stone-800"
+          class="mt-8 rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
         >
           Lisää viikkoon
         </button>
