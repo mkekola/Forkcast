@@ -6,6 +6,7 @@ export type Ingredient = {
 };
 
 export type PlannedMeal = {
+  id: string;
   day: string;
   meal: MealType;
   recipeId: string;
@@ -21,6 +22,17 @@ type PlannerStorage = {
 };
 
 const STORAGE_KEY = "forkcast-planner";
+
+function createPlannedMealId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function normalizePlannedMeals(meals: PlannedMeal[]) {
+  return meals.map((meal) => ({
+    ...meal,
+    id: meal.id ?? createPlannedMealId(),
+  }));
+}
 
 export const usePlannerStore = defineStore("planner", () => {
   const plannedMeals = ref<PlannedMeal[]>([]);
@@ -42,14 +54,16 @@ export const usePlannerStore = defineStore("planner", () => {
 
       // Backwards compatibility: old version stored only PlannedMeal[]
       if (Array.isArray(parsedPlanner)) {
-        plannedMeals.value = parsedPlanner;
+        plannedMeals.value = normalizePlannedMeals(parsedPlanner);
         checkedShoppingItems.value = [];
         return;
       }
 
       const plannerStorage = parsedPlanner as PlannerStorage;
 
-      plannedMeals.value = plannerStorage.plannedMeals ?? [];
+      plannedMeals.value = normalizePlannedMeals(
+        plannerStorage.plannedMeals ?? [],
+      );
       checkedShoppingItems.value = plannerStorage.checkedShoppingItems ?? [];
     } catch {
       plannedMeals.value = [];
@@ -70,26 +84,25 @@ export const usePlannerStore = defineStore("planner", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerStorage));
   }
 
-  function addMeal(meal: PlannedMeal) {
-    plannedMeals.value = plannedMeals.value.filter(
-      (plannedMeal) =>
-        !(plannedMeal.day === meal.day && plannedMeal.meal === meal.meal),
-    );
-
-    plannedMeals.value.push(meal);
-    saveToStorage();
-  }
-
-  function removeMeal(day: string, meal: MealType) {
-    plannedMeals.value = plannedMeals.value.filter(
-      (plannedMeal) => !(plannedMeal.day === day && plannedMeal.meal === meal),
-    );
+  function addMeal(meal: Omit<PlannedMeal, "id">) {
+    plannedMeals.value.push({
+      ...meal,
+      id: createPlannedMealId(),
+    });
 
     saveToStorage();
   }
 
-  function getMeal(day: string, meal: MealType) {
-    return plannedMeals.value.find(
+  function removeMeal(plannedMealId: string) {
+    plannedMeals.value = plannedMeals.value.filter(
+      (plannedMeal) => plannedMeal.id !== plannedMealId,
+    );
+
+    saveToStorage();
+  }
+
+  function getMeals(day: string, meal: MealType) {
+    return plannedMeals.value.filter(
       (plannedMeal) => plannedMeal.day === day && plannedMeal.meal === meal,
     );
   }
@@ -122,7 +135,7 @@ export const usePlannerStore = defineStore("planner", () => {
     loadFromStorage,
     addMeal,
     removeMeal,
-    getMeal,
+    getMeals,
     isShoppingItemChecked,
     toggleShoppingItem,
     clearPlanner,

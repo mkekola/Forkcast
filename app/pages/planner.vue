@@ -15,8 +15,7 @@
         </h1>
 
         <p class="mt-4 max-w-2xl leading-7 text-stone-600">
-          Lisää reseptejä viikkoon reseptien omilta sivuilta. Jokaisessa
-          slotissa voi olla yksi ateria kerrallaan.
+          Lisää reseptejä viikkoon reseptien omilta sivuilta.
         </p>
 
         <button
@@ -83,31 +82,37 @@
               </p>
 
               <div
-                v-if="getPlannedMeal(day.value, meal.value)"
-                class="overflow-hidden rounded-2xl bg-stone-50"
+                v-if="getPlannedMeals(day.value, meal.value).length > 0"
+                class="space-y-3"
               >
-                <img
-                  :src="getPlannedMeal(day.value, meal.value)?.recipeImage"
-                  :alt="getPlannedMeal(day.value, meal.value)?.recipeName"
-                  class="h-24 w-full object-cover"
-                />
+                <div
+                  v-for="plannedMeal in getPlannedMeals(day.value, meal.value)"
+                  :key="plannedMeal.id"
+                  class="overflow-hidden rounded-2xl bg-stone-50"
+                >
+                  <img
+                    :src="plannedMeal.recipeImage"
+                    :alt="plannedMeal.recipeName"
+                    class="h-24 w-full object-cover"
+                  />
 
-                <div class="p-3">
-                  <p class="font-black text-stone-950">
-                    {{ getPlannedMeal(day.value, meal.value)?.recipeName }}
-                  </p>
+                  <div class="p-3">
+                    <p class="font-black text-stone-950">
+                      {{ plannedMeal.recipeName }}
+                    </p>
 
-                  <p class="mt-1 text-xs font-semibold text-orange-700">
-                    {{ getPlannedMeal(day.value, meal.value)?.category }}
-                  </p>
+                    <p class="mt-1 text-xs font-semibold text-orange-700">
+                      {{ plannedMeal.category }}
+                    </p>
 
-                  <button
-                    type="button"
-                    class="mt-3 text-xs font-bold text-stone-500 hover:text-red-700"
-                    @click="plannerStore.removeMeal(day.value, meal.value)"
-                  >
-                    Poista
-                  </button>
+                    <button
+                      type="button"
+                      class="mt-3 text-xs font-bold text-stone-500 hover:text-red-700"
+                      @click="plannerStore.removeMeal(plannedMeal.id)"
+                    >
+                      Poista
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -251,8 +256,8 @@ const meals: { value: MealType; label: string }[] = [
   { value: "dinner", label: "Päivällinen" },
 ];
 
-function getPlannedMeal(day: string, meal: MealType) {
-  return plannerStore.getMeal(day, meal);
+function getPlannedMeals(day: string, meal: MealType) {
+  return plannerStore.getMeals(day, meal);
 }
 
 function clearWeek() {
