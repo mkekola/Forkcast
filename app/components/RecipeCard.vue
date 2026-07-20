@@ -9,13 +9,17 @@
         class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
       />
 
-      <div class="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur">
+      <div
+        class="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"
+      >
         {{ category }}
       </div>
     </div>
 
     <div class="p-5">
-      <div class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-orange-600">
+      <div
+        class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-orange-600"
+      >
         <span>{{ area }}</span>
         <span class="h-1 w-1 rounded-full bg-orange-300" />
         <span>{{ time }}</span>
@@ -37,12 +41,12 @@
           Lisää viikkoon
         </button>
 
-        <button
-          type="button"
+        <NuxtLink
+          :to="`/recipes/${id}`"
           class="rounded-full border border-stone-300 px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
         >
           Katso
-        </button>
+        </NuxtLink>
       </div>
     </div>
   </article>
@@ -50,11 +54,12 @@
 
 <script setup lang="ts">
 defineProps<{
-  title: string,
-  category: string,
-  area: string,
-  time: string,
-  description: string,
-  image: string,                   
-}>()
+  id: string;
+  title: string;
+  category: string;
+  area: string;
+  time: string;
+  description: string;
+  image: string;
+}>();
 </script>

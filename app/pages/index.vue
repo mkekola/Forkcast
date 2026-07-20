@@ -152,6 +152,7 @@
           <RecipeCard
             v-for="recipe in recipes"
             :key="recipe.id"
+            :id="recipe.id"
             :title="recipe.title"
             :category="recipe.category"
             :area="recipe.area"
