@@ -90,15 +90,17 @@
       <section id="reseptit" class="pb-20">
         <div class="mb-8 flex max-w-xl gap-3">
           <input
-            v-model="searchTerm"
+            v-model="searchInput"
             type="search"
             placeholder="Hae reseptejä, esim. pasta, chicken, curry..."
             class="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+            @keyup.enter="searchRecipes"
           />
 
           <button
             type="button"
             class="rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+            @click="searchRecipes"
           >
             Hae
           </button>
@@ -143,7 +145,7 @@
           v-else-if="recipes.length === 0"
           class="rounded-3xl border border-stone-200 bg-white p-8 text-stone-600"
         >
-          Ei reseptejä hakusanalla “{{ searchTerm }}”. Kokeile esimerkiksi hakua
+          Ei reseptejä hakusanalla “{{ searchQuery }}”. Kokeile esimerkiksi hakua
           <strong>pasta</strong>, <strong>chicken</strong> tai
           <strong>beef</strong>.
         </div>
@@ -178,15 +180,22 @@ type MealDbMeal = {
   strMealThumb: string;
 };
 
-const searchTerm = ref("chicken");
+const searchInput = ref("");
+const searchTerm = ref("");
+
+const searchQuery = computed(() => searchTerm.value.trim());
 
 const { data, pending, error } = await useFetch<{ meals: MealDbMeal[] | null }>(
   () =>
-    `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm.value}`,
+    `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery.value}`,
   {
-    watch: [searchTerm],
+    watch: [searchQuery],
   },
 );
+
+function searchRecipes() {
+  searchTerm.value = searchInput.value;
+}
 
 const recipes = computed(() => {
   return (data.value?.meals ?? []).map((meal) => ({
