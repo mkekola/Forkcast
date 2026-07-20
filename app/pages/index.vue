@@ -78,14 +78,75 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <p class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
-          Reseptit
-        </p>
+        <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+              Reseptit
+            </p>
 
-        <h2 class="mt-3 text-3xl font-black tracking-tight">
-          Pian oikealla reseptidatalla
-        </h2>
+            <h2 class="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+              Mitä tänään tekisi mieli?
+            </h2>
+          </div>
+
+          <p class="max-w-md text-sm leading-6 text-stone-600">
+            Aloitetaan muutamalla esimerkkireseptillä. Seuraavaksi vaihdetaan
+            nämä oikeaan TheMealDB-dataan.
+          </p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <RecipeCard
+            v-for="recipe in recipes"
+            :key="recipe.id"
+            :title="recipe.title"
+            :category="recipe.category"
+            :area="recipe.area"
+            :time="recipe.time"
+            :description="recipe.description"
+            :image="recipe.image"
+          />
+        </div>
       </section>
     </section>
   </main>
 </template>
+
+<script setup lang="ts">
+
+const recipes = [
+  {
+    id: 1,
+    title: 'Kasviscurry',
+    category: 'Päivällinen',
+    area: 'Intialainen',
+    time: '35 min',
+    description:
+      'Lämmin ja mausteinen arkiruoka, joka pelastaa maanantain ilman suurempaa säätöä.',
+    image:
+      'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 2,
+    title: 'Halloumisalaatti',
+    category: 'Lounas',
+    area: 'Välimeri',
+    time: '20 min',
+    description:
+      'Raikas, suolainen ja nopea lounas silloin kun haluat jotain kevyttä mutta täyttävää.',
+    image:
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 3,
+    title: 'Tomaattipasta',
+    category: 'Nopea',
+    area: 'Italialainen',
+    time: '25 min',
+    description:
+      'Kun jääkaapissa ei ole paljoa, mutta nälkä on todellinen. Klassikko syystä.',
+    image:
+      'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=80',
+  },
+]
+</script>
