@@ -59,6 +59,47 @@
               {{ recipe.strMeal }}
             </h1>
 
+            <button
+              type="button"
+              class="mt-6 inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
+              :class="
+                isFavorite
+                  ? 'border-rose-500 bg-rose-500 text-white shadow-rose-200'
+                  : 'border-rose-200 bg-white text-rose-600 hover:bg-rose-50'
+              "
+              @click="toggleFavorite"
+            >
+              <svg
+                v-if="isFavorite"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="h-5 w-5"
+              >
+                <path
+                  d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
+                />
+              </svg>
+
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="h-5 w-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+
+              {{ isFavorite ? "Suosikeissa" : "Lisää suosikkeihin" }}
+            </button>
+
             <p class="mt-5 leading-7 text-stone-600">
               Lisää tämä resepti viikkosuunnitelmaan tai selaa ainesosat ja
               valmistusohjeet rauhassa läpi.
@@ -180,6 +221,7 @@
 
 <script setup lang="ts">
 import { usePlannerStore, type MealType } from "~/stores/planner";
+import { useFavoritesStore } from "~/stores/favorites";
 
 type MealDbRecipe = {
   idMeal: string;
@@ -194,6 +236,8 @@ type MealDbRecipe = {
 const route = useRoute();
 
 const plannerStore = usePlannerStore();
+
+const favoritesStore = useFavoritesStore();
 
 const selectedDay = ref("monday");
 const selectedMeal = ref<MealType>("dinner");
@@ -254,6 +298,19 @@ const instructionSteps = computed(() => {
     .filter(Boolean);
 });
 
+const isFavorite = computed(() => {
+  if (!recipe.value) {
+    return false;
+  }
+
+  return favoritesStore.isFavorite(recipe.value.idMeal);
+});
+
+onMounted(() => {
+  plannerStore.loadFromStorage();
+  favoritesStore.loadFromStorage();
+});
+
 function addRecipeToPlanner() {
   if (!recipe.value) {
     return;
@@ -265,10 +322,28 @@ function addRecipeToPlanner() {
     recipeId: recipe.value.idMeal,
     recipeName: recipe.value.strMeal,
     recipeImage: recipe.value.strMealThumb,
-    category: recipe.value.strCategory ?? 'Resepti',
+    category: recipe.value.strCategory ?? "Resepti",
     ingredients: ingredients.value,
   });
 
   wasAdded.value = true;
+}
+
+function toggleFavorite() {
+  if (!recipe.value) {
+    return;
+  }
+
+  favoritesStore.toggleFavorite({
+    id: recipe.value.idMeal,
+    title: recipe.value.strMeal,
+    category: recipe.value.strCategory ?? "Resepti",
+    area: recipe.value.strArea ?? "Tuntematon",
+    time: "30–45 min",
+    description: recipe.value.strInstructions
+      ? `${recipe.value.strInstructions.slice(0, 120)}...`
+      : "Herkullinen resepti viikon suunnitteluun.",
+    image: recipe.value.strMealThumb,
+  });
 }
 </script>
