@@ -5,17 +5,21 @@
 
       <section class="grid flex-1 items-center gap-12 py-20 md:grid-cols-2">
         <div>
-          <p class="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+          <p
+            class="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+          >
             Viikkosi, katettuna.
           </p>
 
-          <h1 class="max-w-xl text-5xl font-black leading-tight tracking-tight md:text-6xl">
+          <h1
+            class="max-w-xl text-5xl font-black leading-tight tracking-tight md:text-6xl"
+          >
             Suunnittele viikon ruoat ennen kuin nälkä tekee päätökset.
           </h1>
 
           <p class="mt-6 max-w-lg text-lg leading-8 text-stone-600">
-            Forkcast auttaa löytämään reseptejä, kokoamaan viikon ateriat
-            ja muuttamaan suunnitelman käytännölliseksi ostoslistaksi.
+            Forkcast auttaa löytämään reseptejä, kokoamaan viikon ateriat ja
+            muuttamaan suunnitelman käytännölliseksi ostoslistaksi.
           </p>
 
           <div class="mt-8 flex flex-wrap gap-3">
@@ -38,13 +42,13 @@
         <div class="rounded-[2rem] bg-white p-4 shadow-xl shadow-stone-200">
           <div class="rounded-[1.5rem] bg-orange-100 p-5">
             <div class="rounded-[1.25rem] bg-white p-5 shadow-sm">
-              <p class="text-sm font-bold uppercase tracking-[0.18em] text-orange-600">
+              <p
+                class="text-sm font-bold uppercase tracking-[0.18em] text-orange-600"
+              >
                 Tänään
               </p>
 
-              <h2 class="mt-3 text-2xl font-black">
-                Sitruunainen kanapasta
-              </h2>
+              <h2 class="mt-3 text-2xl font-black">Sitruunainen kanapasta</h2>
 
               <p class="mt-2 text-sm leading-6 text-stone-600">
                 Nopea arkiruoka, jonka voi lisätä suoraan viikon suunnitelmaan.
@@ -52,21 +56,27 @@
 
               <div class="mt-5 grid gap-3">
                 <div class="rounded-2xl bg-stone-100 p-4">
-                  <p class="text-xs font-bold uppercase tracking-wide text-stone-500">
+                  <p
+                    class="text-xs font-bold uppercase tracking-wide text-stone-500"
+                  >
                     Aika
                   </p>
                   <p class="mt-1 font-bold">30 min</p>
                 </div>
 
                 <div class="rounded-2xl bg-stone-100 p-4">
-                  <p class="text-xs font-bold uppercase tracking-wide text-stone-500">
+                  <p
+                    class="text-xs font-bold uppercase tracking-wide text-stone-500"
+                  >
                     Sopii
                   </p>
                   <p class="mt-1 font-bold">Arki-iltaan</p>
                 </div>
 
                 <div class="rounded-2xl bg-stone-950 p-4 text-white">
-                  <p class="text-xs font-bold uppercase tracking-wide text-stone-300">
+                  <p
+                    class="text-xs font-bold uppercase tracking-wide text-stone-300"
+                  >
                     Forkcast sanoo
                   </p>
                   <p class="mt-1 font-bold">Lisää tiistain päivälliseksi</p>
@@ -78,9 +88,28 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div class="mb-8 flex max-w-xl gap-3">
+          <input
+            v-model="searchTerm"
+            type="search"
+            placeholder="Hae reseptejä, esim. pasta, chicken, curry..."
+            class="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+          />
+
+          <button
+            type="button"
+            class="rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+          >
+            Hae
+          </button>
+        </div>
+        <div
+          class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
+        >
           <div>
-            <p class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+            <p
+              class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+            >
               Reseptit
             </p>
 
@@ -95,7 +124,31 @@
           </p>
         </div>
 
-        <div class="grid gap-6 md:grid-cols-3">
+        <div v-if="pending" class="grid gap-6 md:grid-cols-3">
+          <div
+            v-for="item in 6"
+            :key="item"
+            class="h-80 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-stone-200"
+          />
+        </div>
+
+        <div
+          v-else-if="error"
+          class="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-800"
+        >
+          Reseptien haku epäonnistui. Kokeile hetken päästä uudelleen.
+        </div>
+
+        <div
+          v-else-if="recipes.length === 0"
+          class="rounded-3xl border border-stone-200 bg-white p-8 text-stone-600"
+        >
+          Ei reseptejä hakusanalla “{{ searchTerm }}”. Kokeile esimerkiksi hakua
+          <strong>pasta</strong>, <strong>chicken</strong> tai
+          <strong>beef</strong>.
+        </div>
+
+        <div v-else class="grid gap-6 md:grid-cols-3">
           <RecipeCard
             v-for="recipe in recipes"
             :key="recipe.id"
@@ -113,40 +166,38 @@
 </template>
 
 <script setup lang="ts">
+import RecipeCard from "~/components/RecipeCard.vue";
 
-const recipes = [
+type MealDbMeal = {
+  idMeal: string;
+  strMeal: string;
+  strCategory: string | null;
+  strArea: string | null;
+  strInstructions: string | null;
+  strMealThumb: string;
+};
+
+const searchTerm = ref("chicken");
+
+const { data, pending, error } = await useFetch<{ meals: MealDbMeal[] | null }>(
+  () =>
+    `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchTerm.value}`,
   {
-    id: 1,
-    title: 'Kasviscurry',
-    category: 'Päivällinen',
-    area: 'Intialainen',
-    time: '35 min',
-    description:
-      'Lämmin ja mausteinen arkiruoka, joka pelastaa maanantain ilman suurempaa säätöä.',
-    image:
-      'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=80',
+    watch: [searchTerm],
   },
-  {
-    id: 2,
-    title: 'Halloumisalaatti',
-    category: 'Lounas',
-    area: 'Välimeri',
-    time: '20 min',
-    description:
-      'Raikas, suolainen ja nopea lounas silloin kun haluat jotain kevyttä mutta täyttävää.',
-    image:
-      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: 3,
-    title: 'Tomaattipasta',
-    category: 'Nopea',
-    area: 'Italialainen',
-    time: '25 min',
-    description:
-      'Kun jääkaapissa ei ole paljoa, mutta nälkä on todellinen. Klassikko syystä.',
-    image:
-      'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=80',
-  },
-]
+);
+
+const recipes = computed(() => {
+  return (data.value?.meals ?? []).map((meal) => ({
+    id: meal.idMeal,
+    title: meal.strMeal,
+    category: meal.strCategory ?? "Resepti",
+    area: meal.strArea ?? "Tuntematon",
+    time: "30–45 min",
+    description: meal.strInstructions
+      ? `${meal.strInstructions.slice(0, 120)}...`
+      : "Herkullinen resepti viikon suunnitteluun.",
+    image: meal.strMealThumb,
+  }));
+});
 </script>
