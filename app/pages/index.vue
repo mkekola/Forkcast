@@ -232,14 +232,22 @@ type MealDbFilterMeal = {
   strMealThumb: string;
 };
 
-const searchInput = ref("");
-const searchTerm = ref("");
+const route = useRoute();
+const router = useRouter();
+
+const initialSearchQuery =
+  typeof route.query.q === "string" ? route.query.q : "";
+
+const searchInput = ref(initialSearchQuery);
+
+const searchQuery = computed(() => {
+  return typeof route.query.q === "string" ? route.query.q.trim() : "";
+});
+
+const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
 const randomRecipePending = ref(false);
 const randomRecipeError = ref(false);
-
-const searchQuery = computed(() => searchTerm.value.trim());
-const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
 const quickSearches = [
   { label: "Kana", query: "kana" },
@@ -274,13 +282,22 @@ const { data, pending, error } = await useFetch<{
   },
 );
 
+function updateSearchQuery(query: string) {
+  const trimmedQuery = query.trim();
+
+  router.push({
+    path: "/",
+    query: trimmedQuery ? { q: trimmedQuery } : {},
+  });
+}
+
 function searchRecipes() {
-  searchTerm.value = searchInput.value;
+  updateSearchQuery(searchInput.value);
 }
 
 function selectQuickSearch(query: string) {
   searchInput.value = query;
-  searchTerm.value = query;
+  updateSearchQuery(query);
 }
 
 async function getRandomRecipe() {
@@ -306,6 +323,13 @@ async function getRandomRecipe() {
     randomRecipePending.value = false;
   }
 }
+
+watch(
+  () => route.query.q,
+  (newQuery) => {
+    searchInput.value = typeof newQuery === "string" ? newQuery : "";
+  },
+);
 
 const recipes = computed(() => {
   if (!searchQuery.value) {
