@@ -1,75 +1,49 @@
-# Nuxt Minimal Starter
+# Forkcast
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+**Forkcast — Viikkosi, katettuna.**
 
-## Setup
+Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellus. Sovelluksessa voi hakea reseptejä, tallentaa suosikkeja, suunnitella viikon ateriat ja muodostaa ostoslistan suunniteltujen reseptien aineksista.
 
-Make sure to install dependencies:
+## Ominaisuudet
+
+- Reseptien haku TheMealDB-rajapinnasta
+- Suomenkieliset hakusanat ja pikahaut
+- Reseptien kategorioiden ja alueiden käännökset suomeksi
+- Reseptin tarkempi näkymä aineksilla ja valmistusohjeilla
+- Reseptien tallentaminen suosikkeihin
+- Reseptien lisääminen viikkosuunnitelmaan
+- Useamman reseptin lisääminen samaan ateriaslottiin
+- Ostoslistan muodostaminen suunnitelluista resepteistä
+- Ostoslistan tuotteiden merkitseminen tehdyksi
+- Suosikkien, viikkosuunnitelman ja ostoslistan tilan tallennus selaimen localStorageen
+- Satunnainen resepti inspiraatiokortista
+
+## Teknologiat
+
+- Nuxt 4
+- Vue 3
+- TypeScript
+- Tailwind CSS
+- Pinia
+- TheMealDB API
+- LocalStorage
+
+## Kuvakaappaukset
+
+Kuvakaappaukset lisätään myöhemmin.
+
+## Käyttöönotto
+
+Asenna riippuvuudet:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+Käynnistä kehityspalvelin:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Sovellus on nyt käytettävissä osoitteessa `http://localhost:3000`.
