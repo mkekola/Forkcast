@@ -36,38 +36,37 @@
             >
               Avaa viikkosuunnitelma
             </NuxtLink>
-
-            <button
-              type="button"
-              class="rounded-full border border-orange-200 bg-orange-50 px-6 py-3 text-sm font-bold text-orange-700 transition hover:border-orange-300 hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="randomRecipePending"
-              @click="getRandomRecipe"
-            >
-              {{ randomRecipePending ? "Arvotaan..." : "Yllätä minut" }}
-            </button>
-            <p
-              v-if="randomRecipeError"
-              class="mt-4 text-sm font-semibold text-red-700"
-            >
-              Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
-              uudelleen.
-            </p>
           </div>
+          <p
+            v-if="randomRecipeError"
+            class="mt-4 text-sm font-semibold text-red-700"
+          >
+            Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
+            uudelleen.
+          </p>
         </div>
 
-        <div class="rounded-[2rem] bg-white p-4 shadow-xl shadow-stone-200">
+        <button
+          type="button"
+          class="group rounded-[2rem] bg-white p-4 text-left shadow-xl shadow-stone-200 transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-stone-300 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-70"
+          :disabled="randomRecipePending"
+          @click="getRandomRecipe"
+        >
           <div class="rounded-[1.5rem] bg-orange-100 p-5">
             <div class="rounded-[1.25rem] bg-white p-5 shadow-sm">
               <p
                 class="text-sm font-bold uppercase tracking-[0.18em] text-orange-600"
               >
-                Tänään
+                Inspiraatio
               </p>
 
-              <h2 class="mt-3 text-2xl font-black">Sitruunainen kanapasta</h2>
+              <h2 class="mt-3 text-2xl font-black">
+                Etkö tiedä mitä tekisi mieli?
+              </h2>
 
               <p class="mt-2 text-sm leading-6 text-stone-600">
-                Nopea arkiruoka, jonka voi lisätä suoraan viikon suunnitelmaan.
+                Klikkaa korttia ja Forkcast arpoo sinulle reseptin
+                kokeiltavaksi.
               </p>
 
               <div class="mt-5 grid gap-3">
@@ -75,9 +74,9 @@
                   <p
                     class="text-xs font-bold uppercase tracking-wide text-stone-500"
                   >
-                    Aika
+                    Tyyli
                   </p>
-                  <p class="mt-1 font-bold">30 min</p>
+                  <p class="mt-1 font-bold">Satunnainen resepti</p>
                 </div>
 
                 <div class="rounded-2xl bg-stone-100 p-4">
@@ -86,21 +85,34 @@
                   >
                     Sopii
                   </p>
-                  <p class="mt-1 font-bold">Arki-iltaan</p>
+                  <p class="mt-1 font-bold">Kun ideat ovat loppu</p>
                 </div>
 
                 <div class="rounded-2xl bg-stone-950 p-4 text-white">
                   <p
                     class="text-xs font-bold uppercase tracking-wide text-stone-300"
                   >
-                    Forkcast sanoo
+                    Forkcast ehdottaa
                   </p>
-                  <p class="mt-1 font-bold">Lisää tiistain päivälliseksi</p>
+
+                  <p class="mt-1 font-bold">
+                    {{
+                      randomRecipePending
+                        ? "Arvotaan reseptiä..."
+                        : "Yllätä minut reseptillä"
+                    }}
+                  </p>
                 </div>
               </div>
+
+              <p
+                class="mt-4 text-sm font-bold text-orange-700 transition group-hover:translate-x-1"
+              >
+                Avaa satunnainen resepti →
+              </p>
             </div>
           </div>
-        </div>
+        </button>
       </section>
 
       <section id="reseptit" class="pb-20">
