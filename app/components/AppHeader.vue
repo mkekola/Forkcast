@@ -5,13 +5,13 @@
     </NuxtLink>
 
     <nav class="flex items-center gap-5 text-sm font-semibold text-stone-600">
-      <NuxtLink to="/" class="hover:text-stone-950">
-        Reseptit
+      <NuxtLink to="/" class="hover:text-stone-950"> Reseptit </NuxtLink>
+
+      <NuxtLink to="/favorites" class="hover:text-stone-950">
+        Suosikit
       </NuxtLink>
 
-      <NuxtLink to="/planner" class="hover:text-stone-950">
-        Viikko
-      </NuxtLink>
+      <NuxtLink to="/planner" class="hover:text-stone-950"> Viikko </NuxtLink>
     </nav>
   </header>
 </template>
