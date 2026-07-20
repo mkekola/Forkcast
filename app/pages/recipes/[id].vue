@@ -121,6 +121,31 @@
               Katso valmistusvideo
             </NuxtLink>
 
+            <a
+              v-if="sourceLink"
+              :href="sourceLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-950 hover:text-stone-950"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="h-5 w-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                />
+              </svg>
+
+              Avaa alkuperäinen resepti
+            </a>
+
             <p class="mt-5 leading-7 text-stone-600">
               Lisää tämä resepti viikkosuunnitelmaan tai selaa ainesosat ja
               valmistusohjeet rauhassa läpi.
@@ -253,6 +278,7 @@ type MealDbRecipe = {
   strInstructions: string | null;
   strMealThumb: string;
   strYoutube: string | null;
+  strSource: string | null;
   [key: string]: string | null;
 };
 
@@ -293,6 +319,10 @@ const recipe = computed(() => data.value?.meals?.[0] ?? null);
 
 const youtubeLink = computed(() => {
   return recipe.value?.strYoutube || null;
+});
+
+const sourceLink = computed(() => {
+  return recipe.value?.strSource || null;
 });
 
 const ingredients = computed(() => {
