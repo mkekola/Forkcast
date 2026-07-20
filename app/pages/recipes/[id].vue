@@ -100,6 +100,27 @@
               {{ isFavorite ? "Suosikeissa" : "Lisää suosikkeihin" }}
             </button>
 
+            <NuxtLink
+              v-if="youtubeLink"
+              :to="youtubeLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 shadow-sm transition hover:border-red-300 hover:bg-red-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="h-5 w-5"
+              >
+                <path
+                  d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0C.488 3.45.029 5.804 0 12c.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0C23.512 20.55 23.971 18.196 24 12c-.029-6.185-.484-8.549-4.385-8.816zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                />
+              </svg>
+
+              Katso valmistusvideo
+            </NuxtLink>
+
             <p class="mt-5 leading-7 text-stone-600">
               Lisää tämä resepti viikkosuunnitelmaan tai selaa ainesosat ja
               valmistusohjeet rauhassa läpi.
@@ -231,6 +252,7 @@ type MealDbRecipe = {
   strArea: string | null;
   strInstructions: string | null;
   strMealThumb: string;
+  strYoutube: string | null;
   [key: string]: string | null;
 };
 
@@ -268,6 +290,10 @@ const { data, pending, error } = await useFetch<{
 );
 
 const recipe = computed(() => data.value?.meals?.[0] ?? null);
+
+const youtubeLink = computed(() => {
+  return recipe.value?.strYoutube || null;
+});
 
 const ingredients = computed(() => {
   if (!recipe.value) {
