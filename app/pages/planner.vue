@@ -18,14 +18,46 @@
           Lisää reseptejä viikkoon reseptien omilta sivuilta.
         </p>
 
-        <button
-          v-if="hasPlannedMeals"
-          type="button"
-          class="mt-6 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
-          @click="clearWeek"
-        >
-          Tyhjennä viikko
-        </button>
+        <div v-if="hasPlannedMeals" class="mt-6">
+          <button
+            type="button"
+            class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
+            @click="askToClearWeek"
+          >
+            Tyhjennä viikko
+          </button>
+
+          <div
+            v-if="pendingClearWeek"
+            class="mt-3 max-w-md rounded-2xl border border-red-100 bg-red-50 p-4"
+          >
+            <p class="text-sm font-black text-red-800">
+              Tyhjennetäänkö koko viikko?
+            </p>
+
+            <p class="mt-1 text-sm leading-6 text-red-700">
+              Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit.
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="rounded-full bg-red-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-700"
+                @click="confirmClearWeek"
+              >
+                Tyhjennä
+              </button>
+
+              <button
+                type="button"
+                class="rounded-full bg-white px-4 py-2 text-xs font-bold text-stone-600 ring-1 ring-stone-200 transition hover:bg-stone-50"
+                @click="cancelClearWeek"
+              >
+                Peruuta
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <div
@@ -55,71 +87,115 @@
         </NuxtLink>
       </div>
 
-      <section v-else class="grid gap-4 md:grid-cols-7">
+      <section v-else class="space-y-4">
         <article
           v-for="day in days"
           :key="day.value"
-          class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm"
+          class="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm"
         >
-          <h2 class="font-black">
-            {{ day.shortLabel }}
-          </h2>
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-black text-stone-950">
+                {{ day.label }}
+              </h2>
+            </div>
+          </div>
 
-          <p class="mt-1 text-xs font-semibold text-stone-500">
-            {{ day.label }}
-          </p>
-
-          <div class="mt-4 space-y-3">
-            <div
+          <div class="grid gap-4 lg:grid-cols-3">
+            <section
               v-for="meal in meals"
               :key="meal.value"
-              class="min-h-32 rounded-2xl border border-dashed border-stone-300 p-3 text-sm"
+              class="rounded-3xl border border-dashed border-stone-300 bg-stone-50 p-4"
             >
-              <p
-                class="mb-3 text-xs font-bold uppercase tracking-wide text-stone-500"
+              <h3
+                class="text-xs font-black uppercase tracking-wide text-stone-500"
               >
                 {{ meal.label }}
-              </p>
+              </h3>
 
               <div
                 v-if="getPlannedMeals(day.value, meal.value).length > 0"
-                class="space-y-3"
+                class="mt-3 space-y-3"
               >
                 <div
                   v-for="plannedMeal in getPlannedMeals(day.value, meal.value)"
                   :key="plannedMeal.id"
-                  class="overflow-hidden rounded-2xl bg-stone-50"
+                  class="relative overflow-hidden rounded-2xl bg-white shadow-sm"
                 >
-                  <img
-                    :src="plannedMeal.recipeImage"
-                    :alt="plannedMeal.recipeName"
-                    class="h-24 w-full object-cover"
-                  />
-
-                  <div class="p-3">
-                    <p class="font-black text-stone-950">
-                      {{ plannedMeal.recipeName }}
-                    </p>
-
-                    <p class="mt-1 text-xs font-semibold text-orange-700">
-                      {{ plannedMeal.category }}
-                    </p>
-
-                    <button
-                      type="button"
-                      class="mt-3 text-xs font-bold text-stone-500 hover:text-red-700"
-                      @click="plannerStore.removeMeal(plannedMeal.id)"
+                  <button
+                    type="button"
+                    class="absolute right-3 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                    :aria-label="`Poista ${plannedMeal.recipeName} suunnitelmasta`"
+                    @click="askToRemoveMeal(plannedMeal.id)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="h-3.5 w-3.5"
                     >
-                      Poista
-                    </button>
+                      <path
+                        d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                      />
+                    </svg>
+                  </button>
+
+                  <div class="flex gap-3 p-3">
+                    <img
+                      :src="plannedMeal.recipeImage"
+                      :alt="plannedMeal.recipeName"
+                      class="h-24 w-24 shrink-0 rounded-xl object-cover"
+                    />
+
+                    <div class="min-w-0 flex flex-1 flex-col items-start pr-8">
+                      <p class="font-black leading-snug text-stone-950">
+                        {{ plannedMeal.recipeName }}
+                      </p>
+
+                      <span
+                        class="mt-3 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700"
+                      >
+                        {{ plannedMeal.category }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    v-if="pendingRemovalId === plannedMeal.id"
+                    class="border-t border-red-100 bg-red-50 px-3 py-3"
+                  >
+                    <p class="text-sm font-bold text-red-800">
+                      Poistetaanko tämä resepti?
+                    </p>
+
+                    <div class="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        class="rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700"
+                        @click="confirmRemoveMeal(plannedMeal.id)"
+                      >
+                        Poista
+                      </button>
+
+                      <button
+                        type="button"
+                        class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-stone-600 ring-1 ring-stone-200 transition hover:bg-stone-50"
+                        @click="cancelRemoveMeal"
+                      >
+                        Peruuta
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div v-else class="rounded-2xl bg-stone-50 p-4 text-stone-400">
+              <div
+                v-else
+                class="mt-3 rounded-2xl bg-white p-5 text-sm text-stone-400"
+              >
                 Tyhjä
               </div>
-            </div>
+            </section>
           </div>
         </article>
       </section>
@@ -202,6 +278,10 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 
 const plannerStore = usePlannerStore();
 
+const pendingClearWeek = ref(false);
+
+const pendingRemovalId = ref<string | null>(null);
+
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
 
 const shoppingList = computed(() => {
@@ -260,15 +340,29 @@ function getPlannedMeals(day: string, meal: MealType) {
   return plannerStore.getMeals(day, meal);
 }
 
-function clearWeek() {
-  const shouldClear = window.confirm(
-    "Haluatko varmasti tyhjentää koko viikkosuunnitelman?",
-  );
+function askToRemoveMeal(plannedMealId: string) {
+  pendingRemovalId.value = plannedMealId;
+}
 
-  if (!shouldClear) {
-    return;
-  }
+function cancelRemoveMeal() {
+  pendingRemovalId.value = null;
+}
 
+function confirmRemoveMeal(plannedMealId: string) {
+  plannerStore.removeMeal(plannedMealId);
+  pendingRemovalId.value = null;
+}
+
+function askToClearWeek() {
+  pendingClearWeek.value = true;
+}
+
+function cancelClearWeek() {
+  pendingClearWeek.value = false;
+}
+
+function confirmClearWeek() {
   plannerStore.clearPlanner();
+  pendingClearWeek.value = false;
 }
 </script>
