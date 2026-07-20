@@ -34,13 +34,12 @@
       </p>
 
       <div class="mt-5 flex items-center justify-between gap-3">
-        <button
-          type="button"
-          class="mt-8 rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+        <NuxtLink
+          :to="`/recipes/${id}`"
+          class="rounded-full bg-stone-950 px-4 py-2 text-sm font-bold text-white transition hover:bg-stone-800"
         >
-          Lisää viikkoon
-        </button>
-
+          Valitse viikkoon
+        </NuxtLink>
         <NuxtLink
           :to="`/recipes/${id}`"
           class="rounded-full border border-stone-300 px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
