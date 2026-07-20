@@ -140,8 +140,14 @@
           </div>
 
           <p class="max-w-md text-sm leading-6 text-stone-600">
-            Aloitetaan muutamalla esimerkkireseptillä. Seuraavaksi vaihdetaan
-            nämä oikeaan TheMealDB-dataan.
+            Hae reseptejä tai valitse pikahaku.
+          </p>
+
+          <p
+            v-if="searchQuery && !pending && !error"
+            class="mt-3 text-sm font-bold text-orange-700"
+          >
+            {{ recipes.length }} reseptiä haulla “{{ searchQuery }}”
           </p>
         </div>
 
@@ -217,18 +223,18 @@ const searchQuery = computed(() => searchTerm.value.trim());
 const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
 const quickSearches = [
-  { label: 'Kana', query: 'kana' },
-  { label: 'Naudanliha', query: 'naudanliha' },
-  { label: 'Possu', query: 'possu' },
-  { label: 'Lammas', query: 'lammas' },
-  { label: 'Kasvis', query: 'kasvis' },
-  { label: 'Vegaaninen', query: 'vegaaninen' },
-  { label: 'Pasta', query: 'pasta' },
-  { label: 'Merenelävät', query: 'merenelävät' },
-  { label: 'Aamupala', query: 'aamupala' },
-  { label: 'Lisukkeet', query: 'lisukkeet' },
-  { label: 'Jälkiruoka', query: 'jälkiruoka' },
-]
+  { label: "Kana", query: "kana" },
+  { label: "Naudanliha", query: "naudanliha" },
+  { label: "Possu", query: "possu" },
+  { label: "Lammas", query: "lammas" },
+  { label: "Kasvis", query: "kasvis" },
+  { label: "Vegaaninen", query: "vegaaninen" },
+  { label: "Pasta", query: "pasta" },
+  { label: "Merenelävät", query: "merenelävät" },
+  { label: "Aamupala", query: "aamupala" },
+  { label: "Lisukkeet", query: "lisukkeet" },
+  { label: "Jälkiruoka", query: "jälkiruoka" },
+];
 
 const { data, pending, error } = await useFetch<{
   meals: (MealDbMeal | MealDbFilterMeal)[] | null;

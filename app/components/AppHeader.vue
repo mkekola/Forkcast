@@ -1,17 +1,43 @@
 <template>
-  <header class="flex items-center justify-between">
-    <NuxtLink to="/" class="text-xl font-black tracking-tight text-stone-950">
+  <header
+    class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <NuxtLink to="/" class="text-2xl font-black tracking-tight text-stone-950">
       Forkcast
     </NuxtLink>
 
-    <nav class="flex items-center gap-5 text-sm font-semibold text-stone-600">
-      <NuxtLink to="/" class="hover:text-stone-950"> Reseptit </NuxtLink>
-
-      <NuxtLink to="/favorites" class="hover:text-stone-950">
-        Suosikit
+    <nav class="flex flex-wrap items-center gap-2 text-sm font-bold">
+      <NuxtLink
+        v-for="link in links"
+        :key="link.to"
+        :to="link.to"
+        class="rounded-full px-4 py-2 transition"
+        :class="
+          isActiveLink(link.to)
+            ? 'bg-stone-950 text-white'
+            : 'text-stone-600 hover:bg-stone-200 hover:text-stone-950'
+        "
+      >
+        {{ link.label }}
       </NuxtLink>
-
-      <NuxtLink to="/planner" class="hover:text-stone-950"> Viikko </NuxtLink>
     </nav>
   </header>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+
+const links = [
+  { label: "Reseptit", to: "/" },
+  { label: "Suosikit", to: "/favorites" },
+  { label: "Viikko", to: "/planner" },
+];
+
+function isActiveLink(path: string) {
+  if (path === "/") {
+    return route.path === "/" || route.path.startsWith("/recipes");
+  }
+
+  return route.path.startsWith(path);
+}
+</script>
