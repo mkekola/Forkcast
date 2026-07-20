@@ -88,22 +88,41 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mb-8 flex max-w-xl gap-3">
-          <input
-            v-model="searchInput"
-            type="search"
-            placeholder="Hae reseptejä, esim. pasta, chicken, curry..."
-            class="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
-            @keyup.enter="searchRecipes"
-          />
+        <div class="mb-8 max-w-2xl">
+          <div class="flex gap-3">
+            <input
+              v-model="searchInput"
+              type="search"
+              placeholder="Hae reseptejä, esim. pasta, kana, curry..."
+              class="w-full rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+              @keyup.enter="searchRecipes"
+            />
 
-          <button
-            type="button"
-            class="rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
-            @click="searchRecipes"
-          >
-            Hae
-          </button>
+            <button
+              type="button"
+              class="rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+              @click="searchRecipes"
+            >
+              Hae
+            </button>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              v-for="quickSearch in quickSearches"
+              :key="quickSearch.query"
+              type="button"
+              class="rounded-full border px-4 py-2 text-sm font-bold transition"
+              :class="
+                searchQuery === quickSearch.query
+                  ? 'border-orange-600 bg-orange-600 text-white'
+                  : 'border-stone-300 bg-white text-stone-700 hover:border-stone-950 hover:text-stone-950'
+              "
+              @click="selectQuickSearch(quickSearch.query)"
+            >
+              {{ quickSearch.label }}
+            </button>
+          </div>
         </div>
         <div
           class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
@@ -145,8 +164,8 @@
           v-else-if="recipes.length === 0"
           class="rounded-3xl border border-stone-200 bg-white p-8 text-stone-600"
         >
-          Ei reseptejä hakusanalla “{{ searchQuery }}”. Kokeile esimerkiksi hakua
-          <strong>pasta</strong>, <strong>chicken</strong> tai
+          Ei reseptejä hakusanalla “{{ searchQuery }}”. Kokeile esimerkiksi
+          hakua <strong>pasta</strong>, <strong>chicken</strong> tai
           <strong>beef</strong>.
         </div>
 
@@ -170,6 +189,11 @@
 
 <script setup lang="ts">
 import RecipeCard from "~/components/RecipeCard.vue";
+import {
+  translateArea,
+  translateCategory,
+  getMealDbSearch,
+} from "~/utils/translations";
 
 type MealDbMeal = {
   idMeal: string;
@@ -180,16 +204,48 @@ type MealDbMeal = {
   strMealThumb: string;
 };
 
+type MealDbFilterMeal = {
+  idMeal: string;
+  strMeal: string;
+  strMealThumb: string;
+};
+
 const searchInput = ref("");
 const searchTerm = ref("");
 
 const searchQuery = computed(() => searchTerm.value.trim());
+const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
-const { data, pending, error } = await useFetch<{ meals: MealDbMeal[] | null }>(
-  () =>
-    `https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery.value}`,
+const quickSearches = [
+  { label: 'Kana', query: 'kana' },
+  { label: 'Naudanliha', query: 'naudanliha' },
+  { label: 'Possu', query: 'possu' },
+  { label: 'Lammas', query: 'lammas' },
+  { label: 'Kasvis', query: 'kasvis' },
+  { label: 'Vegaaninen', query: 'vegaaninen' },
+  { label: 'Pasta', query: 'pasta' },
+  { label: 'Merenelävät', query: 'merenelävät' },
+  { label: 'Aamupala', query: 'aamupala' },
+  { label: 'Lisukkeet', query: 'lisukkeet' },
+  { label: 'Jälkiruoka', query: 'jälkiruoka' },
+]
+
+const { data, pending, error } = await useFetch<{
+  meals: (MealDbMeal | MealDbFilterMeal)[] | null;
+}>(
+  () => {
+    if (!searchQuery.value) {
+      return "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+    }
+
+    if (mealDbSearch.value.type === "category") {
+      return `https://www.themealdb.com/api/json/v1/1/filter.php?c=${mealDbSearch.value.query}`;
+    }
+
+    return `https://www.themealdb.com/api/json/v1/1/search.php?s=${mealDbSearch.value.query}`;
+  },
   {
-    watch: [searchQuery],
+    watch: [mealDbSearch],
   },
 );
 
@@ -197,17 +253,36 @@ function searchRecipes() {
   searchTerm.value = searchInput.value;
 }
 
+function selectQuickSearch(query: string) {
+  searchInput.value = query;
+  searchTerm.value = query;
+}
+
 const recipes = computed(() => {
-  return (data.value?.meals ?? []).map((meal) => ({
-    id: meal.idMeal,
-    title: meal.strMeal,
-    category: meal.strCategory ?? "Resepti",
-    area: meal.strArea ?? "Tuntematon",
-    time: "30–45 min",
-    description: meal.strInstructions
-      ? `${meal.strInstructions.slice(0, 120)}...`
-      : "Herkullinen resepti viikon suunnitteluun.",
-    image: meal.strMealThumb,
-  }));
+  if (!searchQuery.value) {
+    return [];
+  }
+
+  return (data.value?.meals ?? []).map((meal) => {
+    const isCategoryResult = mealDbSearch.value.type === "category";
+
+    return {
+      id: meal.idMeal,
+      title: meal.strMeal,
+      category: isCategoryResult
+        ? translateCategory(mealDbSearch.value.query)
+        : translateCategory((meal as MealDbMeal).strCategory),
+      area: isCategoryResult
+        ? "Lisätiedot reseptissä"
+        : translateArea((meal as MealDbMeal).strArea),
+      time: "30–45 min",
+      description: isCategoryResult
+        ? "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet."
+        : (meal as MealDbMeal).strInstructions
+          ? `${(meal as MealDbMeal).strInstructions?.slice(0, 120)}...`
+          : "Herkullinen resepti viikon suunnitteluun.",
+      image: meal.strMealThumb,
+    };
+  });
 });
 </script>

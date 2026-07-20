@@ -43,13 +43,13 @@
               <span
                 class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-orange-700"
               >
-                {{ recipe.strCategory }}
+                {{ translatedCategory }}
               </span>
 
               <span
                 class="rounded-full bg-stone-200 px-3 py-1 text-xs font-bold uppercase tracking-wide text-stone-700"
               >
-                {{ recipe.strArea }}
+                {{ translatedArea }}
               </span>
             </div>
 
@@ -222,6 +222,7 @@
 <script setup lang="ts">
 import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
+import { translateArea, translateCategory } from "~/utils/translations";
 
 type MealDbRecipe = {
   idMeal: string;
@@ -306,6 +307,14 @@ const isFavorite = computed(() => {
   return favoritesStore.isFavorite(recipe.value.idMeal);
 });
 
+const translatedCategory = computed(() => {
+  return translateCategory(recipe.value?.strCategory);
+});
+
+const translatedArea = computed(() => {
+  return translateArea(recipe.value?.strArea);
+});
+
 onMounted(() => {
   plannerStore.loadFromStorage();
   favoritesStore.loadFromStorage();
@@ -322,7 +331,7 @@ function addRecipeToPlanner() {
     recipeId: recipe.value.idMeal,
     recipeName: recipe.value.strMeal,
     recipeImage: recipe.value.strMealThumb,
-    category: recipe.value.strCategory ?? "Resepti",
+    category: translatedCategory.value,
     ingredients: ingredients.value,
   });
 
@@ -337,8 +346,8 @@ function toggleFavorite() {
   favoritesStore.toggleFavorite({
     id: recipe.value.idMeal,
     title: recipe.value.strMeal,
-    category: recipe.value.strCategory ?? "Resepti",
-    area: recipe.value.strArea ?? "Tuntematon",
+    category: translatedCategory.value,
+    area: translatedArea.value,
     time: "30–45 min",
     description: recipe.value.strInstructions
       ? `${recipe.value.strInstructions.slice(0, 120)}...`
