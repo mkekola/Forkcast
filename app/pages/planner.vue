@@ -19,13 +19,22 @@
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
-          <button
-            type="button"
-            class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
-            @click="askToClearWeek"
-          >
-            Tyhjennä viikko
-          </button>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="#ostoslista"
+              class="rounded-full bg-stone-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+            >
+              Ostoslistaan
+            </a>
+
+            <button
+              type="button"
+              class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
+              @click="askToClearWeek"
+            >
+              Tyhjennä viikko
+            </button>
+          </div>
 
           <div
             v-if="pendingClearWeek"
@@ -200,8 +209,9 @@
         </article>
       </section>
       <section
+        id="ostoslista"
         v-if="hasPlannedMeals"
-        class="mt-10 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
+        class="mt-10 scroll-mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
       >
         <div
           class="flex flex-col justify-between gap-4 md:flex-row md:items-end"
