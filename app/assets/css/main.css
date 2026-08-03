@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  --color-fork-bg: #fff8ed;
+  --color-fork-card: #fffcf4;
+  --color-fork-ink: #2b211c;
+  --color-fork-muted: #74665b;
+  --color-fork-line: #d8c9a7;
+
+  --color-fork-green: #365e47;
+  --color-fork-green-dark: #284838;
+
+  --color-fork-clay: #c86b4a;
+  --color-fork-clay-soft: #f4d7c8;
+
+  --color-fork-sage: #e8f0d8;
+  --color-fork-olive: #536b35;
+}
+
 html {
   scroll-behavior: smooth;
+  background: #fff8ed;
 }

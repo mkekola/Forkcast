@@ -1,14 +1,14 @@
 <template>
-  <main class="min-h-screen bg-stone-50 px-6 py-10 text-stone-950">
+  <main class="min-h-screen bg-fork-bg px-6 py-10 text-fork-ink">
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
       <div v-if="pending" class="py-20">
         <div
-          class="h-[420px] animate-pulse rounded-[2rem] bg-white ring-1 ring-stone-200"
+          class="h-[420px] animate-pulse rounded-[2rem] bg-fork-card ring-1 ring-fork-line"
         />
         <div
-          class="mt-8 h-10 max-w-lg animate-pulse rounded-full bg-white ring-1 ring-stone-200"
+          class="mt-8 h-10 max-w-lg animate-pulse rounded-full bg-fork-card ring-1 ring-fork-line"
         />
       </div>
 
@@ -22,14 +22,14 @@
       <article v-else class="py-14">
         <NuxtLink
           to="/"
-          class="mb-8 inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
+          class="mb-8 inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-fork-ink"
         >
           ← Takaisin resepteihin
         </NuxtLink>
 
         <section class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div
-            class="overflow-hidden rounded-[2rem] bg-white p-4 shadow-xl shadow-stone-200"
+            class="overflow-hidden rounded-[2rem] bg-fork-card p-4 shadow-xl shadow-stone-200"
           >
             <img
               :src="recipe.strMealThumb"
@@ -41,7 +41,7 @@
           <div>
             <div class="mb-4 flex flex-wrap gap-2">
               <span
-                class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-orange-700"
+                class="rounded-full bg-fork-clay-soft px-3 py-1 text-xs font-bold uppercase tracking-wide text-fork-clay"
               >
                 {{ translatedCategory }}
               </span>
@@ -66,7 +66,7 @@
                 :class="
                   isFavorite
                     ? 'border-rose-500 bg-rose-500 text-white shadow-rose-200'
-                    : 'border-rose-200 bg-white text-rose-600 hover:bg-rose-50'
+                    : 'border-rose-200 bg-fork-card text-rose-600 hover:bg-rose-50'
                 "
                 @click="toggleFavorite"
               >
@@ -127,7 +127,7 @@
                 :href="sourceLink"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-950 hover:text-stone-950"
+                class="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-fork-card px-5 py-3 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-950 hover:text-fork-ink"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -148,13 +148,13 @@
               </a>
             </div>
 
-            <p class="mt-5 leading-7 text-stone-600">
+            <p class="mt-5 leading-7 text-fork-muted">
               Lisää tämä resepti viikkosuunnitelmaan tai selaa ainesosat ja
               valmistusohjeet rauhassa läpi.
             </p>
 
             <div
-              class="mt-8 rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-stone-200"
+              class="mt-8 rounded-[1.5rem] bg-fork-card p-5 shadow-sm ring-1 ring-fork-line"
             >
               <h2 class="text-lg font-black">Lisää viikkosuunnitelmaan</h2>
 
@@ -163,7 +163,7 @@
                   Päivä
                   <select
                     v-model="selectedDay"
-                    class="rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-stone-950"
+                    class="rounded-2xl border border-stone-300 bg-fork-card px-4 py-3 text-sm outline-none focus:border-stone-950"
                   >
                     <option
                       v-for="day in days"
@@ -179,7 +179,7 @@
                   Ateria
                   <select
                     v-model="selectedMeal"
-                    class="rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-stone-950"
+                    class="rounded-2xl border border-stone-300 bg-fork-card px-4 py-3 text-sm outline-none focus:border-stone-950"
                   >
                     <option
                       v-for="meal in mealOptions"
@@ -195,7 +195,7 @@
               <div class="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  class="rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+                  class="rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
                   @click="addRecipeToPlanner"
                 >
                   Lisää viikkoon
@@ -204,7 +204,7 @@
                 <NuxtLink
                   v-if="wasAdded"
                   to="/planner"
-                  class="rounded-full border border-stone-300 px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
+                  class="rounded-full border border-stone-300 px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-fork-ink"
                 >
                   Näytä suunnitelma
                 </NuxtLink>
@@ -212,7 +212,7 @@
 
               <p
                 v-if="wasAdded"
-                class="mt-4 text-sm font-semibold text-orange-700"
+                class="mt-4 text-sm font-semibold text-fork-clay"
               >
                 Lisätty viikkosuunnitelmaan!
               </p>
@@ -222,7 +222,7 @@
 
         <section class="mt-14 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <aside
-            class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
+            class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
           >
             <h2 class="text-2xl font-black">Ainesosat</h2>
 
@@ -230,7 +230,7 @@
               <li
                 v-for="ingredient in ingredients"
                 :key="ingredient.name"
-                class="flex items-start justify-between gap-4 rounded-2xl bg-stone-50 px-4 py-3 text-sm"
+                class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 text-sm"
               >
                 <span class="font-semibold text-stone-800">
                   {{ ingredient.name }}
@@ -244,7 +244,7 @@
           </aside>
 
           <section
-            class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
+            class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
           >
             <h2 class="text-2xl font-black">Valmistusohjeet</h2>
 
@@ -252,9 +252,9 @@
               <p
                 v-for="(step, index) in instructionSteps"
                 :key="step"
-                class="rounded-2xl bg-stone-50 p-4 leading-7 text-stone-700"
+                class="rounded-2xl bg-fork-bg p-4 leading-7 text-stone-700"
               >
-                <span class="mr-2 font-black text-orange-600">
+                <span class="mr-2 font-black text-fork-clay">
                   {{ index + 1 }}.
                 </span>
                 {{ step }}

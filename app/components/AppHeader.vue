@@ -2,7 +2,7 @@
   <header
     class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
   >
-    <NuxtLink to="/" class="text-2xl font-black tracking-tight text-stone-950">
+    <NuxtLink to="/" class="text-2xl font-black tracking-tight text-fork-ink">
       Forkcast
     </NuxtLink>
 
@@ -14,8 +14,8 @@
         class="rounded-full px-4 py-2 transition"
         :class="
           isActiveLink(link.to)
-            ? 'bg-stone-950 text-white'
-            : 'text-stone-600 hover:bg-stone-200 hover:text-stone-950'
+            ? 'bg-fork-green text-white'
+            : 'text-fork-muted hover:bg-stone-200 hover:text-fork-ink'
         "
       >
         {{ link.label }}

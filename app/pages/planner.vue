@@ -1,11 +1,11 @@
 <template>
-  <main class="min-h-screen bg-stone-50 px-6 py-10 text-stone-950">
+  <main class="min-h-screen bg-fork-bg px-6 py-10 text-fork-ink">
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
       <section class="py-14">
         <p
-          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
         >
           Viikkosuunnitelma
         </p>
@@ -14,7 +14,7 @@
           Mitä syötäisiin tällä viikolla?
         </h1>
 
-        <p class="mt-4 max-w-2xl leading-7 text-stone-600">
+        <p class="mt-4 max-w-2xl leading-7 text-fork-muted">
           Lisää reseptejä viikkoon reseptien omilta sivuilta.
         </p>
 
@@ -22,7 +22,7 @@
           <div class="flex flex-wrap gap-3">
             <a
               href="#ostoslista"
-              class="rounded-full bg-stone-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+              class="rounded-full bg-fork-green px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
             >
               Ostoslistaan
             </a>
@@ -59,7 +59,7 @@
 
               <button
                 type="button"
-                class="rounded-full bg-white px-4 py-2 text-xs font-bold text-stone-600 ring-1 ring-stone-200 transition hover:bg-stone-50"
+                class="rounded-full bg-fork-card px-4 py-2 text-xs font-bold text-fork-muted ring-1 ring-fork-line transition hover:bg-fork-bg"
                 @click="cancelClearWeek"
               >
                 Peruuta
@@ -71,10 +71,10 @@
 
       <div
         v-if="!hasPlannedMeals"
-        class="rounded-[2rem] border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+        class="rounded-[2rem] border border-dashed border-stone-300 bg-fork-card p-8 text-center shadow-sm"
       >
         <p
-          class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+          class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
         >
           Suunnitelma tyhjä
         </p>
@@ -83,14 +83,14 @@
           Viikko kaipaa vielä ensimmäistä ateriaa.
         </h2>
 
-        <p class="mx-auto mt-3 max-w-xl leading-7 text-stone-600">
+        <p class="mx-auto mt-3 max-w-xl leading-7 text-fork-muted">
           Selaa reseptejä, avaa herkulliselta näyttävä vaihtoehto ja lisää se
           aamiaiseksi, päivälliseksi tai iltapalaksi.
         </p>
 
         <NuxtLink
           to="/"
-          class="mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+          class="mt-6 inline-flex rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
         >
           Selaa reseptejä
         </NuxtLink>
@@ -100,11 +100,11 @@
         <article
           v-for="day in days"
           :key="day.value"
-          class="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm"
+          class="rounded-[2rem] border border-fork-line bg-fork-card p-5 shadow-sm"
         >
           <div class="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 class="text-2xl font-black text-stone-950">
+              <h2 class="text-2xl font-black text-fork-ink">
                 {{ day.label }}
               </h2>
             </div>
@@ -114,7 +114,7 @@
             <section
               v-for="meal in meals"
               :key="meal.value"
-              class="rounded-3xl border border-dashed border-stone-300 bg-stone-50 p-4"
+              class="rounded-3xl border border-dashed border-stone-300 bg-fork-bg p-4"
             >
               <h3
                 class="text-xs font-black uppercase tracking-wide text-stone-500"
@@ -129,7 +129,7 @@
                 <div
                   v-for="plannedMeal in getPlannedMeals(day.value, meal.value)"
                   :key="plannedMeal.id"
-                  class="relative overflow-hidden rounded-2xl bg-white shadow-sm"
+                  class="relative overflow-hidden rounded-2xl bg-fork-card shadow-sm"
                 >
                   <button
                     type="button"
@@ -157,12 +157,12 @@
                     />
 
                     <div class="min-w-0 flex flex-1 flex-col items-start pr-8">
-                      <p class="font-black leading-snug text-stone-950">
+                      <p class="font-black leading-snug text-fork-ink">
                         {{ plannedMeal.recipeName }}
                       </p>
 
                       <span
-                        class="mt-3 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700"
+                        class="mt-3 inline-flex rounded-full bg-fork-sage px-3 py-1 text-xs font-bold text-fork-olive"
                       >
                         {{ plannedMeal.category }}
                       </span>
@@ -188,7 +188,7 @@
 
                       <button
                         type="button"
-                        class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-stone-600 ring-1 ring-stone-200 transition hover:bg-stone-50"
+                        class="rounded-full bg-fork-card px-3 py-1.5 text-xs font-bold text-fork-muted ring-1 ring-fork-line transition hover:bg-fork-bg"
                         @click="cancelRemoveMeal"
                       >
                         Peruuta
@@ -200,7 +200,7 @@
 
               <div
                 v-else
-                class="mt-3 rounded-2xl bg-white p-5 text-sm text-stone-400"
+                class="mt-3 rounded-2xl bg-fork-card p-5 text-sm text-fork-muted"
               >
                 Tyhjä
               </div>
@@ -211,14 +211,14 @@
       <section
         id="ostoslista"
         v-if="hasPlannedMeals"
-        class="mt-10 scroll-mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200"
+        class="mt-10 scroll-mt-8 rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
       >
         <div
           class="flex flex-col justify-between gap-4 md:flex-row md:items-end"
         >
           <div>
             <p
-              class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
             >
               Ostoslista
             </p>
@@ -228,7 +228,7 @@
             </h2>
           </div>
 
-          <p class="max-w-md text-sm leading-6 text-stone-600">
+          <p class="max-w-md text-sm leading-6 text-fork-muted">
             Lista muodostetaan viikkosuunnitelmaan lisättyjen reseptien
             ainesosista.
           </p>
@@ -236,7 +236,7 @@
 
         <div
           v-if="shoppingList.length === 0"
-          class="mt-6 rounded-2xl bg-stone-50 p-5 text-sm text-stone-600"
+          class="mt-6 rounded-2xl bg-fork-bg p-5 text-sm text-fork-muted"
         >
           Ostoslistaa ei voitu vielä muodostaa. Lisää resepti uudelleen
           viikkoon, jotta sen ainesosat tallentuvat mukaan.
@@ -246,11 +246,11 @@
           <li
             v-for="item in shoppingList"
             :key="item.key"
-            class="flex items-start justify-between gap-4 rounded-2xl bg-stone-50 px-4 py-3"
+            class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3"
           >
             <div>
               <p
-                class="font-bold text-stone-950"
+                class="font-bold text-fork-ink"
                 :class="{
                   'text-stone-400 line-through':
                     plannerStore.isShoppingItemChecked(item.key),

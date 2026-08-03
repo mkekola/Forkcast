@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="`/recipes/${id}`"
-    class="group block overflow-hidden rounded-[1.75rem] bg-white shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+    class="group block overflow-hidden rounded-[1.75rem] bg-fork-card shadow-sm ring-1 ring-fork-line transition hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200 focus:outline-none focus:ring-2 focus:ring-fork-clay"
   >
     <article>
       <div class="relative h-52 overflow-hidden bg-stone-200">
@@ -12,7 +12,7 @@
         />
 
         <div
-          class="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"
+          class="absolute left-4 top-4 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"
         >
           {{ category }}
         </div>
@@ -23,7 +23,7 @@
           :class="
             isFavorite
               ? 'border-rose-500 bg-rose-500 text-white shadow-rose-200'
-              : 'border-white bg-white text-rose-500 shadow-stone-300 hover:bg-rose-50'
+              : 'border-white bg-fork-card text-rose-500 shadow-stone-300 hover:bg-rose-50'
           "
           :aria-label="isFavorite ? 'Poista suosikeista' : 'Lisää suosikkeihin'"
           @click.prevent.stop="toggleFavorite"
@@ -61,30 +61,30 @@
 
       <div class="p-5">
         <div
-          class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-orange-600"
+          class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
         >
           <span>{{ area }}</span>
-          <span class="h-1 w-1 rounded-full bg-orange-300" />
+          <span class="h-1 w-1 rounded-full bg-fork-sage" />
           <span>{{ time }}</span>
         </div>
 
-        <h3 class="text-xl font-black tracking-tight text-stone-950">
+        <h3 class="text-xl font-black tracking-tight text-fork-ink">
           {{ title }}
         </h3>
 
-        <p class="mt-3 text-sm leading-6 text-stone-600">
+        <p class="mt-3 text-sm leading-6 text-fork-muted">
           {{ description }}
         </p>
 
         <div class="mt-5 flex items-center justify-between gap-3">
           <span
-            class="rounded-full bg-stone-950 px-4 py-2 text-sm font-bold text-white"
+            class="rounded-full bg-fork-green px-4 py-2 text-sm font-bold text-white"
           >
             Valitse viikkoon
           </span>
 
           <span
-            class="text-sm font-bold text-stone-600 transition group-hover:text-stone-950"
+            class="text-sm font-bold text-fork-muted transition group-hover:text-fork-ink"
           >
             Katso resepti →
           </span>

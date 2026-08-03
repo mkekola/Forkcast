@@ -1,11 +1,11 @@
 <template>
-  <main class="min-h-screen bg-stone-50 px-6 py-10 text-stone-950">
+  <main class="min-h-screen bg-fork-bg px-6 py-10 text-fork-ink">
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
       <section class="py-14">
         <p
-          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
         >
           Suosikit
         </p>
@@ -14,7 +14,7 @@
           Reseptit, joihin haluat palata.
         </h1>
 
-        <p class="mt-4 max-w-2xl leading-7 text-stone-600">
+        <p class="mt-4 max-w-2xl leading-7 text-fork-muted">
           Tallenna kiinnostavat reseptit suosikkeihin ja lisää ne myöhemmin
           viikkosuunnitelmaan.
         </p>
@@ -22,10 +22,10 @@
 
       <div
         v-if="favoritesStore.favorites.length === 0"
-        class="rounded-[2rem] border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+        class="rounded-[2rem] border border-dashed border-stone-300 bg-fork-card p-8 text-center shadow-sm"
       >
         <p
-          class="text-sm font-bold uppercase tracking-[0.22em] text-orange-600"
+          class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
         >
           Ei suosikkeja vielä
         </p>
@@ -34,13 +34,13 @@
           Sydän kaipaa ensimmäistä reseptiä.
         </h2>
 
-        <p class="mx-auto mt-3 max-w-xl leading-7 text-stone-600">
+        <p class="mx-auto mt-3 max-w-xl leading-7 text-fork-muted">
           Selaa reseptejä ja paina sydäntä tallentaaksesi parhaat ideat talteen.
         </p>
 
         <NuxtLink
           to="/"
-          class="mt-6 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-stone-800"
+          class="mt-6 inline-flex rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
         >
           Selaa reseptejä
         </NuxtLink>
