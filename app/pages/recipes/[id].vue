@@ -271,18 +271,8 @@
 import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
 import { translateArea, translateCategory } from "~/utils/translations";
+import type { MealDbLookupResponse } from "~/types/mealdb";
 
-type MealDbRecipe = {
-  idMeal: string;
-  strMeal: string;
-  strCategory: string | null;
-  strArea: string | null;
-  strInstructions: string | null;
-  strMealThumb: string;
-  strYoutube: string | null;
-  strSource: string | null;
-  [key: string]: string | null;
-};
 
 const route = useRoute();
 
@@ -310,9 +300,7 @@ const mealOptions: { value: MealType; label: string }[] = [
   { value: "dinner", label: "Päivällinen" },
 ];
 
-const { data, pending, error } = await useFetch<{
-  meals: MealDbRecipe[] | null;
-}>(
+const { data, pending, error } = await useFetch<MealDbLookupResponse>(
   () =>
     `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${route.params.id}`,
 );

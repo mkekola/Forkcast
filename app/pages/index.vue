@@ -229,20 +229,7 @@ import {
   getMealDbSearch,
 } from "~/utils/translations";
 
-type MealDbMeal = {
-  idMeal: string;
-  strMeal: string;
-  strCategory: string | null;
-  strArea: string | null;
-  strInstructions: string | null;
-  strMealThumb: string;
-};
-
-type MealDbFilterMeal = {
-  idMeal: string;
-  strMeal: string;
-  strMealThumb: string;
-};
+import type { MealDbSearchResponse, MealDbMeal } from "~/types/mealdb";
 
 const route = useRoute();
 const router = useRouter();
@@ -275,9 +262,7 @@ const quickSearches = [
   { label: "Jälkiruoka", query: "jälkiruoka" },
 ];
 
-const { data, pending, error } = await useFetch<{
-  meals: (MealDbMeal | MealDbFilterMeal)[] | null;
-}>(
+const { data, pending, error } = await useFetch<MealDbSearchResponse>(
   () => {
     if (!searchQuery.value) {
       return "https://www.themealdb.com/api/json/v1/1/search.php?s=";
@@ -356,10 +341,10 @@ const recipes = computed(() => {
       title: meal.strMeal,
       category: isCategoryResult
         ? translateCategory(mealDbSearch.value.query)
-        : translateCategory((meal as MealDbMeal).strCategory),
+        : translateCategory((meal as import("~/types/mealdb").MealDbMeal).strCategory),
       area: isCategoryResult
         ? "Lisätiedot reseptissä"
-        : translateArea((meal as MealDbMeal).strArea),
+        : translateArea((meal as import("~/types/mealdb").MealDbMeal).strArea),
       time: "30–45 min",
       description: isCategoryResult
         ? "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet."
