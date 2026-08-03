@@ -330,7 +330,6 @@ const recipes = computed(() => {
       area: isCategoryResult
         ? "Lisätiedot reseptissä"
         : translateArea((meal as import("~/types/mealdb").MealDbMeal).strArea),
-      time: "30–45 min",
       description: isCategoryResult
         ? "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet."
         : (meal as MealDbMeal).strInstructions

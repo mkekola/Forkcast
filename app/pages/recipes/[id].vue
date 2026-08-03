@@ -396,7 +396,6 @@ function toggleFavorite() {
     title: recipe.value.strMeal,
     category: translatedCategory.value,
     area: translatedArea.value,
-    time: "30–45 min",
     description: recipe.value.strInstructions
       ? `${recipe.value.strInstructions.slice(0, 120)}...`
       : "Herkullinen resepti viikon suunnitteluun.",

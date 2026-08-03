@@ -61,12 +61,10 @@
 
       <div class="p-5">
         <div
-          class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
+          class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
         >
-          <span>{{ recipe.area }}</span>
-          <span class="h-1 w-1 rounded-full bg-fork-sage" />
-          <span>{{ recipe.time }}</span>
-        </div>
+          {{ recipe.area }}
+        </div>        
 
         <h3 class="text-xl font-black tracking-tight text-fork-ink">
           {{ recipe.title }}
