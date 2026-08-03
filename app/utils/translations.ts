@@ -41,7 +41,7 @@ const areaTranslations: Record<string, string> = {
   Spanish: "Espanjalainen",
   Thai: "Thaimaalainen",
   Tunisian: "Tunisialainen",
-  Turkish: "Turkkiläinen",
+  Turkish: "Turkkilainen",
   Ukrainian: "Ukrainalainen",
   Vietnamese: "Vietnamilainen",
 };
