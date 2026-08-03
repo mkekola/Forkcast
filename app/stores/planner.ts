@@ -16,6 +16,12 @@ export type PlannedMeal = {
   ingredients?: Ingredient[];
 };
 
+export type ShoppingListItem = {
+  key: string;
+  name: string;
+  measures: string[];
+};
+
 type PlannerStorage = {
   plannedMeals: PlannedMeal[];
   checkedShoppingItems: string[];
@@ -92,6 +98,36 @@ export const usePlannerStore = defineStore("planner", () => {
 
     saveToStorage();
   }
+  
+  const shoppingList = computed<ShoppingListItem[]>(() => {
+    const ingredientsByName = new Map<string, ShoppingListItem>();
+
+    plannedMeals.value.forEach((plannedMeal) => {
+      plannedMeal.ingredients?.forEach((ingredient) => {
+        const key = ingredient.name.toLowerCase().trim();
+        const existingIngredient = ingredientsByName.get(key);
+
+        if (existingIngredient) {
+          if (ingredient.measure) {
+            existingIngredient.measures.push(ingredient.measure);
+          }
+
+          return;
+        }
+
+        ingredientsByName.set(key, {
+          key,
+          name: ingredient.name,
+          measures: ingredient.measure ? [ingredient.measure] : [],
+        });
+      });
+    });
+
+    return Array.from(ingredientsByName.values()).sort(
+      (firstItem, secondItem) =>
+        firstItem.name.localeCompare(secondItem.name, "fi"),
+    );
+  });
 
   function removeMeal(plannedMealId: string) {
     plannedMeals.value = plannedMeals.value.filter(
@@ -139,5 +175,6 @@ export const usePlannerStore = defineStore("planner", () => {
     isShoppingItemChecked,
     toggleShoppingItem,
     clearPlanner,
+    shoppingList,
   };
 });

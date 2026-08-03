@@ -235,7 +235,7 @@
         </div>
 
         <div
-          v-if="shoppingList.length === 0"
+          v-if="plannerStore.shoppingList.length === 0"
           class="mt-6 rounded-2xl bg-fork-bg p-5 text-sm text-fork-muted"
         >
           Ostoslistaa ei voitu vielä muodostaa. Lisää resepti uudelleen
@@ -244,7 +244,7 @@
 
         <ul v-else class="mt-6 grid gap-3 md:grid-cols-2">
           <li
-            v-for="item in shoppingList"
+            v-for="item in plannerStore.shoppingList"
             :key="item.key"
             class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3"
           >
@@ -293,38 +293,6 @@ const pendingClearWeek = ref(false);
 const pendingRemovalId = ref<string | null>(null);
 
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
-
-const shoppingList = computed(() => {
-  const ingredientsByName = new Map<
-    string,
-    { key: string; name: string; measures: string[] }
-  >();
-
-  plannerStore.plannedMeals.forEach((plannedMeal) => {
-    plannedMeal.ingredients?.forEach((ingredient) => {
-      const key = ingredient.name.toLowerCase().trim();
-      const existingIngredient = ingredientsByName.get(key);
-
-      if (existingIngredient) {
-        if (ingredient.measure) {
-          existingIngredient.measures.push(ingredient.measure);
-        }
-
-        return;
-      }
-
-      ingredientsByName.set(key, {
-        key,
-        name: ingredient.name,
-        measures: ingredient.measure ? [ingredient.measure] : [],
-      });
-    });
-  });
-
-  return Array.from(ingredientsByName.values()).sort((firstItem, secondItem) =>
-    firstItem.name.localeCompare(secondItem.name, "fi"),
-  );
-});
 
 onMounted(() => {
   plannerStore.loadFromStorage();
