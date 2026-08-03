@@ -1,12 +1,6 @@
-export type FavoriteRecipe = {
-  id: string;
-  title: string;
-  category: string;
-  area: string;
-  time: string;
-  description: string;
-  image: string;
-};
+import type { Recipe } from "~/types/recipe";
+
+export type FavoriteRecipe = Recipe;
 
 const STORAGE_KEY = "forkcast-favorites";
 

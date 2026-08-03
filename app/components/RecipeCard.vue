@@ -1,20 +1,20 @@
 <template>
   <NuxtLink
-    :to="`/recipes/${id}`"
+    :to="`/recipes/${recipe.id}`"
     class="group block overflow-hidden rounded-[1.75rem] bg-fork-card shadow-sm ring-1 ring-fork-line transition hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200 focus:outline-none focus:ring-2 focus:ring-fork-clay"
   >
     <article>
       <div class="relative h-52 overflow-hidden bg-stone-200">
         <img
-          :src="image"
-          :alt="title"
+          :src="recipe.image"
+          :alt="recipe.title"
           class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         >
 
         <div
           class="absolute left-4 top-4 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"
         >
-          {{ category }}
+          {{ recipe.category }}
         </div>
 
         <button
@@ -63,17 +63,17 @@
         <div
           class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
         >
-          <span>{{ area }}</span>
+          <span>{{ recipe.area }}</span>
           <span class="h-1 w-1 rounded-full bg-fork-sage" />
-          <span>{{ time }}</span>
+          <span>{{ recipe.time }}</span>
         </div>
 
         <h3 class="text-xl font-black tracking-tight text-fork-ink">
-          {{ title }}
+          {{ recipe.title }}
         </h3>
 
         <p class="mt-3 text-sm leading-6 text-fork-muted">
-          {{ description }}
+          {{ recipe.description }}
         </p>
 
         <div class="mt-5 flex items-center justify-between gap-3">
@@ -96,34 +96,21 @@
 
 <script setup lang="ts">
 import { useFavoritesStore } from "~/stores/favorites";
+import type { Recipe } from "~/types/recipe";
+
+const props = defineProps<{
+  recipe: Recipe;
+}>();
 
 const favoritesStore = useFavoritesStore();
 
-const isFavorite = computed(() => favoritesStore.isFavorite(props.id));
-
-const props = defineProps<{
-  id: string;
-  title: string;
-  category: string;
-  area: string;
-  time: string;
-  description: string;
-  image: string;
-}>();
+const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
 
 onMounted(() => {
   favoritesStore.loadFromStorage();
 });
 
 function toggleFavorite() {
-  favoritesStore.toggleFavorite({
-    id: props.id,
-    title: props.title,
-    category: props.category,
-    area: props.area,
-    time: props.time,
-    description: props.description,
-    image: props.image,
-  });
+favoritesStore.toggleFavorite(props.recipe);
 }
 </script>
