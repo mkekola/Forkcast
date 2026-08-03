@@ -5,6 +5,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
+  app: {
+    head: {
+      title: 'Forkcast',
+      titleTemplate: '%s · Forkcast',
+    },
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },
