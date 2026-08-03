@@ -4,6 +4,14 @@
 
 Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellus. Sovelluksessa voi hakea reseptejä, tallentaa suosikkeja, suunnitella viikon ateriat ja muodostaa ostoslistan suunniteltujen reseptien aineksista.
 
+**[Kokeile sovellusta täällä →](https://forkcast.kekola.fi)**
+
+## Kuvakaappaukset
+
+| Etusivu | Reseptin tiedot | Viikkosuunnitelma |
+| --- | --- | --- |
+| <img src="docs/screenshots/forkcast-fp.png" width="400"> | <img src="docs/screenshots/forkcast-recipe.png" width="380"> | <img src="docs/screenshots/forkcast-planner.png" width="270"> |
+
 ## Ominaisuudet
 
 - Reseptien haku TheMealDB-rajapinnasta
@@ -26,11 +34,17 @@ Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellu
 - Tailwind CSS
 - Pinia
 - TheMealDB API
-- LocalStorage
+- Vitest
+- ESLint
 
-## Kuvakaappaukset
+## Arkkitehtuuri
 
-Kuvakaappaukset lisätään myöhemmin.
+Koodi on jaoteltu vastuualueittain, jotta sivut pysyvät kevyinä ja logiikka on testattavissa erillään käyttöliittymästä:
+
+- `app/composables/` — `useMealDbApi` kokoaa kaiken TheMealDB-rajapinnan tuntemisen yhteen paikkaan, jotta sivut eivät rakenna API-osoitteita itse
+- `app/types/` — jaetut TypeScript-tyypit sekä rajapinnan datalle (`mealdb.ts`) että sovelluksen omalle näyttömallille (`recipe.ts`)
+- `app/stores/` — Pinia-storet (`favorites`, `planner`), jotka sisältävät myös niistä johdetun tilan, kuten ostoslistan kokoamisen
+- `test/` — Vitest-testit puhtaalle logiikalle (käännökset, ostoslistan koostaminen)
 
 ## Käyttöönotto
 
@@ -48,6 +62,13 @@ npm run dev
 
 Sovellus on nyt käytettävissä osoitteessa `http://localhost:3000`.
 
+### Testaus ja koodin laatu
+
+```bash
+npm run lint    # ESLint
+npm run test    # Vitest
+```
+
 ### Rajapinta
 
-Reseptidata haetaan [TheMealDB](https://www.themealdb.com/api.php) -rajapinnasta
+Reseptidata haetaan [TheMealDB](https://www.themealdb.com/api.php) -rajapinnasta.
