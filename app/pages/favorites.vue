@@ -49,8 +49,8 @@
       <div v-else class="grid gap-6 md:grid-cols-3">
         <RecipeCard
           v-for="recipe in favoritesStore.favorites"
-          :key="recipe.id"
           :id="recipe.id"
+          :key="recipe.id"
           :title="recipe.title"
           :category="recipe.category"
           :area="recipe.area"

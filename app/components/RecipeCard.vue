@@ -9,7 +9,7 @@
           :src="image"
           :alt="title"
           class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-        />
+        >
 
         <div
           class="absolute left-4 top-4 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"

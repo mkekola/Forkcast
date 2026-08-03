@@ -35,7 +35,7 @@
               :src="recipe.strMealThumb"
               :alt="recipe.strMeal"
               class="h-[420px] w-full rounded-[1.5rem] object-cover"
-            />
+            >
           </div>
 
           <div>

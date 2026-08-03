@@ -154,7 +154,7 @@
                       :src="plannedMeal.recipeImage"
                       :alt="plannedMeal.recipeName"
                       class="h-24 w-24 shrink-0 rounded-xl object-cover"
-                    />
+                    >
 
                     <div class="min-w-0 flex flex-1 flex-col items-start pr-8">
                       <p class="font-black leading-snug text-fork-ink">
@@ -209,8 +209,8 @@
         </article>
       </section>
       <section
-        id="ostoslista"
         v-if="hasPlannedMeals"
+        id="ostoslista"
         class="mt-10 scroll-mt-8 rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
       >
         <div
@@ -275,7 +275,7 @@
               class="mt-1 h-5 w-5 rounded border-stone-300"
               :checked="plannerStore.isShoppingItemChecked(item.key)"
               @change="plannerStore.toggleShoppingItem(item.key)"
-            />
+            >
           </li>
         </ul>
       </section>

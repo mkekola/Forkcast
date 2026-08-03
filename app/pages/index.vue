@@ -124,7 +124,7 @@
               placeholder="Hae reseptejä, esim. pasta, kana, curry..."
               class="w-full rounded-full border border-stone-300 bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
               @keyup.enter="searchRecipes"
-            />
+            >
 
             <button
               type="button"
@@ -206,8 +206,8 @@
         <div v-else class="grid gap-6 md:grid-cols-3">
           <RecipeCard
             v-for="recipe in recipes"
-            :key="recipe.id"
             :id="recipe.id"
+            :key="recipe.id"
             :title="recipe.title"
             :category="recipe.category"
             :area="recipe.area"
