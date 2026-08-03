@@ -230,6 +230,7 @@ import {
 } from "~/utils/translations";
 
 import type { MealDbSearchResponse, MealDbMeal } from "~/types/mealdb";
+import { useMealDbApi } from "~/composables/useMealDbApi";
 
 const route = useRoute();
 const router = useRouter();
@@ -262,18 +263,10 @@ const quickSearches = [
   { label: "Jälkiruoka", query: "jälkiruoka" },
 ];
 
+const mealDbApi = useMealDbApi();
+
 const { data, pending, error } = await useFetch<MealDbSearchResponse>(
-  () => {
-    if (!searchQuery.value) {
-      return "https://www.themealdb.com/api/json/v1/1/search.php?s=";
-    }
-
-    if (mealDbSearch.value.type === "category") {
-      return `https://www.themealdb.com/api/json/v1/1/filter.php?c=${mealDbSearch.value.query}`;
-    }
-
-    return `https://www.themealdb.com/api/json/v1/1/search.php?s=${mealDbSearch.value.query}`;
-  },
+  () => mealDbApi.getSearchUrl(searchQuery.value),
   {
     watch: [mealDbSearch],
   },
@@ -302,11 +295,7 @@ async function getRandomRecipe() {
   randomRecipeError.value = false;
 
   try {
-    const response = await $fetch<{ meals: MealDbMeal[] | null }>(
-      "https://www.themealdb.com/api/json/v1/1/random.php",
-    );
-
-    const randomMeal = response.meals?.[0];
+    const randomMeal = await mealDbApi.fetchRandomMeal();
 
     if (!randomMeal) {
       randomRecipeError.value = true;
@@ -341,7 +330,9 @@ const recipes = computed(() => {
       title: meal.strMeal,
       category: isCategoryResult
         ? translateCategory(mealDbSearch.value.query)
-        : translateCategory((meal as import("~/types/mealdb").MealDbMeal).strCategory),
+        : translateCategory(
+            (meal as import("~/types/mealdb").MealDbMeal).strCategory,
+          ),
       area: isCategoryResult
         ? "Lisätiedot reseptissä"
         : translateArea((meal as import("~/types/mealdb").MealDbMeal).strArea),

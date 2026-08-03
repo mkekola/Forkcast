@@ -272,6 +272,7 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
 import { translateArea, translateCategory } from "~/utils/translations";
 import type { MealDbLookupResponse } from "~/types/mealdb";
+import { useMealDbApi } from "~/composables/useMealDbApi";
 
 
 const route = useRoute();
@@ -279,6 +280,8 @@ const route = useRoute();
 const plannerStore = usePlannerStore();
 
 const favoritesStore = useFavoritesStore();
+
+const mealDbApi = useMealDbApi();
 
 const selectedDay = ref("monday");
 const selectedMeal = ref<MealType>("dinner");
@@ -301,8 +304,7 @@ const mealOptions: { value: MealType; label: string }[] = [
 ];
 
 const { data, pending, error } = await useFetch<MealDbLookupResponse>(
-  () =>
-    `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${route.params.id}`,
+  () => mealDbApi.getLookupUrl(route.params.id as string),
 );
 
 const recipe = computed(() => data.value?.meals?.[0] ?? null);
