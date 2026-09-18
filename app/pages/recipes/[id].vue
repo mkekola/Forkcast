@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-fork-bg px-6 py-10 text-fork-ink">
+  <main class="min-h-screen bg-fork-bg px-6 pb-24 pt-10 text-fork-ink sm:pb-10">
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
@@ -22,7 +22,7 @@
       <article v-else class="py-14">
         <NuxtLink
           to="/"
-          class="mb-8 inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-fork-ink"
+          class="mb-8 inline-flex rounded-full border border-fork-line px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-fork-ink hover:text-fork-ink"
         >
           ← Takaisin resepteihin
         </NuxtLink>
@@ -31,28 +31,30 @@
           <div
             class="overflow-hidden rounded-[2rem] bg-fork-card p-4 shadow-xl shadow-stone-200"
           >
-            <img
-              :src="recipe.strMealThumb"
-              :alt="recipe.strMeal"
-              class="h-[420px] w-full rounded-[1.5rem] object-cover"
-            >
+            <div class="relative overflow-hidden rounded-[1.5rem]">
+              <img
+                :src="recipe.strMealThumb"
+                :alt="recipe.strMeal"
+                class="h-[420px] w-full object-cover"
+              >
+
+              <div class="absolute left-4 top-4 flex flex-wrap gap-2">
+                <span
+                  class="rounded-full bg-fork-clay-soft/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fork-clay backdrop-blur"
+                >
+                  {{ translatedCategory }}
+                </span>
+
+                <span
+                  class="rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-stone-700 backdrop-blur"
+                >
+                  {{ translatedArea }}
+                </span>
+              </div>
+            </div>
           </div>
 
           <div>
-            <div class="mb-4 flex flex-wrap gap-2">
-              <span
-                class="rounded-full bg-fork-clay-soft px-3 py-1 text-xs font-bold uppercase tracking-wide text-fork-clay"
-              >
-                {{ translatedCategory }}
-              </span>
-
-              <span
-                class="rounded-full bg-stone-200 px-3 py-1 text-xs font-bold uppercase tracking-wide text-stone-700"
-              >
-                {{ translatedArea }}
-              </span>
-            </div>
-
             <h1
               class="text-4xl font-black leading-tight tracking-tight md:text-5xl"
             >
@@ -65,8 +67,8 @@
                 class="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
                 :class="
                   isFavorite
-                    ? 'border-rose-500 bg-rose-500 text-white shadow-rose-200'
-                    : 'border-rose-200 bg-fork-card text-rose-600 hover:bg-rose-50'
+                    ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
+                    : 'border-fork-clay-soft bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
                 "
                 @click="toggleFavorite"
               >
@@ -127,7 +129,7 @@
                 :href="sourceLink"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-fork-card px-5 py-3 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-950 hover:text-fork-ink"
+                class="inline-flex items-center gap-2 rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-bold text-stone-700 shadow-sm transition hover:border-fork-ink hover:text-fork-ink"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -154,7 +156,7 @@
             </p>
 
             <div
-              class="mt-8 rounded-[1.5rem] bg-fork-card p-5 shadow-sm ring-1 ring-fork-line"
+              class="mt-8 rounded-[1.5rem] bg-fork-bg p-5 shadow-sm ring-1 ring-fork-line"
             >
               <h2 class="text-lg font-black">Lisää viikkosuunnitelmaan</h2>
 
@@ -163,7 +165,7 @@
                   Päivä
                   <select
                     v-model="selectedDay"
-                    class="rounded-2xl border border-stone-300 bg-fork-card px-4 py-3 text-sm outline-none focus:border-stone-950"
+                    class="rounded-2xl border border-fork-line bg-fork-card px-4 py-3 text-sm outline-none focus:border-fork-ink"
                   >
                     <option
                       v-for="day in days"
@@ -179,7 +181,7 @@
                   Ateria
                   <select
                     v-model="selectedMeal"
-                    class="rounded-2xl border border-stone-300 bg-fork-card px-4 py-3 text-sm outline-none focus:border-stone-950"
+                    class="rounded-2xl border border-fork-line bg-fork-card px-4 py-3 text-sm outline-none focus:border-fork-ink"
                   >
                     <option
                       v-for="meal in mealOptions"
@@ -195,7 +197,7 @@
               <div class="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  class="rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
+                  class="rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
                   @click="addRecipeToPlanner"
                 >
                   Lisää viikkoon
@@ -204,7 +206,7 @@
                 <NuxtLink
                   v-if="wasAdded"
                   to="/planner"
-                  class="rounded-full border border-stone-300 px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-stone-950 hover:text-fork-ink"
+                  class="rounded-full border border-fork-line px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-fork-ink hover:text-fork-ink"
                 >
                   Näytä suunnitelma
                 </NuxtLink>
