@@ -273,6 +273,7 @@
 import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
 import { translateArea, translateCategory } from "~/utils/translations";
+import { parseInstructionSteps } from "~/utils/instructions";
 import type { MealDbLookupResponse } from "~/types/mealdb";
 import { useMealDbApi } from "~/composables/useMealDbApi";
 
@@ -338,16 +339,9 @@ const ingredients = computed(() => {
   });
 });
 
-const instructionSteps = computed(() => {
-  if (!recipe.value?.strInstructions) {
-    return [];
-  }
-
-  return recipe.value.strInstructions
-    .split(/\r?\n/)
-    .map((step) => step.trim())
-    .filter(Boolean);
-});
+const instructionSteps = computed(() =>
+  parseInstructionSteps(recipe.value?.strInstructions),
+);
 
 const isFavorite = computed(() => {
   if (!recipe.value) {
