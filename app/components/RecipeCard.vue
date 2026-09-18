@@ -64,7 +64,7 @@
           class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
         >
           {{ recipe.area }}
-        </div>        
+        </div>
 
         <h3 class="text-xl font-black tracking-tight text-fork-ink">
           {{ recipe.title }}
@@ -109,6 +109,6 @@ onMounted(() => {
 });
 
 function toggleFavorite() {
-favoritesStore.toggleFavorite(props.recipe);
+  favoritesStore.toggleFavorite(props.recipe);
 }
 </script>
