@@ -335,22 +335,21 @@ const recipes = computed(() => {
 
   return (data.value?.meals ?? []).map((meal) => {
     const isCategoryResult = mealDbSearch.value.type === "category";
+    const fullMeal = meal as MealDbMeal;
 
     return {
       id: meal.idMeal,
       title: meal.strMeal,
       category: isCategoryResult
         ? translateCategory(mealDbSearch.value.query)
-        : translateCategory(
-            (meal as import("~/types/mealdb").MealDbMeal).strCategory,
-          ),
+        : translateCategory(fullMeal.strCategory),
       area: isCategoryResult
         ? "Lisätiedot reseptissä"
-        : translateArea((meal as import("~/types/mealdb").MealDbMeal).strArea),
+        : translateArea(fullMeal.strArea),
       description: isCategoryResult
         ? "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet."
-        : (meal as MealDbMeal).strInstructions
-          ? `${(meal as MealDbMeal).strInstructions?.slice(0, 120)}...`
+        : fullMeal.strInstructions
+          ? `${fullMeal.strInstructions.slice(0, 120)}...`
           : "Herkullinen resepti viikon suunnitteluun.",
       image: meal.strMealThumb,
     };
