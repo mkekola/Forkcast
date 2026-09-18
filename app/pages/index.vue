@@ -179,7 +179,7 @@
           </p>
         </div>
 
-        <div v-if="pending" class="grid gap-6 md:grid-cols-3">
+        <div v-if="hasSearched && pending" class="grid gap-6 md:grid-cols-3">
           <div
             v-for="item in 6"
             :key="item"
@@ -188,10 +188,18 @@
         </div>
 
         <div
-          v-else-if="error"
+          v-else-if="hasSearched && error"
           class="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-800"
         >
           Reseptien haku epäonnistui. Kokeile hetken päästä uudelleen.
+        </div>
+
+        <div
+          v-else-if="!hasSearched"
+          class="rounded-3xl border border-dashed border-stone-300 bg-fork-card p-8 text-fork-muted"
+        >
+          Hae reseptejä yllä olevalla haulla tai valitse pikahaku
+          aloittaaksesi.
         </div>
 
         <div
@@ -240,6 +248,8 @@ const searchQuery = computed(() => {
 
 const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
+const hasSearched = computed(() => searchQuery.value.length > 0);
+
 const randomRecipePending = ref(false);
 const randomRecipeError = ref(false);
 
@@ -259,8 +269,15 @@ const quickSearches = [
 
 const mealDbApi = useMealDbApi();
 
-const { data, pending, error } = await useFetch<MealDbSearchResponse>(
-  () => mealDbApi.getSearchUrl(searchQuery.value),
+const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
+  "recipe-search",
+  () => {
+    if (!hasSearched.value) {
+      return Promise.resolve(null);
+    }
+
+    return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(searchQuery.value));
+  },
   {
     watch: [mealDbSearch],
   },
