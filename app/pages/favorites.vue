@@ -63,6 +63,11 @@ import { useFavoritesStore } from "~/stores/favorites";
 
 const favoritesStore = useFavoritesStore();
 
+useSeoMeta({
+  title: "Suosikit · Forkcast",
+  description: "Tallennetut suosikkireseptit Forkcastissa.",
+});
+
 onMounted(() => {
   favoritesStore.loadFromStorage();
 });

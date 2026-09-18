@@ -288,6 +288,11 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 
 const plannerStore = usePlannerStore();
 
+useSeoMeta({
+  title: "Viikkosuunnitelma · Forkcast",
+  description: "Suunnittele viikon ateriat ja muodosta ostoslista Forkcastissa.",
+});
+
 const pendingClearWeek = ref(false);
 
 const pendingRemovalId = ref<string | null>(null);

@@ -363,6 +363,21 @@ const translatedArea = computed(() => {
   return translateArea(recipe.value?.strArea);
 });
 
+const seoDescription = computed(() =>
+  recipe.value?.strInstructions
+    ? `${recipe.value.strInstructions.slice(0, 150)}...`
+    : "Reseptin ainesosat ja valmistusohjeet Forkcastissa.",
+);
+
+useSeoMeta({
+  title: () =>
+    recipe.value?.strMeal ? `${recipe.value.strMeal} · Forkcast` : "Forkcast",
+  description: () => seoDescription.value,
+  ogTitle: () => recipe.value?.strMeal,
+  ogDescription: () => seoDescription.value,
+  ogImage: () => recipe.value?.strMealThumb,
+});
+
 onMounted(() => {
   plannerStore.loadFromStorage();
   favoritesStore.loadFromStorage();
