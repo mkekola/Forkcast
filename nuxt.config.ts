@@ -8,7 +8,26 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Forkcast',
-      titleTemplate: '%s · Forkcast',
+      htmlAttrs: { lang: 'fi' },
+      meta: [
+        {
+          name: 'description',
+          content:
+            'Forkcast auttaa löytämään reseptejä, suunnittelemaan viikon ateriat ja kokoamaan ostoslistan – kaikki yhdessä paikassa.',
+        },
+        { name: 'theme-color', content: '#365e47' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Forkcast' },
+        { property: 'og:title', content: 'Forkcast – Viikkosi, katettuna.' },
+        {
+          property: 'og:description',
+          content:
+            'Hae reseptejä, suunnittele viikon ateriat ja muodosta ostoslista automaattisesti.',
+        },
+        { property: 'og:image', content: 'https://forkcast.kekola.fi/images/og-image.png' },
+        { property: 'og:url', content: 'https://forkcast.kekola.fi' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+      ],
     },
   },
 
