@@ -1,3 +1,5 @@
+const STEP_LABEL_PATTERN = /^step\s*\d*$/i;
+
 export function parseInstructionSteps(instructions?: string | null): string[] {
   if (!instructions) {
     return [];
@@ -6,5 +8,5 @@ export function parseInstructionSteps(instructions?: string | null): string[] {
   return instructions
     .split(/\r?\n/)
     .map((step) => step.trim())
-    .filter((step) => /\p{L}/u.test(step));
+    .filter((step) => /\p{L}/u.test(step) && !STEP_LABEL_PATTERN.test(step));
 }

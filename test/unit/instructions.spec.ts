@@ -22,6 +22,20 @@ describe("parseInstructionSteps", () => {
     ]);
   });
 
+  it("drops standalone 'step N' label lines left over from the source formatting", () => {
+    expect(
+      parseInstructionSteps(
+        "step 1\r\nHeat the oven to 190C.\r\n\r\nstep 2\r\nRoast for 20 mins.",
+      ),
+    ).toEqual(["Heat the oven to 190C.", "Roast for 20 mins."]);
+  });
+
+  it("keeps real steps that merely start with the word 'step'", () => {
+    expect(parseInstructionSteps("Step back and let the dough rest for 5 minutes.")).toEqual([
+      "Step back and let the dough rest for 5 minutes.",
+    ]);
+  });
+
   it("drops empty and whitespace-only lines", () => {
     expect(parseInstructionSteps("Whisk the flour.\n\n   \nBake for 20 minutes.")).toEqual([
       "Whisk the flour.",
