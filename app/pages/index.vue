@@ -1,118 +1,148 @@
 <template>
   <main class="min-h-screen bg-fork-bg text-fork-ink">
-    <section class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
+    <section class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-24 pt-10 sm:pb-10">
       <AppHeader />
 
-      <section class="grid flex-1 items-center gap-12 py-20 md:grid-cols-2">
-        <div>
-          <p
-            class="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
-          >
-            Viikkosi, katettuna.
-          </p>
-
-          <h1
-            class="max-w-xl text-5xl font-black leading-tight tracking-tight md:text-6xl"
-          >
-            Suunnittele viikon ruoat ennen kuin nälkä tekee päätökset.
-          </h1>
-
-          <p class="mt-6 max-w-lg text-lg leading-8 text-fork-muted">
-            Forkcast auttaa löytämään reseptejä, kokoamaan viikon ateriat ja
-            muuttamaan suunnitelman käytännölliseksi ostoslistaksi.
-          </p>
-
-          <div class="mt-8 flex flex-wrap gap-3">
-            <NuxtLink
-              to="#reseptit"
-              class="rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
-            >
-              Selaa reseptejä
-            </NuxtLink>
-
-            <NuxtLink
-              to="/planner"
-              class="rounded-full border border-stone-300 px-6 py-3 text-sm font-bold transition hover:border-stone-950"
-            >
-              Avaa viikkosuunnitelma
-            </NuxtLink>
-          </div>
-          <p
-            v-if="randomRecipeError"
-            class="mt-4 text-sm font-semibold text-red-700"
-          >
-            Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
-            uudelleen.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="group rounded-[2rem] bg-fork-card p-4 text-left shadow-xl shadow-stone-200 transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-stone-300 focus:outline-none focus:ring-2 focus:ring-fork-clay disabled:cursor-not-allowed disabled:opacity-70"
-          :disabled="randomRecipePending"
-          @click="getRandomRecipe"
+      <section class="py-14 md:py-20">
+        <div
+          class="grid grid-cols-1 gap-4 md:gap-5 md:[grid-template-columns:1.3fr_1.3fr_1fr_1fr] md:[grid-template-areas:'hero_hero_a1_a2'_'hero_hero_a3_a4']"
         >
-          <div class="rounded-[1.5rem] bg-fork-sage p-5">
-            <div class="rounded-[1.25rem] bg-fork-card p-5 shadow-sm">
-              <p
-                class="text-sm font-bold uppercase tracking-[0.18em] text-fork-clay"
+          <div
+            class="flex flex-col justify-center gap-4 rounded-[2rem] bg-fork-card p-7 ring-1 ring-fork-line shadow-sm md:p-9 md:[grid-area:hero]"
+          >
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
+              Viikkosi, katettuna.
+            </p>
+
+            <h1 class="text-balance text-4xl font-black leading-tight tracking-tight md:text-5xl">
+              Suunnittele viikon ruoat ennen kuin nälkä tekee päätökset.
+            </h1>
+
+            <p class="max-w-lg text-base leading-7 text-fork-muted md:text-lg md:leading-8">
+              Forkcast auttaa löytämään reseptejä, kokoamaan viikon ateriat ja
+              muuttamaan suunnitelman käytännölliseksi ostoslistaksi.
+            </p>
+
+            <div>
+              <NuxtLink
+                to="#reseptit"
+                class="rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
               >
-                Inspiraatio
-              </p>
-
-              <h2 class="mt-3 text-2xl font-black">
-                Etkö tiedä mitä tekisi mieli?
-              </h2>
-
-              <p class="mt-2 text-sm leading-6 text-fork-muted">
-                Klikkaa korttia ja Forkcast arpoo sinulle reseptin
-                kokeiltavaksi.
-              </p>
-
-              <div class="mt-5 grid gap-3">
-                <div class="rounded-2xl bg-stone-100 p-4">
-                  <p
-                    class="text-xs font-bold uppercase tracking-wide text-stone-500"
-                  >
-                    Tyyli
-                  </p>
-                  <p class="mt-1 font-bold">Satunnainen resepti</p>
-                </div>
-
-                <div class="rounded-2xl bg-stone-100 p-4">
-                  <p
-                    class="text-xs font-bold uppercase tracking-wide text-stone-500"
-                  >
-                    Sopii
-                  </p>
-                  <p class="mt-1 font-bold">Kun ideat ovat loppu</p>
-                </div>
-
-                <div class="rounded-2xl bg-fork-green p-4 text-white">
-                  <p
-                    class="text-xs font-bold uppercase tracking-wide text-stone-300"
-                  >
-                    Forkcast ehdottaa
-                  </p>
-
-                  <p class="mt-1 font-bold">
-                    {{
-                      randomRecipePending
-                        ? "Arvotaan reseptiä..."
-                        : "Yllätä minut reseptillä"
-                    }}
-                  </p>
-                </div>
-              </div>
-
-              <p
-                class="mt-4 text-sm font-bold text-fork-green transition group-hover:translate-x-1"
-              >
-                Avaa satunnainen resepti →
-              </p>
+                Selaa reseptejä
+              </NuxtLink>
             </div>
+
+            <p v-if="randomRecipeError" class="text-sm font-semibold text-red-700">
+              Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
+              uudelleen.
+            </p>
           </div>
-        </button>
+
+          <button
+            type="button"
+            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 text-left ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay disabled:cursor-not-allowed disabled:opacity-70 md:[grid-area:a1]"
+            :disabled="randomRecipePending"
+            @click="getRandomRecipe"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              class="h-6 w-6 text-fork-clay"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="3.6" />
+            </svg>
+            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
+              Inspiraatio
+            </span>
+            <span class="text-base font-black leading-snug">
+              {{ randomRecipePending ? "Arvotaan reseptiä…" : "Yllätä minut reseptillä" }}
+            </span>
+            <span class="text-xs text-fork-muted">Satunnainen resepti</span>
+          </button>
+
+          <div
+            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm md:[grid-area:a2]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-6 w-6 text-fork-clay"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 3s-5 5.5-5 9.5a5 5 0 0010 0c0-1.6-.8-2.8-1.6-3.8.1 1.2-.5 2-1.4 2 .3-2-.6-4.4-2-5.7z"
+              />
+            </svg>
+            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
+              Suosituin tänään
+            </span>
+            <span class="text-base font-black leading-snug">
+              {{ featuredMeal?.strMeal ?? "Ladataan…" }}
+            </span>
+            <span class="text-xs text-fork-muted">{{ featuredMealSub }}</span>
+          </div>
+
+          <NuxtLink
+            to="/planner"
+            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a3]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-6 w-6 text-fork-clay"
+              aria-hidden="true"
+            >
+              <rect x="3.5" y="4.5" width="17" height="16" rx="2" />
+              <path d="M3.5 9.5h17M8 3v3M16 3v3" />
+            </svg>
+            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
+              Viikko
+            </span>
+            <span class="text-base font-black leading-snug">Viikkosuunnitelma</span>
+            <span class="text-xs text-fork-muted">{{ plannedMealsLabel }}</span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/planner#ostoslista"
+            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a4]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-6 w-6 text-fork-clay"
+              aria-hidden="true"
+            >
+              <path d="M4 4h2l1.6 10.6a2 2 0 002 1.7h7.6a2 2 0 002-1.7L20 8H7" />
+              <circle cx="10" cy="20" r="1.3" />
+              <circle cx="17" cy="20" r="1.3" />
+            </svg>
+            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
+              Lista
+            </span>
+            <span class="text-base font-black leading-snug">Ostoslista</span>
+            <span class="text-xs text-fork-muted">{{ shoppingItemsLabel }}</span>
+          </NuxtLink>
+        </div>
       </section>
 
       <section id="reseptit" class="pb-20">
@@ -122,13 +152,13 @@
               v-model="searchInput"
               type="search"
               placeholder="Hae reseptejä, esim. pasta, kana, curry..."
-              class="w-full rounded-full border border-stone-300 bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+              class="w-full rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
               @keyup.enter="searchRecipes"
             >
 
             <button
               type="button"
-              class="rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
+              class="rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
               @click="searchRecipes"
             >
               Hae
@@ -143,8 +173,8 @@
               class="rounded-full border px-4 py-2 text-sm font-bold transition"
               :class="
                 searchQuery === quickSearch.query
-                  ? 'border-fork-green bg-fork-green text-white'
-                  : 'border-stone-300 bg-fork-card text-stone-700 hover:border-stone-950 hover:text-fork-ink'
+                  ? 'border-fork-clay bg-fork-clay text-white'
+                  : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
               "
               @click="selectQuickSearch(quickSearch.query)"
             >
@@ -196,7 +226,7 @@
 
         <div
           v-else-if="!hasSearched"
-          class="rounded-3xl border border-dashed border-stone-300 bg-fork-card p-8 text-fork-muted"
+          class="rounded-3xl border border-dashed border-fork-line bg-fork-card p-8 text-fork-muted"
         >
           Hae reseptejä yllä olevalla haulla tai valitse pikahaku
           aloittaaksesi.
@@ -233,9 +263,11 @@ import {
 
 import type { MealDbSearchResponse, MealDbMeal } from "~/types/mealdb";
 import { useMealDbApi } from "~/composables/useMealDbApi";
+import { usePlannerStore } from "~/stores/planner";
 
 const route = useRoute();
 const router = useRouter();
+const plannerStore = usePlannerStore();
 
 const initialSearchQuery =
   typeof route.query.q === "string" ? route.query.q : "";
@@ -268,6 +300,66 @@ const quickSearches = [
 ];
 
 const mealDbApi = useMealDbApi();
+
+const FEATURED_STORAGE_KEY = "forkcast-featured-of-day";
+
+const featuredMeal = ref<MealDbMeal | null>(null);
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function loadFeaturedMeal() {
+  if (import.meta.client) {
+    const stored = localStorage.getItem(FEATURED_STORAGE_KEY);
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as { date: string; meal: MealDbMeal };
+
+        if (parsed.date === todayKey() && parsed.meal) {
+          featuredMeal.value = parsed.meal;
+          return;
+        }
+      } catch {
+        // corrupt cache entry, fall through and fetch a fresh meal
+      }
+    }
+  }
+
+  const meal = await mealDbApi.fetchRandomMeal();
+  featuredMeal.value = meal;
+
+  if (import.meta.client && meal) {
+    localStorage.setItem(
+      FEATURED_STORAGE_KEY,
+      JSON.stringify({ date: todayKey(), meal }),
+    );
+  }
+}
+
+const featuredMealSub = computed(() => {
+  if (!featuredMeal.value) {
+    return "Haetaan tämän päivän vinkkiä…";
+  }
+
+  return `${translateCategory(featuredMeal.value.strCategory)} · ${translateArea(featuredMeal.value.strArea)}`;
+});
+
+const plannedMealsLabel = computed(() => {
+  const count = plannerStore.plannedMeals.length;
+  return count === 1 ? "1 ateria lisätty" : `${count} ateriaa lisätty`;
+});
+
+const shoppingItemsLabel = computed(() => {
+  const count = plannerStore.shoppingList.length;
+  return count === 1 ? "1 tuote" : `${count} tuotetta`;
+});
+
+onMounted(() => {
+  plannerStore.loadFromStorage();
+  loadFeaturedMeal();
+});
 
 const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
   "recipe-search",
