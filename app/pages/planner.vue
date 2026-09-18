@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-fork-bg px-6 py-10 text-fork-ink">
+  <main class="min-h-screen bg-fork-bg px-6 pb-24 pt-10 text-fork-ink sm:pb-10">
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
@@ -22,7 +22,7 @@
           <div class="flex flex-wrap gap-3">
             <a
               href="#ostoslista"
-              class="rounded-full bg-fork-green px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
+              class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
             >
               Ostoslistaan
             </a>
@@ -71,7 +71,7 @@
 
       <div
         v-if="!hasPlannedMeals"
-        class="rounded-[2rem] border border-dashed border-stone-300 bg-fork-card p-8 text-center shadow-sm"
+        class="rounded-[2rem] border border-dashed border-fork-line bg-fork-card p-8 text-center shadow-sm"
       >
         <p
           class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
@@ -90,7 +90,7 @@
 
         <NuxtLink
           to="/"
-          class="mt-6 inline-flex rounded-full bg-fork-green px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-green-dark"
+          class="mt-6 inline-flex rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
         >
           Selaa reseptejä
         </NuxtLink>
@@ -114,10 +114,15 @@
             <section
               v-for="meal in meals"
               :key="meal.value"
-              class="rounded-3xl border border-dashed border-stone-300 bg-fork-bg p-4"
+              class="rounded-3xl border bg-fork-bg p-4"
+              :class="
+                getPlannedMeals(day.value, meal.value).length > 0
+                  ? 'border-fork-line'
+                  : 'border-dashed border-fork-line'
+              "
             >
               <h3
-                class="text-xs font-black uppercase tracking-wide text-stone-500"
+                class="text-xs font-black uppercase tracking-wide text-fork-muted"
               >
                 {{ meal.label }}
               </h3>
@@ -200,7 +205,7 @@
 
               <div
                 v-else
-                class="mt-3 rounded-2xl bg-fork-card p-5 text-sm text-fork-muted"
+                class="mt-3 rounded-2xl border border-dashed border-fork-line p-5 text-center text-sm text-fork-muted"
               >
                 Tyhjä
               </div>
@@ -272,7 +277,7 @@
 
             <input
               type="checkbox"
-              class="mt-1 h-5 w-5 rounded border-stone-300"
+              class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
               :checked="plannerStore.isShoppingItemChecked(item.key)"
               @change="plannerStore.toggleShoppingItem(item.key)"
             >
