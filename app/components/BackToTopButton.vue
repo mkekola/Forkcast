@@ -26,7 +26,7 @@ onBeforeUnmount(() => {
   <button
     v-show="isVisible"
     type="button"
-    class="fixed bottom-6 right-6 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-fork-green text-white shadow-xl shadow-stone-300 transition hover:-translate-y-1 hover:bg-fork-green-dark focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
+    class="fixed bottom-24 right-6 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-fork-clay text-white shadow-xl shadow-stone-300 transition hover:-translate-y-1 hover:bg-fork-clay-dark focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2 sm:bottom-6"
     aria-label="Takaisin sivun alkuun"
     @click="scrollToTop"
   >

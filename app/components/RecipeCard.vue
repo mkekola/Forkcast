@@ -19,11 +19,11 @@
 
         <button
           type="button"
-          class="absolute right-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border shadow-lg backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"
+          class="absolute right-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border shadow-lg backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
           :class="
             isFavorite
-              ? 'border-rose-500 bg-rose-500 text-white shadow-rose-200'
-              : 'border-white bg-fork-card text-rose-500 shadow-stone-300 hover:bg-rose-50'
+              ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
+              : 'border-white bg-fork-card text-fork-clay shadow-stone-300 hover:bg-fork-clay-soft'
           "
           :aria-label="isFavorite ? 'Poista suosikeista' : 'Lisää suosikkeihin'"
           @click.prevent.stop="toggleFavorite"
@@ -76,7 +76,7 @@
 
         <div class="mt-5 flex items-center justify-between gap-3">
           <span
-            class="rounded-full bg-fork-green px-4 py-2 text-sm font-bold text-white"
+            class="rounded-full bg-fork-clay px-4 py-2 text-sm font-bold text-white"
           >
             Valitse viikkoon
           </span>
