@@ -251,26 +251,18 @@
           <li
             v-for="item in plannerStore.shoppingList"
             :key="item.key"
-            class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3"
+            class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
+            :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
           >
             <div>
               <p
                 class="font-bold text-fork-ink"
-                :class="{
-                  'text-stone-400 line-through':
-                    plannerStore.isShoppingItemChecked(item.key),
-                }"
+                :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
               >
                 {{ item.name }}
               </p>
 
-              <p
-                class="mt-1 text-sm text-stone-500"
-                :class="{
-                  'text-stone-400 line-through':
-                    plannerStore.isShoppingItemChecked(item.key),
-                }"
-              >
+              <p class="mt-1 text-sm text-stone-500">
                 {{ item.measures.join(", ") }}
               </p>
             </div>
