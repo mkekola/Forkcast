@@ -6,21 +6,11 @@
       to="/"
       class="flex items-center gap-2.5 font-display text-3xl font-black tracking-tight text-fork-ink"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        class="h-8 w-8 text-fork-clay"
-        aria-hidden="true"
+      <img
+        src="/favicon.png"
+        alt=""
+        class="h-8 w-8"
       >
-        <g transform="translate(-2.5,0) scale(0.88,1)">
-          <path d="M6.5 2a1 1 0 011 1v4.2a1 1 0 102 0V3a1 1 0 112 0v4.2a1 1 0 102 0V3a1 1 0 112 0v5a4.5 4.5 0 01-3.5 4.39V21a1 1 0 11-2 0v-8.6A4.5 4.5 0 015.5 8V3a1 1 0 011-1z" />
-        </g>
-        <g transform="translate(2.2,0) scale(0.88,1)">
-          <path d="M17 2c2.5 0 3.5 3 3.5 5s-1 5-3.5 5-3.5-3-3.5-5 1-5 3.5-5z" />
-          <path d="M16.15 12.8h1.7V21a.85.85 0 01-1.7 0v-8.2z" />
-        </g>
-      </svg>
       Forkcast
     </NuxtLink>
 
