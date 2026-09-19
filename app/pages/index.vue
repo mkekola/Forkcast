@@ -34,28 +34,12 @@
           </div>
 
           <div class="relative h-72 md:h-auto">
-            <div
-              class="pointer-events-none absolute -top-6 right-2 z-20 -rotate-6 sm:-top-8 sm:right-4"
+            <img
+              src="/images/inspiroidu-doodle.png"
+              alt=""
               aria-hidden="true"
+              class="pointer-events-none absolute -top-16 right-2 z-20 h-24 w-24 sm:-top-20 sm:right-4 sm:h-28 sm:w-28"
             >
-              <p class="font-handwritten text-3xl text-fork-clay sm:text-4xl">
-                Inspiroidu!
-              </p>
-
-              <svg
-                viewBox="0 0 60 50"
-                class="ml-6 h-9 w-12 text-fork-clay sm:ml-8 sm:h-10 sm:w-14"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M6 4c12-2 24 6 28 20 2 7-1 12-6 16" />
-                <path d="M28 40l-8-4" />
-                <path d="M28 40l3-9" />
-              </svg>
-            </div>
 
             <div
               class="relative h-full overflow-hidden rounded-[2rem] bg-fork-card ring-1 ring-fork-line shadow-sm"
