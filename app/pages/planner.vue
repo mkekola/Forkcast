@@ -300,6 +300,12 @@ const shoppingListSummary = computed(() => {
 
 onMounted(() => {
   plannerStore.loadFromStorage();
+
+  collapsedDays.value = new Set(
+    days
+      .filter((day) => getDayPlannedMeals(day.value).length === 0)
+      .map((day) => day.value),
+  );
 });
 
 const days = [
