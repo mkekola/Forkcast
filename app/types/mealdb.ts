@@ -3,6 +3,7 @@ export type MealDbMeal = {
   strMeal: string;
   strCategory: string | null;
   strArea: string | null;
+  strCountry: string | null;
   strInstructions: string | null;
   strMealThumb: string;
   strYoutube: string | null;

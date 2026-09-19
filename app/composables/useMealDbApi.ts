@@ -3,6 +3,8 @@ import { getMealDbSearch } from "~/utils/translations";
 
 const MEALDB_BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
+const mealDetailsCache = new Map<string, Promise<MealDbMeal | null>>();
+
 export function useMealDbApi() {
   function getSearchUrl(searchQuery: string) {
     if (!searchQuery) {
@@ -34,9 +36,23 @@ export function useMealDbApi() {
     return response.meals?.[0] ?? null;
   }
 
+  function fetchMealDetails(id: string) {
+    let cached = mealDetailsCache.get(id);
+
+    if (!cached) {
+      cached = $fetch<{ meals: MealDbMeal[] | null }>(getLookupUrl(id))
+        .then((response) => response.meals?.[0] ?? null)
+        .catch(() => null);
+      mealDetailsCache.set(id, cached);
+    }
+
+    return cached;
+  }
+
   return {
     getSearchUrl,
     getLookupUrl,
     fetchRandomMeal,
+    fetchMealDetails,
   };
 }

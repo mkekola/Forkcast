@@ -402,7 +402,7 @@ const translatedCategory = computed(() => {
 });
 
 const translatedArea = computed(() => {
-  return translateArea(recipe.value?.strArea);
+  return translateArea(recipe.value?.strArea ?? recipe.value?.strCountry);
 });
 
 const seoDescription = computed(() =>

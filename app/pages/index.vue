@@ -363,6 +363,33 @@ watch(
   },
 );
 
+const mealDetails = ref(new Map<string, MealDbMeal>());
+
+watch(
+  () => data.value?.meals,
+  (meals) => {
+    const search = mealDbSearch.value;
+
+    if (!meals || (search.type !== "category" && search.type !== "area")) {
+      return;
+    }
+
+    for (const meal of meals) {
+      if (mealDetails.value.has(meal.idMeal)) {
+        continue;
+      }
+
+      mealDbApi.fetchMealDetails(meal.idMeal).then((details) => {
+        if (details) {
+          mealDetails.value.set(meal.idMeal, details);
+          mealDetails.value = new Map(mealDetails.value);
+        }
+      });
+    }
+  },
+  { immediate: true },
+);
+
 const recipes = computed(() => {
   if (!searchQuery.value) {
     return [];
@@ -374,21 +401,25 @@ const recipes = computed(() => {
     const fullMeal = meal as MealDbMeal;
 
     if (search.type === "category") {
+      const details = mealDetails.value.get(meal.idMeal);
+
       return {
         id: meal.idMeal,
         title: meal.strMeal,
         category: translateCategory(search.query),
-        area: "Lisätiedot reseptissä",
+        area: details ? translateArea(details.strArea ?? details.strCountry) : "Ladataan…",
         description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
       };
     }
 
     if (search.type === "area") {
+      const details = mealDetails.value.get(meal.idMeal);
+
       return {
         id: meal.idMeal,
         title: meal.strMeal,
-        category: "Lisätiedot reseptissä",
+        category: details ? translateCategory(details.strCategory) : "Ladataan…",
         area: translateArea(search.query),
         description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
@@ -399,7 +430,7 @@ const recipes = computed(() => {
       id: meal.idMeal,
       title: meal.strMeal,
       category: translateCategory(fullMeal.strCategory),
-      area: translateArea(fullMeal.strArea),
+      area: translateArea(fullMeal.strArea ?? fullMeal.strCountry),
       description: fullMeal.strInstructions
         ? `${fullMeal.strInstructions.slice(0, 120)}...`
         : "Herkullinen resepti viikon suunnitteluun.",
