@@ -144,6 +144,8 @@
 <script setup lang="ts">
 import { useFavoritesStore } from "~/stores/favorites";
 import { usePlannerStore } from "~/stores/planner";
+import { useMealDbApi } from "~/composables/useMealDbApi";
+import { extractIngredients } from "~/utils/ingredients";
 import type { Recipe } from "~/types/recipe";
 
 const props = defineProps<{
@@ -152,6 +154,7 @@ const props = defineProps<{
 
 const favoritesStore = useFavoritesStore();
 const plannerStore = usePlannerStore();
+const mealDbApi = useMealDbApi();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
 const isDraft = computed(() =>
@@ -168,17 +171,20 @@ function toggleFavorite() {
   favoritesStore.toggleFavorite(props.recipe);
 }
 
-function addToDrafts() {
+async function addToDrafts() {
+  justAddedDraft.value = true;
+  setTimeout(() => {
+    justAddedDraft.value = false;
+  }, 1200);
+
+  const details = await mealDbApi.fetchMealDetails(props.recipe.id);
+
   plannerStore.addDraft({
     recipeId: props.recipe.id,
     recipeName: props.recipe.title,
     recipeImage: props.recipe.image,
     category: props.recipe.category,
+    ingredients: details ? extractIngredients(details) : undefined,
   });
-
-  justAddedDraft.value = true;
-  setTimeout(() => {
-    justAddedDraft.value = false;
-  }, 1200);
 }
 </script>

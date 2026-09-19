@@ -319,6 +319,7 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
 import { translateArea, translateCategory } from "~/utils/translations";
 import { parseInstructionSteps } from "~/utils/instructions";
+import { extractIngredients } from "~/utils/ingredients";
 import type { MealDbLookupResponse } from "~/types/mealdb";
 import { useMealDbApi } from "~/composables/useMealDbApi";
 
@@ -371,18 +372,7 @@ const ingredients = computed(() => {
     return [];
   }
 
-  return Array.from({ length: 20 }, (_, index) => {
-    const number = index + 1;
-    const name = recipe.value?.[`strIngredient${number}`]?.trim();
-    const measure = recipe.value?.[`strMeasure${number}`]?.trim();
-
-    return {
-      name,
-      measure,
-    };
-  }).filter((ingredient): ingredient is { name: string; measure: string } => {
-    return Boolean(ingredient.name);
-  });
+  return extractIngredients(recipe.value);
 });
 
 const instructionSteps = computed(() =>

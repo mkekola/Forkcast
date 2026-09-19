@@ -186,7 +186,7 @@ describe("planner store: drafts", () => {
     ]);
   });
 
-  it("still includes draft ingredients in the shopping list", () => {
+  it("excludes draft ingredients from the shopping list until assigned to a slot", () => {
     plannerStore.addDraft({
       recipeId: "1",
       recipeName: "Draft Recipe",
@@ -194,6 +194,11 @@ describe("planner store: drafts", () => {
       category: "Test",
       ingredients: [{ name: "Onion", measure: "1" }],
     });
+
+    expect(plannerStore.shoppingList).toEqual([]);
+
+    const draftId = plannerStore.getDrafts()[0].id;
+    plannerStore.assignMeal(draftId, "wednesday", "dinner");
 
     expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Onion"]);
   });

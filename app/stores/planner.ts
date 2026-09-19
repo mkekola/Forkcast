@@ -157,6 +157,10 @@ export const usePlannerStore = defineStore("planner", () => {
     const measuresByName = new Map<string, { name: string; measures: string[] }>();
 
     plannedMeals.value.forEach((plannedMeal) => {
+      if (!plannedMeal.day || !plannedMeal.meal) {
+        return;
+      }
+
       plannedMeal.ingredients?.forEach((ingredient) => {
         const key = ingredient.name.toLowerCase().trim();
         const existingIngredient = measuresByName.get(key);
