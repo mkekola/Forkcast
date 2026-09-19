@@ -127,15 +127,9 @@
           {{ recipe.description }}
         </p>
 
-        <div class="mt-5 flex items-center justify-between gap-3">
+        <div class="mt-5">
           <span
-            class="rounded-full bg-fork-clay px-4 py-2 text-sm font-bold text-white"
-          >
-            Valitse viikkoon
-          </span>
-
-          <span
-            class="text-sm font-bold text-fork-muted transition group-hover:text-fork-ink"
+            class="inline-flex rounded-full bg-fork-clay px-4 py-2 text-sm font-bold text-white transition group-hover:bg-fork-clay-dark"
           >
             Katso resepti →
           </span>
