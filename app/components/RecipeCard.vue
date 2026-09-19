@@ -1,10 +1,10 @@
 <template>
   <NuxtLink
     :to="`/recipes/${recipe.id}`"
-    class="group block overflow-hidden rounded-[1.75rem] bg-fork-card shadow-sm ring-1 ring-fork-line transition hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200 focus:outline-none focus:ring-2 focus:ring-fork-clay"
+    class="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-fork-card shadow-sm ring-1 ring-fork-line transition hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-200 focus:outline-none focus:ring-2 focus:ring-fork-clay"
   >
-    <article>
-      <div class="relative h-52 overflow-hidden bg-stone-200">
+    <article class="flex h-full flex-col">
+      <div class="relative h-52 shrink-0 overflow-hidden bg-stone-200">
         <img
           :src="recipe.image"
           :alt="recipe.title"
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <div class="p-5">
+      <div class="flex flex-1 flex-col p-5">
         <div
           class="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-fork-olive"
         >
@@ -123,7 +123,7 @@
           {{ recipe.title }}
         </h3>
 
-        <p class="mt-3 text-sm leading-6 text-fork-muted">
+        <p class="mt-3 flex-1 text-sm leading-6 text-fork-muted">
           {{ recipe.description }}
         </p>
 
@@ -131,7 +131,7 @@
           <span
             class="inline-flex rounded-full bg-fork-clay px-4 py-2 text-sm font-bold text-white transition group-hover:bg-fork-clay-dark"
           >
-            Katso resepti →
+            Katso resepti
           </span>
         </div>
       </div>

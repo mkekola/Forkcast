@@ -18,11 +18,11 @@ export default defineNuxtConfig({
         {
           rel: 'preload',
           as: 'style',
-          href: 'https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional',
         },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional',
           media: 'print',
           onload: "this.media='all'",
         },
@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       noscript: [
         {
           innerHTML:
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">',
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional">',
         },
       ],
       meta: [
