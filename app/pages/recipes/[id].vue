@@ -422,7 +422,7 @@ useSeoMeta({
 
 onMounted(() => {
   plannerStore.loadFromStorage();
-  favoritesStore.loadFromStorage();
+  favoritesStore.loadFavorites();
 });
 
 function addRecipeToPlanner() {

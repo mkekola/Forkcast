@@ -164,7 +164,7 @@ const isDraft = computed(() =>
 const justAddedDraft = ref(false);
 
 onMounted(() => {
-  favoritesStore.loadFromStorage();
+  favoritesStore.loadFavorites();
   plannerStore.loadFromStorage();
 });
 

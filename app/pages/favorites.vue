@@ -86,6 +86,6 @@ useSeoMeta({
 });
 
 onMounted(() => {
-  favoritesStore.loadFromStorage();
+  favoritesStore.loadFavorites();
 });
 </script>
