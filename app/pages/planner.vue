@@ -82,15 +82,63 @@
           :key="day.value"
           class="rounded-[2rem] border border-fork-line bg-fork-card p-5 shadow-sm"
         >
-          <div class="mb-5 flex items-end justify-between gap-4">
-            <div>
+          <div class="mb-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
               <h2 class="text-2xl font-black text-fork-ink">
                 {{ day.label }}
               </h2>
+
+              <div
+                v-if="isDayCollapsed(day.value)"
+                class="flex items-center gap-1.5"
+              >
+                <NuxtLink
+                  v-for="plannedMeal in getDayPlannedMeals(day.value)"
+                  :key="plannedMeal.id"
+                  :to="`/recipes/${plannedMeal.recipeId}`"
+                  :title="plannedMeal.recipeName"
+                >
+                  <img
+                    :src="plannedMeal.recipeImage"
+                    :alt="plannedMeal.recipeName"
+                    class="h-10 w-10 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                  >
+                </NuxtLink>
+
+                <span
+                  v-if="getDayPlannedMeals(day.value).length === 0"
+                  class="text-sm text-fork-muted"
+                >
+                  Ei suunniteltu
+                </span>
+              </div>
             </div>
+
+            <button
+              type="button"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
+              :aria-label="isDayCollapsed(day.value) ? `Näytä ${day.label} kokonaan` : `Pienennä ${day.label}`"
+              :aria-expanded="!isDayCollapsed(day.value)"
+              @click="toggleDayCollapsed(day.value)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5 transition-transform"
+                :class="{ '-rotate-90': isDayCollapsed(day.value) }"
+                aria-hidden="true"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
           </div>
 
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div v-if="!isDayCollapsed(day.value)" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <section
               v-for="meal in meals"
               :key="meal.value"
@@ -269,6 +317,28 @@ const meals: { value: MealType; label: string }[] = [
 
 function getPlannedMeals(day: string, meal: MealType) {
   return plannerStore.getMeals(day, meal);
+}
+
+function getDayPlannedMeals(day: string) {
+  return plannerStore.plannedMeals.filter((plannedMeal) => plannedMeal.day === day);
+}
+
+const collapsedDays = ref<Set<string>>(new Set());
+
+function isDayCollapsed(day: string) {
+  return collapsedDays.value.has(day);
+}
+
+function toggleDayCollapsed(day: string) {
+  const next = new Set(collapsedDays.value);
+
+  if (next.has(day)) {
+    next.delete(day);
+  } else {
+    next.add(day);
+  }
+
+  collapsedDays.value = next;
 }
 
 function askToRemoveMeal(plannedMealId: string) {
