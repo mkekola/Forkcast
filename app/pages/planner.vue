@@ -150,12 +150,17 @@
             <section
               v-for="meal in meals"
               :key="meal.value"
-              class="rounded-3xl border bg-fork-bg p-4"
+              class="rounded-3xl border p-4 transition-colors"
               :class="
-                getPlannedMeals(day.value, meal.value).length > 0
-                  ? 'border-fork-line'
-                  : 'border-dashed border-fork-line'
+                dragOverSlot === slotKey(day.value, meal.value)
+                  ? 'border-fork-clay bg-fork-clay-soft'
+                  : getPlannedMeals(day.value, meal.value).length > 0
+                    ? 'border-fork-line bg-fork-bg'
+                    : 'border-dashed border-fork-line bg-fork-bg'
               "
+              @dragover.prevent="handleDragOver($event, day.value, meal.value)"
+              @dragleave="handleDragLeave(day.value, meal.value)"
+              @drop.prevent="handleDrop($event, day.value, meal.value)"
             >
               <h3
                 class="text-xs font-black uppercase tracking-wide text-fork-muted"
@@ -170,7 +175,10 @@
                 <div
                   v-for="plannedMeal in getPlannedMeals(day.value, meal.value)"
                   :key="plannedMeal.id"
-                  class="relative overflow-hidden rounded-2xl bg-fork-card shadow-sm"
+                  draggable="true"
+                  class="relative cursor-grab overflow-hidden rounded-2xl bg-fork-card shadow-sm active:cursor-grabbing"
+                  @dragstart="handleDragStart($event, plannedMeal)"
+                  @dragend="handleDragEnd"
                 >
                   <NuxtLink
                     :to="`/recipes/${plannedMeal.recipeId}`"
@@ -270,7 +278,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePlannerStore, type MealType } from "~/stores/planner";
+import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
 
 const plannerStore = usePlannerStore();
 
@@ -317,6 +325,74 @@ function getPlannedMeals(day: string, meal: MealType) {
 
 function getDayPlannedMeals(day: string) {
   return plannerStore.plannedMeals.filter((plannedMeal) => plannedMeal.day === day);
+}
+
+function slotKey(day: string, meal: MealType) {
+  return `${day}-${meal}`;
+}
+
+const dragOverSlot = ref<string | null>(null);
+
+function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
+  if (!event.dataTransfer) {
+    return;
+  }
+
+  event.dataTransfer.effectAllowed = "copyMove";
+  event.dataTransfer.setData("application/json", JSON.stringify(plannedMeal));
+  plannerStore.isDragging = true;
+}
+
+function handleDragEnd() {
+  plannerStore.isDragging = false;
+  dragOverSlot.value = null;
+}
+
+function handleDragOver(event: DragEvent, day: string, meal: MealType) {
+  dragOverSlot.value = slotKey(day, meal);
+
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = event.ctrlKey || event.metaKey ? "copy" : "move";
+  }
+}
+
+function handleDragLeave(day: string, meal: MealType) {
+  if (dragOverSlot.value === slotKey(day, meal)) {
+    dragOverSlot.value = null;
+  }
+}
+
+function handleDrop(event: DragEvent, day: string, meal: MealType) {
+  dragOverSlot.value = null;
+  plannerStore.isDragging = false;
+
+  const payload = event.dataTransfer?.getData("application/json");
+
+  if (!payload) {
+    return;
+  }
+
+  let dragged: PlannedMeal;
+
+  try {
+    dragged = JSON.parse(payload);
+  } catch {
+    return;
+  }
+
+  if (event.ctrlKey || event.metaKey) {
+    plannerStore.addMeal({
+      day,
+      meal,
+      recipeId: dragged.recipeId,
+      recipeName: dragged.recipeName,
+      recipeImage: dragged.recipeImage,
+      category: dragged.category,
+      ingredients: dragged.ingredients,
+    });
+  } else {
+    plannerStore.assignMeal(dragged.id, day, meal);
+  }
 }
 
 const collapsedDays = ref<Set<string>>(new Set());

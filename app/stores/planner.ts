@@ -52,6 +52,7 @@ export const usePlannerStore = defineStore("planner", () => {
   const checkedShoppingItems = ref<string[]>([]);
   const isShoppingListOpen = ref(false);
   const isDraftsOpen = ref(false);
+  const isDragging = ref(false);
 
   function loadFromStorage() {
     if (!import.meta.client) {
@@ -216,6 +217,7 @@ export const usePlannerStore = defineStore("planner", () => {
     checkedShoppingItems,
     isShoppingListOpen,
     isDraftsOpen,
+    isDragging,
     loadFromStorage,
     addMeal,
     addDraft,

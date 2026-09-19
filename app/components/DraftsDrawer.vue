@@ -11,6 +11,7 @@
       <div
         v-if="open"
         class="fixed inset-0 z-50 bg-fork-ink/40"
+        :class="{ 'pointer-events-none': plannerStore.isDragging }"
         @click="open = false"
       />
     </Transition>
@@ -90,7 +91,10 @@
             <div
               v-for="draft in filteredDrafts"
               :key="draft.id"
-              class="overflow-hidden rounded-2xl bg-fork-bg shadow-sm ring-1 ring-fork-line"
+              draggable="true"
+              class="cursor-grab overflow-hidden rounded-2xl bg-fork-bg shadow-sm ring-1 ring-fork-line active:cursor-grabbing"
+              @dragstart="handleDragStart($event, draft)"
+              @dragend="handleDragEnd"
             >
               <NuxtLink :to="`/recipes/${draft.recipeId}`" class="block">
                 <div class="relative">
@@ -218,11 +222,25 @@
 </template>
 
 <script setup lang="ts">
-import { usePlannerStore, type MealType } from "~/stores/planner";
+import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
 
 const open = defineModel<boolean>("open", { default: false });
 
 const plannerStore = usePlannerStore();
+
+function handleDragStart(event: DragEvent, draft: PlannedMeal) {
+  if (!event.dataTransfer) {
+    return;
+  }
+
+  event.dataTransfer.effectAllowed = "copyMove";
+  event.dataTransfer.setData("application/json", JSON.stringify(draft));
+  plannerStore.isDragging = true;
+}
+
+function handleDragEnd() {
+  plannerStore.isDragging = false;
+}
 
 const panelRef = ref<HTMLElement | null>(null);
 const pendingRemovalId = ref<string | null>(null);
