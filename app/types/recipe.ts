@@ -3,6 +3,6 @@ export type Recipe = {
   title: string;
   category: string;
   area: string;
-  description: string;
+  description?: string;
   image: string;
 };

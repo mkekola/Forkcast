@@ -501,7 +501,6 @@ const recipes = computed(() => {
           : isLookedUp
             ? "Ladataan…"
             : "Lisätiedot reseptissä",
-        description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
       };
     }
@@ -519,7 +518,6 @@ const recipes = computed(() => {
             ? "Ladataan…"
             : "Lisätiedot reseptissä",
         area: translateArea(search.query),
-        description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
       };
     }

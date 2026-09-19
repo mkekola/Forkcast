@@ -76,7 +76,7 @@ export const useFavoritesStore = defineStore("favorites", () => {
       title: recipe.title,
       category: recipe.category,
       area: recipe.area,
-      description: recipe.description,
+      description: recipe.description ?? "",
       image: recipe.image,
     });
 
