@@ -110,9 +110,9 @@
         </svg>
         <span
           v-if="plannedCount > 0"
-          class="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-fork-clay text-[9px] font-bold text-white"
+          class="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fork-clay px-0.5 text-[9px] font-bold text-white [font-variant-numeric:lining-nums_tabular-nums]"
         >
-          {{ plannedCount }}
+          {{ plannedCountLabel }}
         </span>
       </span>
       Viikko
@@ -133,6 +133,7 @@ const links = [
 ];
 
 const plannedCount = computed(() => plannerStore.plannedMeals.length);
+const plannedCountLabel = computed(() => (plannedCount.value > 99 ? "99+" : String(plannedCount.value)));
 
 function isActiveLink(path: string) {
   if (path === "/") {
