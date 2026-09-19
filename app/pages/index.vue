@@ -5,10 +5,10 @@
 
       <section class="py-14 md:py-20">
         <div
-          class="grid grid-cols-1 gap-4 md:gap-5 md:[grid-template-columns:1.3fr_1.3fr_1fr] md:[grid-template-areas:'hero_hero_a1'_'hero_hero_a3'_'hero_hero_a4']"
+          class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-stretch md:gap-5"
         >
           <div
-            class="flex flex-col justify-center gap-4 rounded-[2rem] bg-fork-card p-7 ring-1 ring-fork-line shadow-sm md:p-9 md:[grid-area:hero]"
+            class="flex flex-col justify-center gap-4 rounded-[2rem] bg-fork-card p-7 ring-1 ring-fork-line shadow-sm md:p-9"
           >
             <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
               Viikkosi, katettuna.
@@ -31,91 +31,92 @@
                 Selaa reseptejä
               </NuxtLink>
             </div>
-
-            <p v-if="randomRecipeError" class="text-sm font-semibold text-red-700">
-              Satunnaisen reseptin haku epäonnistui. Kokeile hetken päästä
-              uudelleen.
-            </p>
           </div>
 
-          <button
-            type="button"
-            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 text-left ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay disabled:cursor-not-allowed disabled:opacity-70 md:[grid-area:a1]"
-            :disabled="randomRecipePending"
-            @click="getRandomRecipe"
+          <div
+            class="relative h-72 overflow-hidden rounded-[2rem] bg-fork-card ring-1 ring-fork-line shadow-sm md:h-auto"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              class="h-6 w-6 text-fork-clay"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <circle cx="12" cy="12" r="3.6" />
-            </svg>
-            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
-              Inspiraatio
-            </span>
-            <span class="text-base font-black leading-snug">
-              {{ randomRecipePending ? "Arvotaan reseptiä…" : "Yllätä minut reseptillä" }}
-            </span>
-            <span class="text-xs text-fork-muted">Satunnainen resepti</span>
-          </button>
+            <div
+              v-if="inspirationRecipes.length === 0"
+              class="h-full w-full animate-pulse bg-fork-bg"
+            />
 
-          <NuxtLink
-            to="/planner"
-            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a3]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6 text-fork-clay"
-              aria-hidden="true"
-            >
-              <rect x="3.5" y="4.5" width="17" height="16" rx="2" />
-              <path d="M3.5 9.5h17M8 3v3M16 3v3" />
-            </svg>
-            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
-              Viikko
-            </span>
-            <span class="text-base font-black leading-snug">Viikkosuunnitelma</span>
-            <span class="text-xs text-fork-muted">{{ plannedMealsLabel }}</span>
-          </NuxtLink>
+            <template v-else>
+              <NuxtLink
+                :to="`/recipes/${currentInspiration?.idMeal}`"
+                class="group block h-full w-full"
+              >
+                <img
+                  :src="currentInspiration?.strMealThumb"
+                  :alt="currentInspiration?.strMeal"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                >
 
-          <button
-            type="button"
-            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 text-left ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a4]"
-            @click="plannerStore.isShoppingListOpen = true"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6 text-fork-clay"
-              aria-hidden="true"
-            >
-              <path d="M4 4h2l1.6 10.6a2 2 0 002 1.7h7.6a2 2 0 002-1.7L20 8H7" />
-              <circle cx="10" cy="20" r="1.3" />
-              <circle cx="17" cy="20" r="1.3" />
-            </svg>
-            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
-              Lista
-            </span>
-            <span class="text-base font-black leading-snug">Ostoslista</span>
-            <span class="text-xs text-fork-muted">{{ shoppingItemsLabel }}</span>
-          </button>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+
+                <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                  <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
+                    Inspiraatio
+                  </p>
+
+                  <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
+                    {{ currentInspiration?.strMeal }}
+                  </h2>
+                </div>
+              </NuxtLink>
+
+              <button
+                type="button"
+                class="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
+                aria-label="Edellinen inspiraatioresepti"
+                @click.prevent.stop="showPreviousInspiration"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
+                aria-label="Seuraava inspiraatioresepti"
+                @click.prevent.stop="showNextInspiration"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </button>
+
+              <div class="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 gap-1.5">
+                <span
+                  v-for="(recipe, index) in inspirationRecipes"
+                  :key="recipe.idMeal"
+                  class="h-1.5 w-1.5 rounded-full transition"
+                  :class="index === inspirationIndex ? 'bg-white' : 'bg-white/40'"
+                />
+              </div>
+            </template>
+          </div>
         </div>
       </section>
 
@@ -299,9 +300,6 @@ const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
 
 const hasSearched = computed(() => searchQuery.value.length > 0);
 
-const randomRecipePending = ref(false);
-const randomRecipeError = ref(false);
-
 const quickSearches = [
   { label: "Kana", query: "kana" },
   { label: "Naudanliha", query: "naudanliha" },
@@ -363,19 +361,56 @@ const featuredMealSub = computed(() => {
   return `${translateCategory(featuredMeal.value.strCategory)} · ${translateArea(featuredMeal.value.strArea)}`;
 });
 
-const plannedMealsLabel = computed(() => {
-  const count = plannerStore.plannedMeals.length;
-  return count === 1 ? "1 ateria lisätty" : `${count} ateriaa lisätty`;
-});
+const INSPIRATION_RECIPE_COUNT = 5;
 
-const shoppingItemsLabel = computed(() => {
-  const count = plannerStore.shoppingList.length;
-  return count === 1 ? "1 tuote" : `${count} tuotetta`;
-});
+const inspirationRecipes = ref<MealDbMeal[]>([]);
+const inspirationIndex = ref(0);
+
+const currentInspiration = computed(
+  () => inspirationRecipes.value[inspirationIndex.value] ?? null,
+);
+
+async function loadInspirationRecipes() {
+  const results = await Promise.all(
+    Array.from({ length: INSPIRATION_RECIPE_COUNT }, () => mealDbApi.fetchRandomMeal()),
+  );
+
+  const seenIds = new Set<string>();
+  const uniqueMeals: MealDbMeal[] = [];
+
+  results.forEach((meal) => {
+    if (meal && !seenIds.has(meal.idMeal)) {
+      seenIds.add(meal.idMeal);
+      uniqueMeals.push(meal);
+    }
+  });
+
+  inspirationRecipes.value = uniqueMeals;
+  inspirationIndex.value = 0;
+}
+
+function showNextInspiration() {
+  if (inspirationRecipes.value.length === 0) {
+    return;
+  }
+
+  inspirationIndex.value = (inspirationIndex.value + 1) % inspirationRecipes.value.length;
+}
+
+function showPreviousInspiration() {
+  if (inspirationRecipes.value.length === 0) {
+    return;
+  }
+
+  inspirationIndex.value =
+    (inspirationIndex.value - 1 + inspirationRecipes.value.length) %
+    inspirationRecipes.value.length;
+}
 
 onMounted(() => {
   plannerStore.loadFromStorage();
   loadFeaturedMeal();
+  loadInspirationRecipes();
 });
 
 const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
@@ -408,26 +443,6 @@ function searchRecipes() {
 function selectQuickSearch(query: string) {
   searchInput.value = query;
   updateSearchQuery(query);
-}
-
-async function getRandomRecipe() {
-  randomRecipePending.value = true;
-  randomRecipeError.value = false;
-
-  try {
-    const randomMeal = await mealDbApi.fetchRandomMeal();
-
-    if (!randomMeal) {
-      randomRecipeError.value = true;
-      return;
-    }
-
-    await navigateTo(`/recipes/${randomMeal.idMeal}`);
-  } catch {
-    randomRecipeError.value = true;
-  } finally {
-    randomRecipePending.value = false;
-  }
 }
 
 watch(
