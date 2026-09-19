@@ -4,7 +4,7 @@ import {
   type ShoppingCategory,
 } from "~/utils/shoppingList";
 
-export type MealType = "breakfast" | "lunch" | "dinner";
+export type MealType = "breakfast" | "lunch" | "dinner" | "supper";
 
 export type Ingredient = {
   name: string;

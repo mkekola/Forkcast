@@ -65,7 +65,7 @@
 
         <p class="mx-auto mt-3 max-w-xl leading-7 text-fork-muted">
           Selaa reseptejä, avaa herkulliselta näyttävä vaihtoehto ja lisää se
-          aamiaiseksi, päivälliseksi tai iltapalaksi.
+          aamupalaksi, lounaaksi, päivälliseksi tai illalliseksi.
         </p>
 
         <NuxtLink
@@ -90,7 +90,7 @@
             </div>
           </div>
 
-          <div class="grid gap-4 lg:grid-cols-3">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <section
               v-for="meal in meals"
               :key="meal.value"
@@ -262,6 +262,7 @@ const meals: { value: MealType; label: string }[] = [
   { value: "breakfast", label: "Aamupala" },
   { value: "lunch", label: "Lounas" },
   { value: "dinner", label: "Päivällinen" },
+  { value: "supper", label: "Illallinen" },
 ];
 
 function getPlannedMeals(day: string, meal: MealType) {

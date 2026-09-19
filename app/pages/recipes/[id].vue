@@ -334,6 +334,7 @@ const mealOptions: { value: MealType; label: string }[] = [
   { value: "breakfast", label: "Aamupala" },
   { value: "lunch", label: "Lounas" },
   { value: "dinner", label: "Päivällinen" },
+  { value: "supper", label: "Illallinen" },
 ];
 
 const { data, pending, error } = await useFetch<MealDbLookupResponse>(
