@@ -46,5 +46,11 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ['@pinia/nuxt', '@nuxt/eslint'],
+  modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxtjs/supabase'],
+
+  supabase: {
+    // Every visitor is signed in anonymously by a plugin, so there is no
+    // login page to redirect to and no route protection to enforce here.
+    redirect: false,
+  },
 })
