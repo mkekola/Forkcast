@@ -131,7 +131,7 @@
 
       <section id="reseptit" class="pb-20">
         <div class="mb-8">
-          <div class="mx-auto flex max-w-2xl gap-3">
+          <div class="flex max-w-2xl gap-3">
             <input
               v-model="searchInput"
               type="search"
@@ -149,7 +149,7 @@
             </button>
           </div>
 
-          <div class="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2">
+          <div class="mt-4 flex max-w-xl flex-wrap gap-2">
             <button
               v-for="quickSearch in quickSearches"
               :key="quickSearch.query"
