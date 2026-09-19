@@ -212,7 +212,8 @@
             class="mt-3 text-sm font-bold text-fork-clay"
           >
             {{ recipes.length }} reseptiä
-            <template v-if="selectedCategoryLabelsText"> kategoriassa {{ selectedCategoryLabelsText }}</template>
+            <template v-if="baseCategoryLabel"> kategoriassa {{ baseCategoryLabel }}</template>
+            <template v-if="narrowingCategoryLabels.length"> jotka sisältävät myös: {{ narrowingCategoryLabels.join(", ") }}</template>
             <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
           </p>
         </div>
@@ -245,12 +246,15 @@
           class="rounded-3xl border border-fork-line bg-fork-card p-8 text-fork-muted"
         >
           <template v-if="searchQuery">
-            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="selectedCategoryLabelsText"> kategoriassa {{ selectedCategoryLabelsText }}</template>.
+            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="baseCategoryLabel"> kategoriassa {{ baseCategoryLabel }}</template>.
             Kokeile esimerkiksi hakua <strong>pasta</strong>, <strong>chicken</strong> tai
             <strong>beef</strong>.
           </template>
+          <template v-else-if="narrowingCategoryLabels.length">
+            Ei reseptejä kategoriassa {{ baseCategoryLabel }} jotka sisältävät myös: {{ narrowingCategoryLabels.join(", ") }}.
+          </template>
           <template v-else>
-            Ei reseptejä kategoriassa {{ selectedCategoryLabelsText }}.
+            Ei reseptejä kategoriassa {{ baseCategoryLabel }}.
           </template>
         </div>
 
@@ -292,9 +296,11 @@ const searchQuery = computed(() => {
 });
 
 // Multiple category chips can be active at once (comma-separated in the
-// URL), since TheMealDB's categories are mutually exclusive per recipe -
-// selecting Kana + Pasta shows chicken recipes AND pasta recipes together,
-// not their (always-empty) intersection.
+// URL). Since TheMealDB's categories are mutually exclusive per recipe,
+// "Kana + Pasta" can't mean recipes that are both at once - instead the
+// most recently selected category is fetched as the base list, and every
+// other selected category narrows it by title, same as free text does
+// (e.g. Kana then Pasta shows Pasta recipes whose title mentions chicken).
 const selectedCategories = computed<string[]>(() => {
   const raw = route.query.cat;
 
@@ -305,39 +311,39 @@ const selectedCategories = computed<string[]>(() => {
   return raw.split(",");
 });
 
-const selectedCategoryLabels = computed(() =>
-  selectedCategories.value.map((category) => translateCategory(category)),
+const baseCategory = computed(
+  () => selectedCategories.value[selectedCategories.value.length - 1] ?? null,
 );
 
-const selectedCategoryLabelsText = computed(() => {
-  const labels = selectedCategoryLabels.value;
+const narrowingCategories = computed(() => selectedCategories.value.slice(0, -1));
 
-  if (labels.length === 0) {
-    return null;
-  }
+const baseCategoryLabel = computed(() =>
+  baseCategory.value ? translateCategory(baseCategory.value) : null,
+);
 
-  if (labels.length === 1) {
-    return labels[0];
-  }
+const narrowingCategoryLabels = computed(() =>
+  narrowingCategories.value.map((category) => translateCategory(category)),
+);
 
-  return `${labels.slice(0, -1).join(", ")} ja ${labels[labels.length - 1]}`;
-});
-
-// A quick-search chip always narrows by category. When free text is also
-// present, that text is used to filter the category results by title
-// client-side (TheMealDB has no "category + text" endpoint) instead of
-// being interpreted as its own name/area/category search.
 const mealDbSearch = computed(() => {
-  if (selectedCategories.value.length > 0) {
-    return { type: "category" as const, query: selectedCategories.value[0] };
+  if (baseCategory.value) {
+    return { type: "category" as const, query: baseCategory.value };
   }
 
   return getMealDbSearch(searchQuery.value);
 });
 
-const isCombinedFilter = computed(
-  () => selectedCategories.value.length > 0 && searchQuery.value.length > 0,
-);
+// Every extra selected category (beyond the base one being fetched) and
+// any free text must all appear in a result's title for it to survive.
+const narrowingKeywords = computed(() => {
+  const keywords = narrowingCategories.value.map((category) => category.toLowerCase());
+
+  if (searchQuery.value) {
+    keywords.push(searchQuery.value.toLowerCase());
+  }
+
+  return keywords;
+});
 
 const hasSearched = computed(
   () => searchQuery.value.length > 0 || selectedCategories.value.length > 0,
@@ -469,29 +475,15 @@ onMounted(() => {
 
 const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
   "recipe-search",
-  async () => {
+  () => {
     if (!hasSearched.value) {
-      return null;
-    }
-
-    if (selectedCategories.value.length > 0) {
-      const results = await Promise.all(
-        selectedCategories.value.map(async (category) => {
-          const response = await $fetch<MealDbSearchResponse>(
-            mealDbApi.getSearchUrl({ type: "category", query: category }),
-          );
-
-          return (response.meals ?? []).map((meal) => ({ ...meal, strCategory: category }));
-        }),
-      );
-
-      return { meals: results.flat() };
+      return Promise.resolve(null);
     }
 
     return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(mealDbSearch.value));
   },
   {
-    watch: [selectedCategories, searchQuery],
+    watch: [mealDbSearch],
   },
 );
 
@@ -533,19 +525,21 @@ watch(
   },
 );
 
-// When a category chip and free text are both active, TheMealDB has no
-// "category + text" endpoint, so the category's results are narrowed by
-// title client-side instead.
+// Extra selected categories and free text both narrow the base category's
+// results by title client-side, since TheMealDB has no "category + text"
+// (or "category + category") endpoint.
 const filteredMeals = computed(() => {
   const meals = data.value?.meals ?? [];
+  const keywords = narrowingKeywords.value;
 
-  if (!isCombinedFilter.value) {
+  if (keywords.length === 0) {
     return meals;
   }
 
-  const text = searchQuery.value.toLowerCase();
-
-  return meals.filter((meal) => meal.strMeal.toLowerCase().includes(text));
+  return meals.filter((meal) => {
+    const title = meal.strMeal.toLowerCase();
+    return keywords.every((keyword) => title.includes(keyword));
+  });
 });
 
 // TheMealDB's free tier starts failing unrelated requests too if we fetch
@@ -597,7 +591,7 @@ const recipes = computed(() => {
       return {
         id: meal.idMeal,
         title: meal.strMeal,
-        category: translateCategory(fullMeal.strCategory ?? search.query),
+        category: translateCategory(search.query),
         area: details
           ? translateArea(details.strArea ?? details.strCountry)
           : isLookedUp
