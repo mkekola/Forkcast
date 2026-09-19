@@ -198,10 +198,6 @@
             </h2>
           </div>
 
-          <p class="max-w-md text-sm leading-6 text-fork-muted">
-            Hae reseptejä tai valitse pikahaku.
-          </p>
-
           <p
             v-if="searchQuery && !pending && !error"
             class="mt-3 text-sm font-bold text-fork-clay"
