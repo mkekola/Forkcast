@@ -173,7 +173,7 @@
               type="button"
               class="rounded-full border px-4 py-2 text-sm font-bold transition"
               :class="
-                selectedCategory === quickSearch.category
+                selectedCategories.includes(quickSearch.category)
                   ? 'border-fork-clay bg-fork-clay text-white'
                   : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
               "
@@ -212,7 +212,7 @@
             class="mt-3 text-sm font-bold text-fork-clay"
           >
             {{ recipes.length }} reseptiä
-            <template v-if="selectedCategoryLabel"> kategoriassa {{ selectedCategoryLabel }}</template>
+            <template v-if="selectedCategoryLabelsText"> kategoriassa {{ selectedCategoryLabelsText }}</template>
             <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
           </p>
         </div>
@@ -245,12 +245,12 @@
           class="rounded-3xl border border-fork-line bg-fork-card p-8 text-fork-muted"
         >
           <template v-if="searchQuery">
-            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="selectedCategoryLabel"> kategoriassa {{ selectedCategoryLabel }}</template>.
+            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="selectedCategoryLabelsText"> kategoriassa {{ selectedCategoryLabelsText }}</template>.
             Kokeile esimerkiksi hakua <strong>pasta</strong>, <strong>chicken</strong> tai
             <strong>beef</strong>.
           </template>
           <template v-else>
-            Ei reseptejä kategoriassa {{ selectedCategoryLabel }}.
+            Ei reseptejä kategoriassa {{ selectedCategoryLabelsText }}.
           </template>
         </div>
 
@@ -291,32 +291,56 @@ const searchQuery = computed(() => {
   return typeof route.query.q === "string" ? route.query.q.trim() : "";
 });
 
-const selectedCategory = computed(() => {
-  return typeof route.query.cat === "string" ? route.query.cat : null;
+// Multiple category chips can be active at once (comma-separated in the
+// URL), since TheMealDB's categories are mutually exclusive per recipe -
+// selecting Kana + Pasta shows chicken recipes AND pasta recipes together,
+// not their (always-empty) intersection.
+const selectedCategories = computed<string[]>(() => {
+  const raw = route.query.cat;
+
+  if (typeof raw !== "string" || !raw) {
+    return [];
+  }
+
+  return raw.split(",");
 });
 
-const selectedCategoryLabel = computed(() =>
-  selectedCategory.value ? translateCategory(selectedCategory.value) : null,
+const selectedCategoryLabels = computed(() =>
+  selectedCategories.value.map((category) => translateCategory(category)),
 );
+
+const selectedCategoryLabelsText = computed(() => {
+  const labels = selectedCategoryLabels.value;
+
+  if (labels.length === 0) {
+    return null;
+  }
+
+  if (labels.length === 1) {
+    return labels[0];
+  }
+
+  return `${labels.slice(0, -1).join(", ")} ja ${labels[labels.length - 1]}`;
+});
 
 // A quick-search chip always narrows by category. When free text is also
 // present, that text is used to filter the category results by title
 // client-side (TheMealDB has no "category + text" endpoint) instead of
 // being interpreted as its own name/area/category search.
 const mealDbSearch = computed(() => {
-  if (selectedCategory.value) {
-    return { type: "category" as const, query: selectedCategory.value };
+  if (selectedCategories.value.length > 0) {
+    return { type: "category" as const, query: selectedCategories.value[0] };
   }
 
   return getMealDbSearch(searchQuery.value);
 });
 
 const isCombinedFilter = computed(
-  () => Boolean(selectedCategory.value) && searchQuery.value.length > 0,
+  () => selectedCategories.value.length > 0 && searchQuery.value.length > 0,
 );
 
 const hasSearched = computed(
-  () => searchQuery.value.length > 0 || Boolean(selectedCategory.value),
+  () => searchQuery.value.length > 0 || selectedCategories.value.length > 0,
 );
 
 const quickSearches = [
@@ -445,15 +469,29 @@ onMounted(() => {
 
 const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
   "recipe-search",
-  () => {
+  async () => {
     if (!hasSearched.value) {
-      return Promise.resolve(null);
+      return null;
+    }
+
+    if (selectedCategories.value.length > 0) {
+      const results = await Promise.all(
+        selectedCategories.value.map(async (category) => {
+          const response = await $fetch<MealDbSearchResponse>(
+            mealDbApi.getSearchUrl({ type: "category", query: category }),
+          );
+
+          return (response.meals ?? []).map((meal) => ({ ...meal, strCategory: category }));
+        }),
+      );
+
+      return { meals: results.flat() };
     }
 
     return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(mealDbSearch.value));
   },
   {
-    watch: [mealDbSearch],
+    watch: [selectedCategories, searchQuery],
   },
 );
 
@@ -464,7 +502,7 @@ function updateSearchQuery(query: string) {
     path: "/",
     query: {
       ...(trimmedQuery ? { q: trimmedQuery } : {}),
-      ...(selectedCategory.value ? { cat: selectedCategory.value } : {}),
+      ...(selectedCategories.value.length ? { cat: selectedCategories.value.join(",") } : {}),
     },
   });
 }
@@ -474,13 +512,16 @@ function searchRecipes() {
 }
 
 function toggleCategory(category: string) {
-  const nextCategory = selectedCategory.value === category ? null : category;
+  const current = selectedCategories.value;
+  const nextCategories = current.includes(category)
+    ? current.filter((selected) => selected !== category)
+    : [...current, category];
 
   router.push({
     path: "/",
     query: {
       ...(searchQuery.value ? { q: searchQuery.value } : {}),
-      ...(nextCategory ? { cat: nextCategory } : {}),
+      ...(nextCategories.length ? { cat: nextCategories.join(",") } : {}),
     },
   });
 }
@@ -556,7 +597,7 @@ const recipes = computed(() => {
       return {
         id: meal.idMeal,
         title: meal.strMeal,
-        category: translateCategory(search.query),
+        category: translateCategory(fullMeal.strCategory ?? search.query),
         area: details
           ? translateArea(details.strArea ?? details.strCountry)
           : isLookedUp
