@@ -36,8 +36,17 @@ export default defineNuxtConfig({
             'Hae reseptejä, suunnittele viikon ateriat ja muodosta ostoslista automaattisesti.',
         },
         { property: 'og:image', content: 'https://forkcast.kekola.fi/images/og-image.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
         { property: 'og:url', content: 'https://forkcast.kekola.fi' },
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Forkcast – Viikkosi, katettuna.' },
+        {
+          name: 'twitter:description',
+          content:
+            'Hae reseptejä, suunnittele viikon ateriat ja muodosta ostoslista automaattisesti.',
+        },
+        { name: 'twitter:image', content: 'https://forkcast.kekola.fi/images/og-image.png' },
       ],
     },
   },
