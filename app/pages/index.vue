@@ -130,7 +130,7 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mx-auto mb-8 max-w-3xl">
+        <div class="mx-auto mb-8 max-w-xl">
           <div class="flex gap-3">
             <input
               v-model="searchInput"
