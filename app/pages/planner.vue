@@ -134,7 +134,10 @@
                     </svg>
                   </button>
 
-                  <div class="flex gap-3 p-3">
+                  <NuxtLink
+                    :to="`/recipes/${plannedMeal.recipeId}`"
+                    class="flex gap-3 rounded-2xl p-3 transition hover:bg-fork-bg"
+                  >
                     <img
                       :src="plannedMeal.recipeImage"
                       :alt="plannedMeal.recipeName"
@@ -152,7 +155,7 @@
                         {{ plannedMeal.category }}
                       </span>
                     </div>
-                  </div>
+                  </NuxtLink>
 
                   <ConfirmInline
                     v-if="pendingRemovalId === plannedMeal.id"
