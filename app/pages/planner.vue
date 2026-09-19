@@ -191,23 +191,45 @@
                         class="h-28 w-full rounded-t-2xl object-cover"
                       >
 
-                      <button
-                        type="button"
-                        class="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
-                        :aria-label="`Poista ${plannedMeal.recipeName} suunnitelmasta`"
-                        @click.prevent.stop="askToRemoveMeal(plannedMeal.id)"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          class="h-3.5 w-3.5"
+                      <div class="absolute right-2 top-2 z-10 flex gap-1.5">
+                        <button
+                          type="button"
+                          class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-fork-clay shadow-sm backdrop-blur transition hover:bg-fork-clay-soft focus:outline-none focus:ring-2 focus:ring-fork-clay"
+                          :aria-label="`Siirrä ${plannedMeal.recipeName} toiseen ajankohtaan`"
+                          @click.prevent.stop="startMovingMeal(plannedMeal.id)"
                         >
-                          <path
-                            d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="h-3.5 w-3.5"
+                          >
+                            <path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                          :aria-label="`Poista ${plannedMeal.recipeName} suunnitelmasta`"
+                          @click.prevent.stop="askToRemoveMeal(plannedMeal.id)"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            class="h-3.5 w-3.5"
+                          >
+                            <path
+                              d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="p-3">
@@ -222,6 +244,77 @@
                       </span>
                     </div>
                   </NuxtLink>
+
+                  <div
+                    v-if="movingMealId === plannedMeal.id"
+                    class="border-t border-fork-line bg-fork-card p-3"
+                  >
+                    <div class="grid grid-cols-2 gap-2">
+                      <div class="relative">
+                        <select
+                          v-model="getMoveSelection(plannedMeal.id, day.value, meal.value).day"
+                          class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-3 py-2 pr-8 text-xs outline-none focus:border-fork-ink"
+                        >
+                          <option
+                            v-for="dayOption in days"
+                            :key="dayOption.value"
+                            :value="dayOption.value"
+                          >
+                            {{ dayOption.shortLabel }}
+                          </option>
+                        </select>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
+                          aria-hidden="true"
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+
+                      <div class="relative">
+                        <select
+                          v-model="getMoveSelection(plannedMeal.id, day.value, meal.value).meal"
+                          class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-3 py-2 pr-8 text-xs outline-none focus:border-fork-ink"
+                        >
+                          <option
+                            v-for="mealOption in meals"
+                            :key="mealOption.value"
+                            :value="mealOption.value"
+                          >
+                            {{ mealOption.label }}
+                          </option>
+                        </select>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
+                          aria-hidden="true"
+                        >
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="mt-2 w-full rounded-full bg-fork-clay px-4 py-2 text-xs font-bold text-white transition hover:bg-fork-clay-dark"
+                      @click="confirmMoveMeal(plannedMeal.id)"
+                    >
+                      Siirrä
+                    </button>
+                  </div>
 
                   <ConfirmInline
                     v-if="pendingRemovalId === plannedMeal.id"
@@ -290,6 +383,31 @@ useSeoMeta({
 const pendingClearWeek = ref(false);
 
 const pendingRemovalId = ref<string | null>(null);
+
+const movingMealId = ref<string | null>(null);
+const moveSelections = reactive<Record<string, { day: string; meal: MealType }>>({});
+
+function getMoveSelection(plannedMealId: string, currentDay: string, currentMeal: MealType) {
+  if (!moveSelections[plannedMealId]) {
+    moveSelections[plannedMealId] = { day: currentDay, meal: currentMeal };
+  }
+
+  return moveSelections[plannedMealId];
+}
+
+function startMovingMeal(plannedMealId: string) {
+  movingMealId.value = movingMealId.value === plannedMealId ? null : plannedMealId;
+}
+
+function confirmMoveMeal(plannedMealId: string) {
+  const selection = moveSelections[plannedMealId];
+
+  if (selection) {
+    plannerStore.assignMeal(plannedMealId, selection.day, selection.meal);
+  }
+
+  movingMealId.value = null;
+}
 
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
 
