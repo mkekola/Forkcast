@@ -76,7 +76,150 @@
         </NuxtLink>
       </div>
 
-      <section v-else class="space-y-4">
+      <section
+        v-if="plannerStore.getDrafts().length > 0"
+        class="mt-10 rounded-[2rem] border border-fork-line bg-fork-card p-5 shadow-sm"
+      >
+        <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
+          Luonnokset
+        </p>
+
+        <h2 class="mt-2 text-2xl font-black tracking-tight">
+          Ei vielä sijoitettu viikkoon
+        </h2>
+
+        <p class="mt-1 text-sm text-fork-muted">
+          Valitse päivä ja ateria, kun olet valmis sijoittamaan reseptin.
+        </p>
+
+        <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-for="draft in plannerStore.getDrafts()"
+            :key="draft.id"
+            class="overflow-hidden rounded-2xl bg-fork-bg shadow-sm ring-1 ring-fork-line"
+          >
+            <NuxtLink :to="`/recipes/${draft.recipeId}`" class="block">
+              <div class="relative">
+                <img
+                  :src="draft.recipeImage"
+                  :alt="draft.recipeName"
+                  class="h-28 w-full object-cover"
+                >
+
+                <button
+                  type="button"
+                  class="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  :aria-label="`Poista ${draft.recipeName} luonnoksista`"
+                  @click.prevent.stop="askToRemoveMeal(draft.id)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="h-3.5 w-3.5"
+                  >
+                    <path
+                      d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="p-3">
+                <p class="font-black leading-snug text-fork-ink">
+                  {{ draft.recipeName }}
+                </p>
+
+                <span
+                  class="mt-3 inline-flex rounded-full bg-fork-sage px-3 py-1 text-xs font-bold text-fork-olive"
+                >
+                  {{ draft.category }}
+                </span>
+              </div>
+            </NuxtLink>
+
+            <div class="border-t border-fork-line bg-fork-card p-3">
+              <div class="grid grid-cols-2 gap-2">
+                <div class="relative">
+                  <select
+                    v-model="getDraftSelection(draft.id).day"
+                    class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-3 py-2 pr-8 text-xs outline-none focus:border-fork-ink"
+                  >
+                    <option
+                      v-for="day in days"
+                      :key="day.value"
+                      :value="day.value"
+                    >
+                      {{ day.shortLabel }}
+                    </option>
+                  </select>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </div>
+
+                <div class="relative">
+                  <select
+                    v-model="getDraftSelection(draft.id).meal"
+                    class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-3 py-2 pr-8 text-xs outline-none focus:border-fork-ink"
+                  >
+                    <option
+                      v-for="meal in meals"
+                      :key="meal.value"
+                      :value="meal.value"
+                    >
+                      {{ meal.label }}
+                    </option>
+                  </select>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="mt-2 w-full rounded-full bg-fork-clay px-4 py-2 text-xs font-bold text-white transition hover:bg-fork-clay-dark"
+                @click="assignDraft(draft.id)"
+              >
+                Sijoita viikkoon
+              </button>
+            </div>
+
+            <ConfirmInline
+              v-if="pendingRemovalId === draft.id"
+              class="m-3"
+              title="Poistetaanko tämä luonnos?"
+              description="Resepti poistetaan luonnoksista."
+              confirm-label="Poista"
+              @confirm="confirmRemoveMeal(draft.id)"
+              @cancel="cancelRemoveMeal"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section v-if="hasPlannedMeals" class="space-y-4">
         <article
           v-for="day in days"
           :key="day.value"
@@ -339,6 +482,21 @@ function toggleDayCollapsed(day: string) {
   }
 
   collapsedDays.value = next;
+}
+
+const draftSelections = reactive<Record<string, { day: string; meal: MealType }>>({});
+
+function getDraftSelection(draftId: string) {
+  if (!draftSelections[draftId]) {
+    draftSelections[draftId] = { day: "monday", meal: "dinner" };
+  }
+
+  return draftSelections[draftId];
+}
+
+function assignDraft(draftId: string) {
+  const selection = getDraftSelection(draftId);
+  plannerStore.assignMeal(draftId, selection.day, selection.meal);
 }
 
 function askToRemoveMeal(plannedMealId: string) {

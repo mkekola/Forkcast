@@ -233,8 +233,16 @@
                   Lisää viikkoon
                 </button>
 
+                <button
+                  type="button"
+                  class="rounded-full border border-fork-line px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-fork-ink hover:text-fork-ink"
+                  @click="addRecipeToDrafts"
+                >
+                  Lisää luonnoksiin
+                </button>
+
                 <NuxtLink
-                  v-if="wasAdded"
+                  v-if="addedTo"
                   to="/planner"
                   class="rounded-full border border-fork-line px-6 py-3 text-sm font-bold text-stone-700 transition hover:border-fork-ink hover:text-fork-ink"
                 >
@@ -243,10 +251,17 @@
               </div>
 
               <p
-                v-if="wasAdded"
+                v-if="addedTo === 'assigned'"
                 class="mt-4 text-sm font-semibold text-fork-clay"
               >
                 Lisätty viikkosuunnitelmaan!
+              </p>
+
+              <p
+                v-else-if="addedTo === 'draft'"
+                class="mt-4 text-sm font-semibold text-fork-clay"
+              >
+                Lisätty luonnoksiin!
               </p>
             </div>
           </div>
@@ -318,7 +333,7 @@ const mealDbApi = useMealDbApi();
 
 const selectedDay = ref("monday");
 const selectedMeal = ref<MealType>("dinner");
-const wasAdded = ref(false);
+const addedTo = ref<"assigned" | "draft" | null>(null);
 
 const days = [
   { value: "monday", label: "Maanantai" },
@@ -425,7 +440,23 @@ function addRecipeToPlanner() {
     ingredients: ingredients.value,
   });
 
-  wasAdded.value = true;
+  addedTo.value = "assigned";
+}
+
+function addRecipeToDrafts() {
+  if (!recipe.value) {
+    return;
+  }
+
+  plannerStore.addDraft({
+    recipeId: recipe.value.idMeal,
+    recipeName: recipe.value.strMeal,
+    recipeImage: recipe.value.strMealThumb,
+    category: translatedCategory.value,
+    ingredients: ingredients.value,
+  });
+
+  addedTo.value = "draft";
 }
 
 function toggleFavorite() {
