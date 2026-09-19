@@ -4,17 +4,17 @@
   >
     <NuxtLink
       to="/"
-      class="flex items-center gap-2 font-display text-2xl font-black tracking-tight text-fork-ink"
+      class="flex items-center gap-2.5 font-display text-3xl font-black tracking-tight text-fork-ink"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="h-6 w-6 text-fork-clay"
+        class="h-8 w-8 text-fork-clay"
         aria-hidden="true"
       >
         <path d="M7 3v7M5 3v4a2 2 0 004 0V3M7 10v11M17 3c-1.7 0-3 2-3 5s1.3 5 3 5 3-2 3-5-1.3-5-3-5zM17 13v8" />
