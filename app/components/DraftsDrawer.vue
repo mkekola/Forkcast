@@ -58,6 +58,18 @@
           </button>
         </div>
 
+        <div
+          v-if="plannerStore.getDrafts().length > 0"
+          class="border-b border-fork-line px-6 py-3"
+        >
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Hae luonnoksista…"
+            class="w-full rounded-full border border-fork-line bg-fork-bg px-4 py-2 text-sm outline-none placeholder:text-fork-muted focus:border-fork-ink"
+          >
+        </div>
+
         <div class="flex-1 overflow-y-auto px-6 py-5">
           <div
             v-if="plannerStore.getDrafts().length === 0"
@@ -67,9 +79,16 @@
             se ilmestyy tänne odottamaan sijoittamista.
           </div>
 
+          <div
+            v-else-if="filteredDrafts.length === 0"
+            class="rounded-2xl bg-fork-bg p-5 text-sm text-fork-muted"
+          >
+            Ei luonnoksia haulla "{{ searchQuery }}".
+          </div>
+
           <div v-else class="space-y-4">
             <div
-              v-for="draft in plannerStore.getDrafts()"
+              v-for="draft in filteredDrafts"
               :key="draft.id"
               class="overflow-hidden rounded-2xl bg-fork-bg shadow-sm ring-1 ring-fork-line"
             >
@@ -207,6 +226,18 @@ const plannerStore = usePlannerStore();
 
 const panelRef = ref<HTMLElement | null>(null);
 const pendingRemovalId = ref<string | null>(null);
+const searchQuery = ref("");
+
+const filteredDrafts = computed(() => {
+  const drafts = plannerStore.getDrafts();
+  const query = searchQuery.value.trim().toLowerCase();
+
+  if (!query) {
+    return drafts;
+  }
+
+  return drafts.filter((draft) => draft.recipeName.toLowerCase().includes(query));
+});
 
 const days = [
   { value: "monday", label: "Maanantai", shortLabel: "Ma" },
@@ -262,6 +293,8 @@ watch(open, (isOpen) => {
 
   if (isOpen) {
     nextTick(() => panelRef.value?.focus());
+  } else {
+    searchQuery.value = "";
   }
 });
 
