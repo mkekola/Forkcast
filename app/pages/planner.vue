@@ -20,12 +20,13 @@
 
         <div v-if="hasPlannedMeals" class="mt-6">
           <div class="flex flex-wrap gap-3">
-            <a
-              href="#ostoslista"
+            <button
+              type="button"
               class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+              @click="isShoppingListOpen = true"
             >
               Ostoslistaan
-            </a>
+            </button>
 
             <button
               type="button"
@@ -215,108 +216,35 @@
       </section>
       <section
         v-if="hasPlannedMeals"
-        id="ostoslista"
-        class="mt-10 scroll-mt-8 rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
+        class="mt-10 rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
       >
-        <div
-          class="flex flex-col justify-between gap-4 md:flex-row md:items-end"
-        >
+        <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p
-              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
-            >
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
               Ostoslista
             </p>
 
-            <h2 class="mt-3 text-3xl font-black tracking-tight">
-              Viikon ostokset
+            <h2 class="mt-2 text-2xl font-black tracking-tight">
+              {{ shoppingListSummary }}
             </h2>
+
+            <p class="mt-1 text-sm text-fork-muted">
+              Koostettu viikkosuunnitelmaan lisättyjen reseptien ainesosista.
+            </p>
           </div>
 
-          <p class="max-w-md text-sm leading-6 text-fork-muted">
-            Lista muodostetaan viikkosuunnitelmaan lisättyjen reseptien
-            ainesosista.
-          </p>
+          <button
+            type="button"
+            class="inline-flex shrink-0 items-center gap-2 rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+            @click="isShoppingListOpen = true"
+          >
+            Avaa ostoslista →
+          </button>
         </div>
-
-        <div
-          v-if="plannerStore.shoppingList.length === 0"
-          class="mt-6 rounded-2xl bg-fork-bg p-5 text-sm text-fork-muted"
-        >
-          Ostoslistaa ei voitu vielä muodostaa. Lisää resepti uudelleen
-          viikkoon, jotta sen ainesosat tallentuvat mukaan.
-        </div>
-
-        <template v-else>
-          <ul class="mt-6 grid gap-3 md:grid-cols-2">
-            <li
-              v-for="item in freshShoppingItems"
-              :key="item.key"
-              class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
-              :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
-            >
-              <div>
-                <p
-                  class="font-bold text-fork-ink"
-                  :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
-                >
-                  {{ item.name }}
-                </p>
-
-                <p class="mt-1 text-sm text-stone-500">
-                  {{ item.measure }}
-                </p>
-              </div>
-
-              <input
-                type="checkbox"
-                class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
-                :checked="plannerStore.isShoppingItemChecked(item.key)"
-                @change="plannerStore.toggleShoppingItem(item.key)"
-              >
-            </li>
-          </ul>
-
-          <div v-if="pantryShoppingItems.length > 0" class="mt-8">
-            <p class="text-xs font-bold uppercase tracking-wide text-fork-muted">
-              Mausteet &amp; kuivatavarat
-            </p>
-            <p class="mt-1 text-xs text-fork-muted">
-              Näitä on usein jo kaapissa — tarkista ennen kauppaan lähtöä.
-            </p>
-
-            <ul class="mt-3 grid gap-3 md:grid-cols-2">
-              <li
-                v-for="item in pantryShoppingItems"
-                :key="item.key"
-                class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
-                :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
-              >
-                <div>
-                  <p
-                    class="font-bold text-fork-ink"
-                    :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
-                  >
-                    {{ item.name }}
-                  </p>
-
-                  <p class="mt-1 text-sm text-stone-500">
-                    {{ item.measure }}
-                  </p>
-                </div>
-
-                <input
-                  type="checkbox"
-                  class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
-                  :checked="plannerStore.isShoppingItemChecked(item.key)"
-                  @change="plannerStore.toggleShoppingItem(item.key)"
-                >
-              </li>
-            </ul>
-          </div>
-        </template>
       </section>
     </section>
+
+    <ShoppingListDrawer v-model:open="isShoppingListOpen" />
   </main>
 </template>
 
@@ -330,22 +258,29 @@ useSeoMeta({
   description: "Suunnittele viikon ateriat ja muodosta ostoslista Forkcastissa.",
 });
 
+const route = useRoute();
+const router = useRouter();
+
 const pendingClearWeek = ref(false);
 
 const pendingRemovalId = ref<string | null>(null);
 
+const isShoppingListOpen = ref(false);
+
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
 
-const freshShoppingItems = computed(() =>
-  plannerStore.shoppingList.filter((item) => !item.isPantryStaple),
-);
-
-const pantryShoppingItems = computed(() =>
-  plannerStore.shoppingList.filter((item) => item.isPantryStaple),
-);
+const shoppingListSummary = computed(() => {
+  const count = plannerStore.shoppingList.length;
+  return count === 1 ? "1 tuote" : `${count} tuotetta`;
+});
 
 onMounted(() => {
   plannerStore.loadFromStorage();
+
+  if (route.query.openShoppingList) {
+    isShoppingListOpen.value = true;
+    router.replace({ query: {} });
+  }
 });
 
 const days = [

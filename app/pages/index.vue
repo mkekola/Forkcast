@@ -118,7 +118,7 @@
           </NuxtLink>
 
           <NuxtLink
-            to="/planner#ostoslista"
+            to="/planner?openShoppingList=1"
             class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a4]"
           >
             <svg
