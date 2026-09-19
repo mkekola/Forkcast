@@ -144,8 +144,8 @@
                       class="h-24 w-24 shrink-0 rounded-xl object-cover"
                     >
 
-                    <div class="min-w-0 flex flex-1 flex-col items-start pr-8">
-                      <p class="font-black leading-snug text-fork-ink">
+                    <div class="min-w-0 flex flex-1 flex-col items-start pr-10">
+                      <p class="w-full break-words font-black leading-snug text-fork-ink">
                         {{ plannedMeal.recipeName }}
                       </p>
 
