@@ -36,48 +36,93 @@
         <div class="flex items-center justify-between border-b border-fork-line px-6 py-5">
           <h2 id="shopping-list-heading" class="text-xl font-black">Ostoslista</h2>
 
-          <button
-            type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
-            aria-label="Sulje ostoslista"
-            @click="open = false"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-5 w-5"
-              aria-hidden="true"
+          <div class="flex items-center gap-1">
+            <button
+              v-if="plannerStore.shoppingList.length > 0"
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
+              :aria-label="justCopied ? 'Kopioitu ostoslistalle' : 'Kopioi ostoslista'"
+              :title="justCopied ? 'Kopioitu!' : 'Kopioi'"
+              @click="copyList"
             >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+              <svg
+                v-if="justCopied"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M5 12l5 5L19 7" />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <rect x="9" y="9" width="11" height="11" rx="2" />
+                <path d="M5 15V5a2 2 0 012-2h10" />
+              </svg>
+            </button>
+
+            <button
+              v-if="plannerStore.shoppingList.length > 0"
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
+              aria-label="Lataa ostoslista tiedostona"
+              title="Lataa tiedostona"
+              @click="downloadList"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
+              aria-label="Sulje ostoslista"
+              @click="open = false"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div
-          v-if="plannerStore.shoppingList.length > 0"
-          class="flex items-center gap-2 border-b border-fork-line px-6 py-3"
-        >
-          <button
-            type="button"
-            class="rounded-full border border-fork-line px-4 py-2 text-xs font-bold text-fork-ink transition hover:border-fork-ink"
-            @click="copyList"
-          >
-            {{ copyLabel }}
-          </button>
-
-          <button
-            type="button"
-            class="rounded-full border border-fork-line px-4 py-2 text-xs font-bold text-fork-ink transition hover:border-fork-ink"
-            @click="downloadList"
-          >
-            Lataa tiedostona
-          </button>
-        </div>
+        <span class="sr-only" role="status">{{ justCopied ? "Ostoslista kopioitu leikepöydälle" : "" }}</span>
 
         <div class="flex-1 overflow-y-auto px-6 py-5">
           <div
@@ -178,7 +223,7 @@ const pantryItems = computed(() =>
 );
 
 const panelRef = ref<HTMLElement | null>(null);
-const copyLabel = ref("Kopioi");
+const justCopied = ref(false);
 
 function formatItemLine(item: { key: string; name: string; measure: string }) {
   const checkbox = plannerStore.isShoppingItemChecked(item.key) ? "[x]" : "[ ]";
@@ -203,9 +248,9 @@ function buildListText() {
 async function copyList() {
   try {
     await navigator.clipboard.writeText(buildListText());
-    copyLabel.value = "Kopioitu!";
+    justCopied.value = true;
     setTimeout(() => {
-      copyLabel.value = "Kopioi";
+      justCopied.value = false;
     }, 1500);
   } catch {
     // Clipboard access can fail (permissions, insecure context); nothing to recover.
