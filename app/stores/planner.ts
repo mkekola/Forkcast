@@ -1,3 +1,5 @@
+import { combineMeasures } from "~/utils/shoppingList";
+
 export type MealType = "breakfast" | "lunch" | "dinner";
 
 export type Ingredient = {
@@ -19,7 +21,7 @@ export type PlannedMeal = {
 export type ShoppingListItem = {
   key: string;
   name: string;
-  measures: string[];
+  measure: string;
 };
 
 type PlannerStorage = {
@@ -100,12 +102,12 @@ export const usePlannerStore = defineStore("planner", () => {
   }
   
   const shoppingList = computed<ShoppingListItem[]>(() => {
-    const ingredientsByName = new Map<string, ShoppingListItem>();
+    const measuresByName = new Map<string, { name: string; measures: string[] }>();
 
     plannedMeals.value.forEach((plannedMeal) => {
       plannedMeal.ingredients?.forEach((ingredient) => {
         const key = ingredient.name.toLowerCase().trim();
-        const existingIngredient = ingredientsByName.get(key);
+        const existingIngredient = measuresByName.get(key);
 
         if (existingIngredient) {
           if (ingredient.measure) {
@@ -115,18 +117,22 @@ export const usePlannerStore = defineStore("planner", () => {
           return;
         }
 
-        ingredientsByName.set(key, {
-          key,
+        measuresByName.set(key, {
           name: ingredient.name,
           measures: ingredient.measure ? [ingredient.measure] : [],
         });
       });
     });
 
-    return Array.from(ingredientsByName.values()).sort(
-      (firstItem, secondItem) =>
+    return Array.from(measuresByName.entries())
+      .map(([key, { name, measures }]) => ({
+        key,
+        name,
+        measure: combineMeasures(measures),
+      }))
+      .sort((firstItem, secondItem) =>
         firstItem.name.localeCompare(secondItem.name, "fi"),
-    );
+      );
   });
 
   function removeMeal(plannedMealId: string) {

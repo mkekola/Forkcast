@@ -263,7 +263,7 @@
               </p>
 
               <p class="mt-1 text-sm text-stone-500">
-                {{ item.measures.join(", ") }}
+                {{ item.measure }}
               </p>
             </div>
 

@@ -36,7 +36,7 @@ describe("planner store: shoppingList", () => {
     });
 
     expect(plannerStore.shoppingList).toEqual([
-      { key: "garlic", name: "Garlic", measures: ["2 cloves", "3 cloves"] },
+      { key: "garlic", name: "Garlic", measure: "5 cloves" },
     ]);
   });
 
