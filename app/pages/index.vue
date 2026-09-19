@@ -135,7 +135,7 @@
             <input
               v-model="searchInput"
               type="search"
-              placeholder="Hae reseptejä, esim. pasta, kana, curry..."
+              placeholder="Hae reseptejä, esim. pasta, kana tai italialainen..."
               class="w-full rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
               @keyup.enter="searchRecipes"
             >
