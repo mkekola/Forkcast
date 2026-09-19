@@ -5,7 +5,7 @@
 
       <section class="py-14 md:py-20">
         <div
-          class="grid grid-cols-1 gap-4 md:gap-5 md:[grid-template-columns:1.3fr_1.3fr_1fr_1fr] md:[grid-template-areas:'hero_hero_a1_a2'_'hero_hero_a3_a4']"
+          class="grid grid-cols-1 gap-4 md:gap-5 md:[grid-template-columns:1.3fr_1.3fr_1fr] md:[grid-template-areas:'hero_hero_a1'_'hero_hero_a3'_'hero_hero_a4']"
         >
           <div
             class="flex flex-col justify-center gap-4 rounded-[2rem] bg-fork-card p-7 ring-1 ring-fork-line shadow-sm md:p-9 md:[grid-area:hero]"
@@ -65,33 +65,6 @@
             <span class="text-xs text-fork-muted">Satunnainen resepti</span>
           </button>
 
-          <div
-            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm md:[grid-area:a2]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6 text-fork-clay"
-              aria-hidden="true"
-            >
-              <path
-                d="M12 3s-5 5.5-5 9.5a5 5 0 0010 0c0-1.6-.8-2.8-1.6-3.8.1 1.2-.5 2-1.4 2 .3-2-.6-4.4-2-5.7z"
-              />
-            </svg>
-            <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-fork-muted">
-              Suosituin tänään
-            </span>
-            <span class="text-base font-black leading-snug">
-              {{ featuredMeal?.strMeal ?? "Ladataan…" }}
-            </span>
-            <span class="text-xs text-fork-muted">{{ featuredMealSub }}</span>
-          </div>
-
           <NuxtLink
             to="/planner"
             class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a3]"
@@ -144,6 +117,49 @@
             <span class="text-xs text-fork-muted">{{ shoppingItemsLabel }}</span>
           </button>
         </div>
+      </section>
+
+      <section class="pb-14 md:pb-20">
+        <div
+          v-if="!featuredMeal"
+          class="h-72 animate-pulse rounded-[2rem] bg-fork-card ring-1 ring-fork-line md:h-80"
+        />
+
+        <NuxtLink
+          v-else
+          :to="`/recipes/${featuredMeal.idMeal}`"
+          class="group relative block h-72 overflow-hidden rounded-[2rem] shadow-lg md:h-80"
+        >
+          <img
+            :src="featuredMeal.strMealThumb"
+            :alt="featuredMeal.strMeal"
+            class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          >
+
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+          <span
+            class="absolute left-6 top-6 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fork-clay backdrop-blur"
+          >
+            Suosituin tänään
+          </span>
+
+          <div class="absolute inset-x-0 bottom-0 p-6 md:p-8">
+            <p class="text-xs font-bold uppercase tracking-wide text-white/80">
+              {{ featuredMealSub }}
+            </p>
+
+            <h2 class="mt-2 max-w-xl text-2xl font-black leading-tight text-white md:text-3xl">
+              {{ featuredMeal.strMeal }}
+            </h2>
+
+            <span
+              class="mt-4 inline-flex rounded-full border border-white/70 px-6 py-3 text-sm font-bold text-white backdrop-blur transition group-hover:bg-white group-hover:text-fork-ink"
+            >
+              Katso resepti →
+            </span>
+          </div>
+        </NuxtLink>
       </section>
 
       <section id="reseptit" class="pb-20">
