@@ -124,13 +124,13 @@
 
         <nav
           v-if="groupedItems.length > 1"
-          class="flex gap-2 overflow-x-auto border-b border-fork-line px-6 py-3"
+          class="flex flex-wrap gap-2 border-b border-fork-line px-6 py-3"
         >
           <button
             v-for="group in groupedItems"
             :key="group.category"
             type="button"
-            class="shrink-0 rounded-full border border-fork-line px-3 py-1.5 text-xs font-bold text-fork-ink transition hover:border-fork-ink"
+            class="rounded-full border border-fork-line px-3 py-1.5 text-xs font-bold text-fork-ink transition hover:border-fork-clay hover:text-fork-clay"
             @click="scrollToCategory(group.category)"
           >
             {{ group.label }}
