@@ -120,49 +120,6 @@
         </div>
       </section>
 
-      <section class="pb-14 md:pb-20">
-        <div
-          v-if="!featuredMeal"
-          class="h-72 animate-pulse rounded-[2rem] bg-fork-card ring-1 ring-fork-line md:h-80"
-        />
-
-        <NuxtLink
-          v-else
-          :to="`/recipes/${featuredMeal.idMeal}`"
-          class="group relative block h-72 overflow-hidden rounded-[2rem] shadow-lg md:h-80"
-        >
-          <img
-            :src="featuredMeal.strMealThumb"
-            :alt="featuredMeal.strMeal"
-            class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          >
-
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-          <span
-            class="absolute left-6 top-6 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fork-clay backdrop-blur"
-          >
-            Suosituin tänään
-          </span>
-
-          <div class="absolute inset-x-0 bottom-0 p-6 md:p-8">
-            <p class="text-xs font-bold uppercase tracking-wide text-white/80">
-              {{ featuredMealSub }}
-            </p>
-
-            <h2 class="mt-2 max-w-xl text-2xl font-black leading-tight text-white md:text-3xl">
-              {{ featuredMeal.strMeal }}
-            </h2>
-
-            <span
-              class="mt-4 inline-flex rounded-full border border-white/70 px-6 py-3 text-sm font-bold text-white backdrop-blur transition group-hover:bg-white group-hover:text-fork-ink"
-            >
-              Katso resepti →
-            </span>
-          </div>
-        </NuxtLink>
-      </section>
-
       <section id="reseptit" class="pb-20">
         <div class="mb-8 max-w-2xl">
           <div class="flex gap-3">
@@ -316,51 +273,6 @@ const quickSearches = [
 
 const mealDbApi = useMealDbApi();
 
-const FEATURED_STORAGE_KEY = "forkcast-featured-of-day";
-
-const featuredMeal = ref<MealDbMeal | null>(null);
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-async function loadFeaturedMeal() {
-  if (import.meta.client) {
-    const stored = localStorage.getItem(FEATURED_STORAGE_KEY);
-
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as { date: string; meal: MealDbMeal };
-
-        if (parsed.date === todayKey() && parsed.meal) {
-          featuredMeal.value = parsed.meal;
-          return;
-        }
-      } catch {
-        // corrupt cache entry, fall through and fetch a fresh meal
-      }
-    }
-  }
-
-  const meal = await mealDbApi.fetchRandomMeal();
-  featuredMeal.value = meal;
-
-  if (import.meta.client && meal) {
-    localStorage.setItem(
-      FEATURED_STORAGE_KEY,
-      JSON.stringify({ date: todayKey(), meal }),
-    );
-  }
-}
-
-const featuredMealSub = computed(() => {
-  if (!featuredMeal.value) {
-    return "Haetaan tämän päivän vinkkiä…";
-  }
-
-  return `${translateCategory(featuredMeal.value.strCategory)} · ${translateArea(featuredMeal.value.strArea)}`;
-});
-
 const INSPIRATION_RECIPE_COUNT = 5;
 
 const inspirationRecipes = ref<MealDbMeal[]>([]);
@@ -409,7 +321,6 @@ function showPreviousInspiration() {
 
 onMounted(() => {
   plannerStore.loadFromStorage();
-  loadFeaturedMeal();
   loadInspirationRecipes();
 });
 
