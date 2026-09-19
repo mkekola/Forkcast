@@ -187,13 +187,6 @@
           class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
         >
           <div class="flex items-center gap-4">
-            <img
-              src="/images/cooking-doodle.png"
-              alt=""
-              aria-hidden="true"
-              class="hidden w-20 shrink-0 -scale-x-100 opacity-90 lg:block"
-            >
-
             <div>
               <p
                 class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
@@ -205,6 +198,13 @@
                 Mitä tänään tekisi mieli?
               </h2>
             </div>
+
+            <img
+              src="/images/cooking-doodle.png"
+              alt=""
+              aria-hidden="true"
+              class="hidden w-20 shrink-0 opacity-90 lg:block"
+            >
           </div>
 
           <p
