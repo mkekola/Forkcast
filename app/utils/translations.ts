@@ -122,7 +122,7 @@ const areaTranslations: Record<string, string> = {
   Vietnam: "Vietnamilainen",
 };
 
-export type MealDbSearch =
+export type SearchIntent =
   | {
       type: "name";
       query: string;
@@ -132,11 +132,15 @@ export type MealDbSearch =
       query: string;
     }
   | {
+      // Several raw area values can map to the same Finnish word (see the
+      // comment on areaTranslations), and only one of them may actually be
+      // present in our data for a given country, so a match has to check
+      // all of them rather than picking one arbitrarily.
       type: "area";
-      query: string;
+      query: string[];
     };
 
-const searchTranslations: Record<string, MealDbSearch> = {
+const searchTranslations: Record<string, SearchIntent> = {
   kana: { type: "category", query: "Chicken" },
   kanaruoka: { type: "category", query: "Chicken" },
   broileri: { type: "category", query: "Chicken" },
@@ -180,7 +184,14 @@ const searchTranslations: Record<string, MealDbSearch> = {
 };
 
 for (const [area, finnishArea] of Object.entries(areaTranslations)) {
-  searchTranslations[finnishArea.toLowerCase()] = { type: "area", query: area };
+  const key = finnishArea.toLowerCase();
+  const existing = searchTranslations[key];
+
+  if (existing?.type === "area") {
+    existing.query.push(area);
+  } else {
+    searchTranslations[key] = { type: "area", query: [area] };
+  }
 }
 
 export function translateCategory(category?: string | null) {
@@ -199,7 +210,10 @@ export function translateArea(area?: string | null) {
   return areaTranslations[area] ?? area;
 }
 
-export function getMealDbSearch(searchTerm: string): MealDbSearch {
+// Our own search box is Finnish but the recipe data is English, so a typed
+// word like "kana" or "italialainen" still needs mapping to the matching
+// English category/area before it can filter the recipes table.
+export function detectSearchIntent(searchTerm: string): SearchIntent {
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
   return (

@@ -33,8 +33,8 @@
           >
             <div class="relative overflow-hidden rounded-[1.5rem]">
               <img
-                :src="recipe.strMealThumb"
-                :alt="recipe.strMeal"
+                :src="recipe.image"
+                :alt="recipe.title"
                 class="h-[420px] w-full object-cover"
               >
 
@@ -58,7 +58,7 @@
             <h1
               class="text-4xl font-black leading-tight tracking-tight md:text-5xl"
             >
-              {{ recipe.strMeal }}
+              {{ recipe.title }}
             </h1>
 
             <div class="mt-6 flex flex-wrap items-center gap-4">
@@ -319,10 +319,7 @@ import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
 import { translateArea, translateCategory } from "~/utils/translations";
 import { parseInstructionSteps } from "~/utils/instructions";
-import { extractIngredients } from "~/utils/ingredients";
-import type { MealDbLookupResponse } from "~/types/mealdb";
-import { useMealDbApi } from "~/composables/useMealDbApi";
-
+import { useRecipesApi } from "~/composables/useRecipesApi";
 
 const route = useRoute();
 
@@ -330,7 +327,7 @@ const plannerStore = usePlannerStore();
 
 const favoritesStore = useFavoritesStore();
 
-const mealDbApi = useMealDbApi();
+const recipesApi = useRecipesApi();
 
 const selectedDay = ref("monday");
 const selectedMeal = ref<MealType>("dinner");
@@ -353,18 +350,17 @@ const mealOptions: { value: MealType; label: string }[] = [
   { value: "supper", label: "Illallinen" },
 ];
 
-const { data, pending, error } = await useFetch<MealDbLookupResponse>(
-  () => mealDbApi.getLookupUrl(route.params.id as string),
+const { data: recipe, pending, error } = await useAsyncData(
+  "recipe-detail",
+  () => recipesApi.getRecipeById(route.params.id as string),
 );
 
-const recipe = computed(() => data.value?.meals?.[0] ?? null);
-
 const youtubeLink = computed(() => {
-  return recipe.value?.strYoutube || null;
+  return recipe.value?.youtube || null;
 });
 
 const sourceLink = computed(() => {
-  return recipe.value?.strSource || null;
+  return recipe.value?.source || null;
 });
 
 const ingredients = computed(() => {
@@ -372,11 +368,14 @@ const ingredients = computed(() => {
     return [];
   }
 
-  return extractIngredients(recipe.value);
+  return recipe.value.recipe_ingredients.map((ingredient) => ({
+    name: ingredient.name,
+    measure: ingredient.measure ?? "",
+  }));
 });
 
 const instructionSteps = computed(() =>
-  parseInstructionSteps(recipe.value?.strInstructions),
+  parseInstructionSteps(recipe.value?.instructions),
 );
 
 const isFavorite = computed(() => {
@@ -384,30 +383,30 @@ const isFavorite = computed(() => {
     return false;
   }
 
-  return favoritesStore.isFavorite(recipe.value.idMeal);
+  return favoritesStore.isFavorite(recipe.value.id);
 });
 
 const translatedCategory = computed(() => {
-  return translateCategory(recipe.value?.strCategory);
+  return translateCategory(recipe.value?.category);
 });
 
 const translatedArea = computed(() => {
-  return translateArea(recipe.value?.strArea ?? recipe.value?.strCountry);
+  return translateArea(recipe.value?.area);
 });
 
 const seoDescription = computed(() =>
-  recipe.value?.strInstructions
-    ? `${recipe.value.strInstructions.slice(0, 150)}...`
+  recipe.value?.instructions
+    ? `${recipe.value.instructions.slice(0, 150)}...`
     : "Reseptin ainesosat ja valmistusohjeet Forkcastissa.",
 );
 
 useSeoMeta({
   title: () =>
-    recipe.value?.strMeal ? `${recipe.value.strMeal} · Forkcast` : "Forkcast",
+    recipe.value?.title ? `${recipe.value.title} · Forkcast` : "Forkcast",
   description: () => seoDescription.value,
-  ogTitle: () => recipe.value?.strMeal,
+  ogTitle: () => recipe.value?.title,
   ogDescription: () => seoDescription.value,
-  ogImage: () => recipe.value?.strMealThumb,
+  ogImage: () => recipe.value?.image,
 });
 
 onMounted(() => {
@@ -423,9 +422,9 @@ function addRecipeToPlanner() {
   plannerStore.addMeal({
     day: selectedDay.value,
     meal: selectedMeal.value,
-    recipeId: recipe.value.idMeal,
-    recipeName: recipe.value.strMeal,
-    recipeImage: recipe.value.strMealThumb,
+    recipeId: recipe.value.id,
+    recipeName: recipe.value.title,
+    recipeImage: recipe.value.image,
     category: translatedCategory.value,
     ingredients: ingredients.value,
   });
@@ -439,9 +438,9 @@ function addRecipeToDrafts() {
   }
 
   plannerStore.addDraft({
-    recipeId: recipe.value.idMeal,
-    recipeName: recipe.value.strMeal,
-    recipeImage: recipe.value.strMealThumb,
+    recipeId: recipe.value.id,
+    recipeName: recipe.value.title,
+    recipeImage: recipe.value.image,
     category: translatedCategory.value,
     ingredients: ingredients.value,
   });
@@ -455,14 +454,14 @@ function toggleFavorite() {
   }
 
   favoritesStore.toggleFavorite({
-    id: recipe.value.idMeal,
-    title: recipe.value.strMeal,
+    id: recipe.value.id,
+    title: recipe.value.title,
     category: translatedCategory.value,
     area: translatedArea.value,
-    description: recipe.value.strInstructions
-      ? `${recipe.value.strInstructions.slice(0, 120)}...`
+    description: recipe.value.instructions
+      ? `${recipe.value.instructions.slice(0, 120)}...`
       : "Herkullinen resepti viikon suunnitteluun.",
-    image: recipe.value.strMealThumb,
+    image: recipe.value.image,
   });
 }
 </script>

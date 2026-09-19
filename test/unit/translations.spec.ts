@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   translateCategory,
   translateArea,
-  getMealDbSearch,
+  detectSearchIntent,
 } from "../../app/utils/translations";
 
 describe("translateCategory", () => {
@@ -30,23 +30,23 @@ describe("translateArea", () => {
   });
 });
 
-describe("getMealDbSearch", () => {
-  it("maps a known Finnish search term to a MealDB category search", () => {
-    expect(getMealDbSearch("kana")).toEqual({
+describe("detectSearchIntent", () => {
+  it("maps a known Finnish search term to a category search", () => {
+    expect(detectSearchIntent("kana")).toEqual({
       type: "category",
       query: "Chicken",
     });
   });
 
   it("is case-insensitive and trims whitespace", () => {
-    expect(getMealDbSearch("  KANA  ")).toEqual({
+    expect(detectSearchIntent("  KANA  ")).toEqual({
       type: "category",
       query: "Chicken",
     });
   });
 
   it("falls back to a name search for an unmapped term", () => {
-    expect(getMealDbSearch("lasagne")).toEqual({
+    expect(detectSearchIntent("lasagne")).toEqual({
       type: "name",
       query: "lasagne",
     });

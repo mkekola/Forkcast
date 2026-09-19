@@ -165,8 +165,7 @@
 <script setup lang="ts">
 import { useFavoritesStore } from "~/stores/favorites";
 import { usePlannerStore } from "~/stores/planner";
-import { useMealDbApi } from "~/composables/useMealDbApi";
-import { extractIngredients } from "~/utils/ingredients";
+import { useRecipesApi } from "~/composables/useRecipesApi";
 import type { Recipe } from "~/types/recipe";
 
 const props = defineProps<{
@@ -175,7 +174,7 @@ const props = defineProps<{
 
 const favoritesStore = useFavoritesStore();
 const plannerStore = usePlannerStore();
-const mealDbApi = useMealDbApi();
+const recipesApi = useRecipesApi();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
 const isDraft = computed(() =>
@@ -199,14 +198,17 @@ async function addToDrafts() {
     justAddedDraft.value = false;
   }, 1200);
 
-  const details = await mealDbApi.fetchMealDetails(props.recipe.id);
+  const details = await recipesApi.getRecipeById(props.recipe.id);
 
   plannerStore.addDraft({
     recipeId: props.recipe.id,
     recipeName: props.recipe.title,
     recipeImage: props.recipe.image,
     category: props.recipe.category,
-    ingredients: details ? extractIngredients(details) : undefined,
+    ingredients: details?.recipe_ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      measure: ingredient.measure ?? "",
+    })),
   });
 }
 </script>

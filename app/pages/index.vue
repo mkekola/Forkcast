@@ -68,12 +68,12 @@
 
               <template v-else>
                 <NuxtLink
-                  :to="`/recipes/${currentInspiration?.idMeal}`"
+                  :to="`/recipes/${currentInspiration?.id}`"
                   class="group block h-full w-full"
                 >
                   <img
-                    :src="currentInspiration?.strMealThumb"
-                    :alt="currentInspiration?.strMeal"
+                    :src="currentInspiration?.image"
+                    :alt="currentInspiration?.title"
                     class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
                   >
 
@@ -85,7 +85,7 @@
                     </p>
 
                     <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
-                      {{ currentInspiration?.strMeal }}
+                      {{ currentInspiration?.title }}
                     </h2>
                   </div>
                 </NuxtLink>
@@ -135,7 +135,7 @@
                 <div class="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 gap-1.5">
                   <span
                     v-for="(recipe, index) in inspirationRecipes"
-                    :key="recipe.idMeal"
+                    :key="recipe.id"
                     class="h-1.5 w-1.5 rounded-full transition"
                     :class="index === inspirationIndex ? 'bg-white' : 'bg-white/40'"
                   />
@@ -275,11 +275,15 @@ import RecipeCard from "~/components/RecipeCard.vue";
 import {
   translateArea,
   translateCategory,
-  getMealDbSearch,
+  detectSearchIntent,
 } from "~/utils/translations";
 
-import type { MealDbSearchResponse, MealDbMeal } from "~/types/mealdb";
-import { useMealDbApi } from "~/composables/useMealDbApi";
+import type { Recipe } from "~/types/recipe";
+import {
+  useRecipesApi,
+  type RecipeRow,
+  type RecipeSearchResult,
+} from "~/composables/useRecipesApi";
 import { usePlannerStore } from "~/stores/planner";
 
 const route = useRoute();
@@ -296,11 +300,12 @@ const searchQuery = computed(() => {
 });
 
 // Multiple category chips can be active at once (comma-separated in the
-// URL). Since TheMealDB's categories are mutually exclusive per recipe,
-// "Kana + Pasta" can't mean recipes that are both at once - instead the
-// most recently selected category is fetched as the base list, and every
-// other selected category narrows it by title, same as free text does
-// (e.g. Kana then Pasta shows Pasta recipes whose title mentions chicken).
+// URL). Since a recipe only has one category, "Kana + Pasta" can't mean
+// recipes that are both at once - instead the most recently selected
+// category is fetched as the base list, and every other selected category
+// narrows it by real ingredient matches (e.g. Kana then Pasta shows Pasta
+// recipes that actually contain chicken, not just ones with "chicken" in
+// the title).
 const selectedCategories = computed<string[]>(() => {
   const raw = route.query.cat;
 
@@ -317,33 +322,52 @@ const baseCategory = computed(
 
 const narrowingCategories = computed(() => selectedCategories.value.slice(0, -1));
 
+// The search box is Finnish, so free text is run through the same
+// dictionary the old quick-search chips used: a typed word like "kana" or
+// "italialainen" becomes a category/area filter, anything else becomes a
+// literal full-text search term. Explicit category chips always win, so the
+// dictionary only kicks in when no chip is selected.
+const searchIntent = computed(() => detectSearchIntent(searchQuery.value));
+
+const effectiveBaseCategory = computed(() => {
+  if (baseCategory.value) {
+    return baseCategory.value;
+  }
+
+  if (!searchQuery.value) {
+    return null;
+  }
+
+  return searchIntent.value.type === "category" ? searchIntent.value.query : null;
+});
+
+const effectiveArea = computed<string[] | null>(() => {
+  if (baseCategory.value || !searchQuery.value) {
+    return null;
+  }
+
+  return searchIntent.value.type === "area" ? searchIntent.value.query : null;
+});
+
+// With a category chip active, free text narrows further as a literal
+// search term (real ingredient/title matching, done in useRecipesApi).
+// Without one, it's only used literally when it didn't already resolve to
+// a category or area above.
+const effectiveText = computed(() => {
+  if (baseCategory.value) {
+    return searchQuery.value || null;
+  }
+
+  return searchIntent.value.type === "name" ? searchQuery.value : null;
+});
+
 const baseCategoryLabel = computed(() =>
-  baseCategory.value ? translateCategory(baseCategory.value) : null,
+  effectiveBaseCategory.value ? translateCategory(effectiveBaseCategory.value) : null,
 );
 
 const narrowingCategoryLabels = computed(() =>
   narrowingCategories.value.map((category) => translateCategory(category)),
 );
-
-const mealDbSearch = computed(() => {
-  if (baseCategory.value) {
-    return { type: "category" as const, query: baseCategory.value };
-  }
-
-  return getMealDbSearch(searchQuery.value);
-});
-
-// Every extra selected category (beyond the base one being fetched) and
-// any free text must all appear in a result's title for it to survive.
-const narrowingKeywords = computed(() => {
-  const keywords = narrowingCategories.value.map((category) => category.toLowerCase());
-
-  if (searchQuery.value) {
-    keywords.push(searchQuery.value.toLowerCase());
-  }
-
-  return keywords;
-});
 
 const hasSearched = computed(
   () => searchQuery.value.length > 0 || selectedCategories.value.length > 0,
@@ -363,14 +387,12 @@ const quickSearches = [
   { label: "Jälkiruoka", category: "Dessert" },
 ];
 
-const mealDbApi = useMealDbApi();
+const recipesApi = useRecipesApi();
 
 const INSPIRATION_RECIPE_COUNT = 5;
 const INSPIRATION_STORAGE_KEY = "forkcast-inspiration-of-day";
-const INSPIRATION_BATCH_SIZE = INSPIRATION_RECIPE_COUNT + 2;
-const INSPIRATION_MAX_ROUNDS = 4;
 
-const inspirationRecipes = ref<MealDbMeal[]>([]);
+const inspirationRecipes = ref<RecipeRow[]>([]);
 const inspirationIndex = ref(0);
 
 const currentInspiration = computed(
@@ -393,7 +415,7 @@ function loadCachedInspiration() {
   }
 
   try {
-    const parsed = JSON.parse(stored) as { date: string; meals: MealDbMeal[] };
+    const parsed = JSON.parse(stored) as { date: string; meals: RecipeRow[] };
 
     if (parsed.date === todayKey() && parsed.meals?.length) {
       inspirationRecipes.value = parsed.meals;
@@ -412,40 +434,15 @@ async function loadInspirationRecipes() {
     return;
   }
 
-  // Recipes with a tagged country (strArea) tend to come from TheMealDB's
-  // curated older set and have noticeably better photos than the newer
-  // bulk-added ones, so keep re-rolling random.php until we have enough.
-  const seenIds = new Set<string>();
-  const uniqueMeals: MealDbMeal[] = [];
+  const recipes = await recipesApi.getRandomRecipes(INSPIRATION_RECIPE_COUNT);
 
-  for (
-    let round = 0;
-    round < INSPIRATION_MAX_ROUNDS && uniqueMeals.length < INSPIRATION_RECIPE_COUNT;
-    round++
-  ) {
-    const batch = await Promise.all(
-      Array.from({ length: INSPIRATION_BATCH_SIZE }, () => mealDbApi.fetchRandomMeal()),
-    );
-
-    for (const meal of batch) {
-      if (uniqueMeals.length >= INSPIRATION_RECIPE_COUNT) {
-        break;
-      }
-
-      if (meal?.strArea && !seenIds.has(meal.idMeal)) {
-        seenIds.add(meal.idMeal);
-        uniqueMeals.push(meal);
-      }
-    }
-  }
-
-  inspirationRecipes.value = uniqueMeals;
+  inspirationRecipes.value = recipes;
   inspirationIndex.value = 0;
 
-  if (import.meta.client && uniqueMeals.length > 0) {
+  if (import.meta.client && recipes.length > 0) {
     localStorage.setItem(
       INSPIRATION_STORAGE_KEY,
-      JSON.stringify({ date: todayKey(), meals: uniqueMeals }),
+      JSON.stringify({ date: todayKey(), meals: recipes }),
     );
   }
 }
@@ -473,17 +470,22 @@ onMounted(() => {
   loadInspirationRecipes();
 });
 
-const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>(
+const { data, pending, error } = await useAsyncData<RecipeSearchResult[]>(
   "recipe-search",
   () => {
     if (!hasSearched.value) {
-      return Promise.resolve(null);
+      return Promise.resolve([]);
     }
 
-    return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(mealDbSearch.value));
+    return recipesApi.searchRecipes({
+      baseCategory: effectiveBaseCategory.value,
+      narrowingCategories: narrowingCategories.value,
+      area: effectiveArea.value,
+      text: effectiveText.value ?? undefined,
+    });
   },
   {
-    watch: [mealDbSearch],
+    watch: [effectiveBaseCategory, narrowingCategories, effectiveArea, effectiveText],
   },
 );
 
@@ -525,109 +527,20 @@ watch(
   },
 );
 
-// Extra selected categories and free text both narrow the base category's
-// results by title client-side, since TheMealDB has no "category + text"
-// (or "category + category") endpoint.
-const filteredMeals = computed(() => {
-  const meals = data.value?.meals ?? [];
-  const keywords = narrowingKeywords.value;
-
-  if (keywords.length === 0) {
-    return meals;
-  }
-
-  return meals.filter((meal) => {
-    const title = meal.strMeal.toLowerCase();
-    return keywords.every((keyword) => title.includes(keyword));
-  });
-});
-
-// TheMealDB's free tier starts failing unrelated requests too if we fetch
-// details for every result in a large category/area (some have 100+), so
-// only the cards visible without scrolling get the real country/category.
-const DETAIL_LOOKUP_LIMIT = 12;
-
-const mealDetails = ref(new Map<string, MealDbMeal>());
-
-watch(
-  filteredMeals,
-  (meals) => {
-    const search = mealDbSearch.value;
-
-    if (!meals || (search.type !== "category" && search.type !== "area")) {
-      return;
-    }
-
-    for (const meal of meals.slice(0, DETAIL_LOOKUP_LIMIT)) {
-      if (mealDetails.value.has(meal.idMeal)) {
-        continue;
-      }
-
-      mealDbApi.fetchMealDetails(meal.idMeal).then((details) => {
-        if (details) {
-          mealDetails.value.set(meal.idMeal, details);
-          mealDetails.value = new Map(mealDetails.value);
-        }
-      });
-    }
-  },
-  { immediate: true },
-);
-
-const recipes = computed(() => {
+const recipes = computed<Recipe[]>(() => {
   if (!hasSearched.value) {
     return [];
   }
 
-  const search = mealDbSearch.value;
-
-  return filteredMeals.value.map((meal, mealIndex) => {
-    const fullMeal = meal as MealDbMeal;
-
-    if (search.type === "category") {
-      const details = mealDetails.value.get(meal.idMeal);
-      const isLookedUp = mealIndex < DETAIL_LOOKUP_LIMIT;
-
-      return {
-        id: meal.idMeal,
-        title: meal.strMeal,
-        category: translateCategory(search.query),
-        area: details
-          ? translateArea(details.strArea ?? details.strCountry)
-          : isLookedUp
-            ? "Ladataan…"
-            : "Lisätiedot reseptissä",
-        image: meal.strMealThumb,
-      };
-    }
-
-    if (search.type === "area") {
-      const details = mealDetails.value.get(meal.idMeal);
-      const isLookedUp = mealIndex < DETAIL_LOOKUP_LIMIT;
-
-      return {
-        id: meal.idMeal,
-        title: meal.strMeal,
-        category: details
-          ? translateCategory(details.strCategory)
-          : isLookedUp
-            ? "Ladataan…"
-            : "Lisätiedot reseptissä",
-        area: translateArea(search.query),
-        image: meal.strMealThumb,
-      };
-    }
-
-    return {
-      id: meal.idMeal,
-      title: meal.strMeal,
-      category: translateCategory(fullMeal.strCategory),
-      area: translateArea(fullMeal.strArea ?? fullMeal.strCountry),
-      description: fullMeal.strInstructions
-        ? `${fullMeal.strInstructions.slice(0, 120)}...`
-        : "Herkullinen resepti viikon suunnitteluun.",
-      image: meal.strMealThumb,
-    };
-  });
+  return (data.value ?? []).map((result) => ({
+    id: result.id,
+    title: result.title,
+    category: translateCategory(result.category),
+    area: translateArea(result.area),
+    description: result.instructions
+      ? `${result.instructions.slice(0, 120)}...`
+      : "Herkullinen resepti viikon suunnitteluun.",
+    image: result.image,
+  }));
 });
 </script>
