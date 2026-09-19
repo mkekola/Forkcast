@@ -212,8 +212,7 @@
             class="mt-3 text-sm font-bold text-fork-clay"
           >
             {{ recipes.length }} reseptiä
-            <template v-if="baseCategoryLabel"> kategoriassa {{ baseCategoryLabel }}</template>
-            <template v-if="narrowingCategoryLabels.length"> jotka sisältävät myös: {{ narrowingCategoryLabels.join(", ") }}</template>
+            <template v-if="categoryLabels.length"> kategorioissa {{ categoryLabels.join(" + ") }}</template>
             <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
           </p>
         </div>
@@ -246,15 +245,12 @@
           class="rounded-3xl border border-fork-line bg-fork-card p-8 text-fork-muted"
         >
           <template v-if="searchQuery">
-            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="baseCategoryLabel"> kategoriassa {{ baseCategoryLabel }}</template>.
+            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="categoryLabels.length"> kategorioissa {{ categoryLabels.join(" + ") }}</template>.
             Kokeile esimerkiksi hakua <strong>pasta</strong>, <strong>chicken</strong> tai
             <strong>beef</strong>.
           </template>
-          <template v-else-if="narrowingCategoryLabels.length">
-            Ei reseptejä kategoriassa {{ baseCategoryLabel }} jotka sisältävät myös: {{ narrowingCategoryLabels.join(", ") }}.
-          </template>
           <template v-else>
-            Ei reseptejä kategoriassa {{ baseCategoryLabel }}.
+            Ei reseptejä kategorioissa {{ categoryLabels.join(" + ") }}.
           </template>
         </div>
 
@@ -300,12 +296,11 @@ const searchQuery = computed(() => {
 });
 
 // Multiple category chips can be active at once (comma-separated in the
-// URL). Since a recipe only has one category, "Kana + Pasta" can't mean
-// recipes that are both at once - instead the most recently selected
-// category is fetched as the base list, and every other selected category
-// narrows it by real ingredient matches (e.g. Kana then Pasta shows Pasta
-// recipes that actually contain chicken, not just ones with "chicken" in
-// the title).
+// URL). recipe_categories carries precomputed tags per recipe (its
+// original category plus any protein/dish tag a real ingredient
+// justifies), so "Kana + Pasta" is a genuine intersection via
+// search_recipes_by_categories - not just the most recently picked
+// category narrowed by title/ingredient guesses.
 const selectedCategories = computed<string[]>(() => {
   const raw = route.query.cat;
 
@@ -316,28 +311,22 @@ const selectedCategories = computed<string[]>(() => {
   return raw.split(",");
 });
 
-const baseCategory = computed(
-  () => selectedCategories.value[selectedCategories.value.length - 1] ?? null,
-);
-
-const narrowingCategories = computed(() => selectedCategories.value.slice(0, -1));
-
 // The search box is Finnish, so free text is run through the same
 // dictionary the old quick-search chips used: a typed word like "kana" or
 // "italialainen" becomes a category/area filter, anything else becomes a
 // literal full-text search term.
 const searchIntent = computed(() => detectSearchIntent(searchQuery.value));
 
-const effectiveBaseCategory = computed(() => {
-  if (baseCategory.value) {
-    return baseCategory.value;
+const effectiveCategories = computed<string[]>(() => {
+  if (selectedCategories.value.length > 0) {
+    return selectedCategories.value;
   }
 
   if (!searchQuery.value) {
-    return null;
+    return [];
   }
 
-  return searchIntent.value.type === "category" ? searchIntent.value.query : null;
+  return searchIntent.value.type === "category" ? [searchIntent.value.query] : [];
 });
 
 // An area word (e.g. "kiinalainen") always filters by area, chip or no
@@ -362,12 +351,8 @@ const effectiveText = computed(() => {
   return searchIntent.value.type === "name" ? searchQuery.value : null;
 });
 
-const baseCategoryLabel = computed(() =>
-  effectiveBaseCategory.value ? translateCategory(effectiveBaseCategory.value) : null,
-);
-
-const narrowingCategoryLabels = computed(() =>
-  narrowingCategories.value.map((category) => translateCategory(category)),
+const categoryLabels = computed(() =>
+  effectiveCategories.value.map((category) => translateCategory(category)),
 );
 
 const hasSearched = computed(
@@ -482,14 +467,13 @@ const { data, pending, error } = await useAsyncData<RecipeSearchResult[]>(
     }
 
     return recipesApi.searchRecipes({
-      baseCategory: effectiveBaseCategory.value,
-      narrowingCategories: narrowingCategories.value,
+      categories: effectiveCategories.value,
       area: effectiveArea.value,
       text: effectiveText.value ?? undefined,
     });
   },
   {
-    watch: [effectiveBaseCategory, narrowingCategories, effectiveArea, effectiveText],
+    watch: [effectiveCategories, effectiveArea, effectiveText],
   },
 );
 

@@ -33,20 +33,22 @@ export function useRecipesApi() {
   const supabase = useSupabaseClient();
 
   async function searchRecipes(options: {
-    baseCategory?: string | null;
-    narrowingCategories?: string[];
+    categories?: string[];
     area?: string | string[] | null;
     text?: string;
   }) {
-    const { baseCategory, narrowingCategories = [], area, text } = options;
+    const { categories = [], area, text } = options;
 
-    let query = supabase
-      .from("recipes")
-      .select("id, title, category, area, image, instructions, recipe_ingredients(name)");
+    const select = "id, title, category, area, image, instructions, recipe_ingredients(name)";
 
-    if (baseCategory) {
-      query = query.eq("category", baseCategory);
-    }
+    // Several selected category chips must all match the same recipe (e.g.
+    // "Pasta" + "Chicken"), which recipe_categories' precomputed tags make
+    // a real intersection via this RPC, rather than a title/ingredient
+    // guess over just the most recently picked category.
+    let query =
+      categories.length > 0
+        ? supabase.rpc("search_recipes_by_categories", { categories }).select(select)
+        : supabase.from("recipes").select(select);
 
     if (Array.isArray(area)) {
       query = query.in("area", area);
@@ -68,19 +70,7 @@ export function useRecipesApi() {
       return [];
     }
 
-    let results = (data ?? []) as unknown as RecipeSearchResult[];
-
-    for (const category of narrowingCategories) {
-      const keyword = category.toLowerCase();
-
-      results = results.filter((recipe) =>
-        recipe.recipe_ingredients.some((ingredient) =>
-          ingredient.name.toLowerCase().includes(keyword),
-        ),
-      );
-    }
-
-    return results;
+    return (data ?? []) as unknown as RecipeSearchResult[];
   }
 
   async function getRecipeById(id: string) {

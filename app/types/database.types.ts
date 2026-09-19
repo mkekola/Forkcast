@@ -156,11 +156,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_categories: {
+        Row: {
+          recipe_id: string;
+          category: string;
+        };
+        Insert: {
+          recipe_id: string;
+          category: string;
+        };
+        Update: {
+          recipe_id?: string;
+          category?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       get_random_recipes: {
         Args: { recipe_count?: number };
+        Returns: Database["public"]["Tables"]["recipes"]["Row"][];
+      };
+      search_recipes_by_categories: {
+        Args: { categories: string[] };
         Returns: Database["public"]["Tables"]["recipes"]["Row"][];
       };
     };
