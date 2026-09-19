@@ -116,36 +116,38 @@
                   :key="plannedMeal.id"
                   class="relative overflow-hidden rounded-2xl bg-fork-card shadow-sm"
                 >
-                  <button
-                    type="button"
-                    class="absolute right-3 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
-                    :aria-label="`Poista ${plannedMeal.recipeName} suunnitelmasta`"
-                    @click="askToRemoveMeal(plannedMeal.id)"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      class="h-3.5 w-3.5"
-                    >
-                      <path
-                        d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-                      />
-                    </svg>
-                  </button>
-
                   <NuxtLink
                     :to="`/recipes/${plannedMeal.recipeId}`"
-                    class="flex gap-3 rounded-2xl p-3 transition hover:bg-fork-bg"
+                    class="block rounded-2xl transition hover:bg-fork-bg"
                   >
-                    <img
-                      :src="plannedMeal.recipeImage"
-                      :alt="plannedMeal.recipeName"
-                      class="h-24 w-24 shrink-0 rounded-xl object-cover"
-                    >
+                    <div class="relative">
+                      <img
+                        :src="plannedMeal.recipeImage"
+                        :alt="plannedMeal.recipeName"
+                        class="h-28 w-full rounded-t-2xl object-cover"
+                      >
 
-                    <div class="min-w-0 flex flex-1 flex-col items-start pr-10">
-                      <p class="w-full break-words font-black leading-snug text-fork-ink">
+                      <button
+                        type="button"
+                        class="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
+                        :aria-label="`Poista ${plannedMeal.recipeName} suunnitelmasta`"
+                        @click.prevent.stop="askToRemoveMeal(plannedMeal.id)"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          class="h-3.5 w-3.5"
+                        >
+                          <path
+                            d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div class="p-3">
+                      <p class="font-black leading-snug text-fork-ink">
                         {{ plannedMeal.recipeName }}
                       </p>
 
