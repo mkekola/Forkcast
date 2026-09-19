@@ -368,24 +368,41 @@ const recipes = computed(() => {
     return [];
   }
 
+  const search = mealDbSearch.value;
+
   return (data.value?.meals ?? []).map((meal) => {
-    const isCategoryResult = mealDbSearch.value.type === "category";
     const fullMeal = meal as MealDbMeal;
+
+    if (search.type === "category") {
+      return {
+        id: meal.idMeal,
+        title: meal.strMeal,
+        category: translateCategory(search.query),
+        area: "Lisätiedot reseptissä",
+        description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
+        image: meal.strMealThumb,
+      };
+    }
+
+    if (search.type === "area") {
+      return {
+        id: meal.idMeal,
+        title: meal.strMeal,
+        category: "Lisätiedot reseptissä",
+        area: translateArea(search.query),
+        description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
+        image: meal.strMealThumb,
+      };
+    }
 
     return {
       id: meal.idMeal,
       title: meal.strMeal,
-      category: isCategoryResult
-        ? translateCategory(mealDbSearch.value.query)
-        : translateCategory(fullMeal.strCategory),
-      area: isCategoryResult
-        ? "Lisätiedot reseptissä"
-        : translateArea(fullMeal.strArea),
-      description: isCategoryResult
-        ? "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet."
-        : fullMeal.strInstructions
-          ? `${fullMeal.strInstructions.slice(0, 120)}...`
-          : "Herkullinen resepti viikon suunnitteluun.",
+      category: translateCategory(fullMeal.strCategory),
+      area: translateArea(fullMeal.strArea),
+      description: fullMeal.strInstructions
+        ? `${fullMeal.strInstructions.slice(0, 120)}...`
+        : "Herkullinen resepti viikon suunnitteluun.",
       image: meal.strMealThumb,
     };
   });

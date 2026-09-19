@@ -54,6 +54,10 @@ type MealDbSearch =
   | {
       type: "category";
       query: string;
+    }
+  | {
+      type: "area";
+      query: string;
     };
 
 const searchTranslations: Record<string, MealDbSearch> = {
@@ -98,6 +102,10 @@ const searchTranslations: Record<string, MealDbSearch> = {
   keitto: { type: "name", query: "soup" },
   salaatti: { type: "name", query: "salad" },
 };
+
+for (const [area, finnishArea] of Object.entries(areaTranslations)) {
+  searchTranslations[finnishArea.toLowerCase()] = { type: "area", query: area };
+}
 
 export function translateCategory(category?: string | null) {
   if (!category) {

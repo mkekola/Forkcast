@@ -15,6 +15,10 @@ export function useMealDbApi() {
       return `${MEALDB_BASE_URL}/filter.php?c=${mealDbSearch.query}`;
     }
 
+    if (mealDbSearch.type === "area") {
+      return `${MEALDB_BASE_URL}/filter.php?a=${mealDbSearch.query}`;
+    }
+
     return `${MEALDB_BASE_URL}/search.php?s=${mealDbSearch.query}`;
   }
 
