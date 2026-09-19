@@ -9,15 +9,13 @@
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        fill="currentColor"
         class="h-8 w-8 text-fork-clay"
         aria-hidden="true"
       >
-        <path d="M7 3v7M5 3v4a2 2 0 004 0V3M7 10v11M17 3c-1.7 0-3 2-3 5s1.3 5 3 5 3-2 3-5-1.3-5-3-5zM17 13v8" />
+        <path d="M6.5 2a1 1 0 011 1v4.2a1 1 0 102 0V3a1 1 0 112 0v4.2a1 1 0 102 0V3a1 1 0 112 0v5a4.5 4.5 0 01-3.5 4.39V21a1 1 0 11-2 0v-8.6A4.5 4.5 0 015.5 8V3a1 1 0 011-1z" />
+        <path d="M17 2c2.5 0 3.5 3 3.5 5s-1 5-3.5 5-3.5-3-3.5-5 1-5 3.5-5z" />
+        <path d="M16.15 12.8h1.7V21a.85.85 0 01-1.7 0v-8.2z" />
       </svg>
       Forkcast
     </NuxtLink>
