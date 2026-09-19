@@ -22,11 +22,11 @@
             type="button"
             class="flex h-12 w-12 items-center justify-center rounded-full border shadow-lg backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
             :class="
-              justAddedDraft
+              isDraft || justAddedDraft
                 ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
                 : 'border-white bg-fork-card text-fork-clay shadow-stone-300 hover:bg-fork-clay-soft'
             "
-            :aria-label="justAddedDraft ? 'Lisätty luonnoksiin' : 'Lisää luonnoksiin'"
+            :aria-label="isDraft ? 'Lisätty luonnoksiin' : 'Lisää luonnoksiin'"
             @click.prevent.stop="addToDrafts"
             @mousedown.stop
           >
@@ -42,6 +42,16 @@
               class="h-6 w-6"
             >
               <path d="M5 12l5 5L19 7" />
+            </svg>
+
+            <svg
+              v-else-if="isDraft"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="h-6 w-6"
+            >
+              <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
             </svg>
 
             <svg
@@ -148,10 +158,14 @@ const favoritesStore = useFavoritesStore();
 const plannerStore = usePlannerStore();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
+const isDraft = computed(() =>
+  plannerStore.getDrafts().some((draft) => draft.recipeId === props.recipe.id),
+);
 const justAddedDraft = ref(false);
 
 onMounted(() => {
   favoritesStore.loadFromStorage();
+  plannerStore.loadFromStorage();
 });
 
 function toggleFavorite() {
