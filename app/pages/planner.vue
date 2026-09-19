@@ -37,36 +37,15 @@
             </button>
           </div>
 
-          <div
+          <ConfirmInline
             v-if="pendingClearWeek"
-            class="mt-3 max-w-md rounded-2xl border border-red-100 bg-red-50 p-4"
-          >
-            <p class="text-sm font-black text-red-800">
-              Tyhjennetäänkö koko viikko?
-            </p>
-
-            <p class="mt-1 text-sm leading-6 text-red-700">
-              Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit.
-            </p>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="rounded-full bg-red-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-700"
-                @click="confirmClearWeek"
-              >
-                Tyhjennä
-              </button>
-
-              <button
-                type="button"
-                class="rounded-full bg-fork-card px-4 py-2 text-xs font-bold text-fork-muted ring-1 ring-fork-line transition hover:bg-fork-bg"
-                @click="cancelClearWeek"
-              >
-                Peruuta
-              </button>
-            </div>
-          </div>
+            class="mt-3 max-w-md"
+            title="Tyhjennetäänkö koko viikko?"
+            description="Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit."
+            confirm-label="Tyhjennä"
+            @confirm="confirmClearWeek"
+            @cancel="cancelClearWeek"
+          />
         </div>
       </section>
 
@@ -175,32 +154,15 @@
                     </div>
                   </div>
 
-                  <div
+                  <ConfirmInline
                     v-if="pendingRemovalId === plannedMeal.id"
-                    class="border-t border-red-100 bg-red-50 px-3 py-3"
-                  >
-                    <p class="text-sm font-bold text-red-800">
-                      Poistetaanko tämä resepti?
-                    </p>
-
-                    <div class="mt-2 flex gap-2">
-                      <button
-                        type="button"
-                        class="rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700"
-                        @click="confirmRemoveMeal(plannedMeal.id)"
-                      >
-                        Poista
-                      </button>
-
-                      <button
-                        type="button"
-                        class="rounded-full bg-fork-card px-3 py-1.5 text-xs font-bold text-fork-muted ring-1 ring-fork-line transition hover:bg-fork-bg"
-                        @click="cancelRemoveMeal"
-                      >
-                        Peruuta
-                      </button>
-                    </div>
-                  </div>
+                    class="mt-2"
+                    title="Poistetaanko tämä resepti?"
+                    description="Resepti poistetaan viikkosuunnitelmasta."
+                    confirm-label="Poista"
+                    @confirm="confirmRemoveMeal(plannedMeal.id)"
+                    @cancel="cancelRemoveMeal"
+                  />
                 </div>
               </div>
 
