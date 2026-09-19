@@ -46,8 +46,25 @@
             >
               <div
                 v-if="inspirationRecipes.length === 0"
-                class="h-full w-full animate-pulse bg-fork-bg"
-              />
+                class="flex h-full w-full flex-col items-center justify-center gap-3 bg-fork-bg"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  class="h-6 w-6 animate-spin text-fork-clay"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3a9 9 0 1 0 9 9" />
+                </svg>
+
+                <p class="text-xs font-bold uppercase tracking-[0.1em] text-fork-muted">
+                  Haetaan inspiraatiota…
+                </p>
+              </div>
 
               <template v-else>
                 <NuxtLink
