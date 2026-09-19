@@ -112,8 +112,11 @@ const CATEGORY_KEYWORDS: Record<Exclude<ShoppingCategory, "muu">, string[]> = {
     "cornflour", "sugar", "curry powder", "garam masala", "five spice",
     "seasoning", "cocoa powder", "cacao powder", "stock cube",
     "stock powder", "bouillon", "ground ginger", "smoked paprika",
-    "vegetable oil", "olive oil", "sesame oil", "soy sauce", "vinegar",
-    "honey",
+    "vegetable oil", "olive oil", "sesame oil", "soy sauce", "fish sauce",
+    "oyster sauce", "hoisin sauce", "vinegar", "honey", "coconut milk",
+    "coconut cream", "chicken stock", "beef stock", "fish stock",
+    "vegetable stock", "chicken broth", "beef broth", "fish broth",
+    "vegetable broth",
   ],
 };
 

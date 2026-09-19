@@ -106,6 +106,14 @@ describe("categorizeIngredient", () => {
     // Cornflour/cornstarch are pantry starches, not the vegetable.
     expect(categorizeIngredient("Cornflour")).toBe("mausteet");
     expect(categorizeIngredient("Corn")).toBe("hedelmat-vihannekset");
+
+    // Sauces and liquid stocks are pantry items, not the fresh protein or dairy.
+    expect(categorizeIngredient("Fish Sauce")).toBe("mausteet");
+    expect(categorizeIngredient("Fish")).toBe("proteiinit");
+    expect(categorizeIngredient("Chicken Stock")).toBe("mausteet");
+    expect(categorizeIngredient("Chicken breast")).toBe("proteiinit");
+    expect(categorizeIngredient("Coconut Milk")).toBe("mausteet");
+    expect(categorizeIngredient("Milk")).toBe("maitotuotteet");
   });
 
   it("falls back to 'muu' for ingredients it doesn't recognize", () => {
