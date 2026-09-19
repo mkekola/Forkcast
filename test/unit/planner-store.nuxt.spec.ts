@@ -87,3 +87,83 @@ describe("planner store: shoppingList", () => {
     ]);
   });
 });
+
+describe("planner store: drafts", () => {
+  let plannerStore: ReturnType<typeof usePlannerStore>;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    plannerStore = usePlannerStore();
+  });
+
+  it("adds a draft with no day or meal assigned", () => {
+    plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Pasta Bolognese",
+      recipeImage: "https://example.com/pasta.jpg",
+      category: "Pasta",
+      ingredients: [],
+    });
+
+    expect(plannerStore.plannedMeals).toEqual([
+      expect.objectContaining({ day: null, meal: null, recipeName: "Pasta Bolognese" }),
+    ]);
+  });
+
+  it("lists drafts separately from meals assigned to a slot", () => {
+    plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "2",
+      recipeName: "Assigned Recipe",
+      recipeImage: "https://example.com/assigned.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    expect(plannerStore.getDrafts().map((item) => item.recipeName)).toEqual([
+      "Draft Recipe",
+    ]);
+    expect(plannerStore.getMeals("monday", "dinner").map((item) => item.recipeName)).toEqual([
+      "Assigned Recipe",
+    ]);
+  });
+
+  it("assigning a draft to a day and meal moves it out of the drafts list", () => {
+    plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    const draftId = plannerStore.getDrafts()[0].id;
+    plannerStore.assignMeal(draftId, "tuesday", "lunch");
+
+    expect(plannerStore.getDrafts()).toEqual([]);
+    expect(plannerStore.getMeals("tuesday", "lunch").map((item) => item.recipeName)).toEqual([
+      "Draft Recipe",
+    ]);
+  });
+
+  it("still includes draft ingredients in the shopping list", () => {
+    plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [{ name: "Onion", measure: "1" }],
+    });
+
+    expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Onion"]);
+  });
+});

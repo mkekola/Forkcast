@@ -13,8 +13,8 @@ export type Ingredient = {
 
 export type PlannedMeal = {
   id: string;
-  day: string;
-  meal: MealType;
+  day: string | null;
+  meal: MealType | null;
   recipeId: string;
   recipeName: string;
   recipeImage: string;
@@ -105,7 +105,39 @@ export const usePlannerStore = defineStore("planner", () => {
 
     saveToStorage();
   }
-  
+
+  function addDraft(meal: Omit<PlannedMeal, "id" | "day" | "meal">) {
+    plannedMeals.value.push({
+      ...meal,
+      id: createPlannedMealId(),
+      day: null,
+      meal: null,
+    });
+
+    saveToStorage();
+  }
+
+  function assignMeal(plannedMealId: string, day: string, meal: MealType) {
+    const target = plannedMeals.value.find(
+      (plannedMeal) => plannedMeal.id === plannedMealId,
+    );
+
+    if (!target) {
+      return;
+    }
+
+    target.day = day;
+    target.meal = meal;
+    saveToStorage();
+  }
+
+  function getDrafts() {
+    return plannedMeals.value.filter(
+      (plannedMeal) => !plannedMeal.day || !plannedMeal.meal,
+    );
+  }
+
+
   const shoppingList = computed<ShoppingListItem[]>(() => {
     const measuresByName = new Map<string, { name: string; measures: string[] }>();
 
@@ -182,6 +214,9 @@ export const usePlannerStore = defineStore("planner", () => {
     checkedShoppingItems,
     loadFromStorage,
     addMeal,
+    addDraft,
+    assignMeal,
+    getDrafts,
     removeMeal,
     getMeals,
     isShoppingItemChecked,
