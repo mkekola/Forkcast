@@ -147,8 +147,7 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mb-8 flex items-start justify-between gap-6">
-          <div>
+        <div class="mb-8">
           <div class="flex max-w-2xl gap-3">
             <input
               v-model="searchInput"
@@ -183,28 +182,29 @@
               {{ quickSearch.label }}
             </button>
           </div>
-          </div>
-
-          <img
-            src="/images/cooking-doodle.png"
-            alt=""
-            aria-hidden="true"
-            class="hidden w-40 shrink-0 opacity-90 lg:block"
-          >
         </div>
         <div
           class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
         >
-          <div>
-            <p
-              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
+          <div class="flex items-center gap-4">
+            <img
+              src="/images/cooking-doodle.png"
+              alt=""
+              aria-hidden="true"
+              class="hidden w-20 shrink-0 -scale-x-100 opacity-90 lg:block"
             >
-              Reseptit
-            </p>
 
-            <h2 class="mt-3 text-3xl font-black tracking-tight md:text-4xl">
-              Mitä tänään tekisi mieli?
-            </h2>
+            <div>
+              <p
+                class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
+              >
+                Reseptit
+              </p>
+
+              <h2 class="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+                Mitä tänään tekisi mieli?
+              </h2>
+            </div>
           </div>
 
           <p
