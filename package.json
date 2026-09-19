@@ -24,6 +24,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
     "@nuxt/test-utils": "^4.1.0",
+    "@vue/test-utils": "^2.5.1",
     "eslint": "^10.8.0",
     "happy-dom": "^20.11.1",
     "typescript": "^6.0.3",

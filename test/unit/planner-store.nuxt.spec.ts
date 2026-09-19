@@ -1,6 +1,37 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { usePlannerStore } from "~/stores/planner";
+
+// These tests only exercise the store's synchronous local-state logic
+// (shopping list merging, draft filtering), so the Supabase calls that
+// now fire alongside every mutation are stubbed out with a chainable mock
+// rather than hitting the real backend from a unit test.
+function createChainableSupabaseMock(): unknown {
+  return new Proxy(() => undefined, {
+    get(_target, prop) {
+      if (prop === "then") {
+        return (resolve: (value: { data: unknown[]; error: null }) => void) =>
+          resolve({ data: [], error: null });
+      }
+
+      return () => createChainableSupabaseMock();
+    },
+    apply() {
+      return createChainableSupabaseMock();
+    },
+  });
+}
+
+mockNuxtImport("useSupabaseClient", () => {
+  return () => ({
+    from: () => createChainableSupabaseMock(),
+  });
+});
+
+mockNuxtImport("useCurrentUserId", () => {
+  return () => Promise.resolve("test-user-id");
+});
 
 describe("planner store: shoppingList", () => {
   let plannerStore: ReturnType<typeof usePlannerStore>;
