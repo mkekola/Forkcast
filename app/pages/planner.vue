@@ -23,7 +23,7 @@
             <button
               type="button"
               class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-              @click="isShoppingListOpen = true"
+              @click="plannerStore.isShoppingListOpen = true"
             >
               Ostoslistaan
             </button>
@@ -31,7 +31,7 @@
             <button
               type="button"
               class="rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-bold text-fork-ink transition hover:border-fork-ink"
-              @click="isDraftsOpen = true"
+              @click="plannerStore.isDraftsOpen = true"
             >
               Luonnokset
             </button>
@@ -259,16 +259,13 @@
           <button
             type="button"
             class="inline-flex shrink-0 items-center gap-2 rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-            @click="isShoppingListOpen = true"
+            @click="plannerStore.isShoppingListOpen = true"
           >
             Avaa ostoslista →
           </button>
         </div>
       </section>
     </section>
-
-    <ShoppingListDrawer v-model:open="isShoppingListOpen" />
-    <DraftsDrawer v-model:open="isDraftsOpen" />
   </main>
 </template>
 
@@ -282,15 +279,9 @@ useSeoMeta({
   description: "Suunnittele viikon ateriat ja muodosta ostoslista Forkcastissa.",
 });
 
-const route = useRoute();
-const router = useRouter();
-
 const pendingClearWeek = ref(false);
 
 const pendingRemovalId = ref<string | null>(null);
-
-const isShoppingListOpen = ref(false);
-const isDraftsOpen = ref(false);
 
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
 
@@ -301,11 +292,6 @@ const shoppingListSummary = computed(() => {
 
 onMounted(() => {
   plannerStore.loadFromStorage();
-
-  if (route.query.openShoppingList) {
-    isShoppingListOpen.value = true;
-    router.replace({ query: {} });
-  }
 });
 
 const days = [

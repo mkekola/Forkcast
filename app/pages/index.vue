@@ -117,9 +117,10 @@
             <span class="text-xs text-fork-muted">{{ plannedMealsLabel }}</span>
           </NuxtLink>
 
-          <NuxtLink
-            to="/planner?openShoppingList=1"
-            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a4]"
+          <button
+            type="button"
+            class="flex flex-col justify-center gap-1.5 rounded-[1.5rem] bg-fork-card p-5 text-left ring-1 ring-fork-line shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-fork-clay md:[grid-area:a4]"
+            @click="plannerStore.isShoppingListOpen = true"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -141,7 +142,7 @@
             </span>
             <span class="text-base font-black leading-snug">Ostoslista</span>
             <span class="text-xs text-fork-muted">{{ shoppingItemsLabel }}</span>
-          </NuxtLink>
+          </button>
         </div>
       </section>
 

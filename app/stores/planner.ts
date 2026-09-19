@@ -50,6 +50,8 @@ function normalizePlannedMeals(meals: PlannedMeal[]) {
 export const usePlannerStore = defineStore("planner", () => {
   const plannedMeals = ref<PlannedMeal[]>([]);
   const checkedShoppingItems = ref<string[]>([]);
+  const isShoppingListOpen = ref(false);
+  const isDraftsOpen = ref(false);
 
   function loadFromStorage() {
     if (!import.meta.client) {
@@ -212,6 +214,8 @@ export const usePlannerStore = defineStore("planner", () => {
   return {
     plannedMeals,
     checkedShoppingItems,
+    isShoppingListOpen,
+    isDraftsOpen,
     loadFromStorage,
     addMeal,
     addDraft,
