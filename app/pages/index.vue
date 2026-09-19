@@ -38,7 +38,7 @@
               src="/images/inspiroidu-doodle.png"
               alt=""
               aria-hidden="true"
-              class="pointer-events-none absolute -top-1 right-1 z-20 h-16 w-16 md:-top-2 md:right-0 md:h-20 md:w-20 xl:-top-4 xl:-right-10 xl:h-24 xl:w-24 2xl:-right-20 2xl:h-28 2xl:w-28"
+              class="pointer-events-none absolute -top-1 right-1 z-20 h-16 w-16 md:-top-2 md:right-0 md:h-20 md:w-20 2xl:-top-4 2xl:-right-36 2xl:h-28 2xl:w-28"
             >
 
             <div
