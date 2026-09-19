@@ -122,6 +122,21 @@
           </div>
         </div>
 
+        <nav
+          v-if="groupedItems.length > 1"
+          class="flex gap-2 overflow-x-auto border-b border-fork-line px-6 py-3"
+        >
+          <button
+            v-for="group in groupedItems"
+            :key="group.category"
+            type="button"
+            class="shrink-0 rounded-full border border-fork-line px-3 py-1.5 text-xs font-bold text-fork-ink transition hover:border-fork-ink"
+            @click="scrollToCategory(group.category)"
+          >
+            {{ group.label }}
+          </button>
+        </nav>
+
         <span class="sr-only" role="status">{{ justCopied ? "Ostoslista kopioitu leikepöydälle" : "" }}</span>
 
         <div class="flex-1 overflow-y-auto px-6 py-5">
@@ -133,47 +148,22 @@
             viikkosuunnitelmaan, jotta sen ainesosat tallentuvat mukaan.
           </div>
 
-          <template v-else>
-            <ul class="space-y-3">
-              <li
-                v-for="item in freshItems"
-                :key="item.key"
-                class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
-                :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
-              >
-                <div>
-                  <p
-                    class="font-bold text-fork-ink"
-                    :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
-                  >
-                    {{ item.name }}
-                  </p>
-
-                  <p class="mt-1 text-sm text-stone-500">
-                    {{ item.measure }}
-                  </p>
-                </div>
-
-                <input
-                  type="checkbox"
-                  class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
-                  :checked="plannerStore.isShoppingItemChecked(item.key)"
-                  @change="plannerStore.toggleShoppingItem(item.key)"
-                >
-              </li>
-            </ul>
-
-            <div v-if="pantryItems.length > 0" class="mt-6">
+          <div v-else class="space-y-6">
+            <div
+              v-for="group in groupedItems"
+              :key="group.category"
+              :ref="(el) => setSectionRef(group.category, el)"
+            >
               <p class="text-xs font-bold uppercase tracking-wide text-fork-muted">
-                Mausteet &amp; kuivatavarat
+                {{ group.label }}
               </p>
-              <p class="mt-1 text-xs text-fork-muted">
+              <p v-if="group.category === 'mausteet'" class="mt-1 text-xs text-fork-muted">
                 Näitä on usein jo kaapissa — tarkista ennen kauppaan lähtöä.
               </p>
 
               <ul class="mt-3 space-y-3">
                 <li
-                  v-for="item in pantryItems"
+                  v-for="item in group.items"
                   :key="item.key"
                   class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
                   :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
@@ -200,7 +190,7 @@
                 </li>
               </ul>
             </div>
-          </template>
+          </div>
         </div>
       </aside>
     </Transition>
@@ -209,21 +199,35 @@
 
 <script setup lang="ts">
 import { usePlannerStore } from "~/stores/planner";
+import {
+  SHOPPING_CATEGORY_LABELS,
+  SHOPPING_CATEGORY_ORDER,
+  type ShoppingCategory,
+} from "~/utils/shoppingList";
 
 const open = defineModel<boolean>("open", { default: false });
 
 const plannerStore = usePlannerStore();
 
-const freshItems = computed(() =>
-  plannerStore.shoppingList.filter((item) => !item.isPantryStaple),
-);
-
-const pantryItems = computed(() =>
-  plannerStore.shoppingList.filter((item) => item.isPantryStaple),
+const groupedItems = computed(() =>
+  SHOPPING_CATEGORY_ORDER.map((category) => ({
+    category,
+    label: SHOPPING_CATEGORY_LABELS[category],
+    items: plannerStore.shoppingList.filter((item) => item.category === category),
+  })).filter((group) => group.items.length > 0),
 );
 
 const panelRef = ref<HTMLElement | null>(null);
 const justCopied = ref(false);
+const sectionRefs = ref<Partial<Record<ShoppingCategory, HTMLElement>>>({});
+
+function setSectionRef(category: ShoppingCategory, el: Element | null) {
+  sectionRefs.value[category] = el as HTMLElement | undefined;
+}
+
+function scrollToCategory(category: ShoppingCategory) {
+  sectionRefs.value[category]?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 function formatItemLine(item: { key: string; name: string; measure: string }) {
   const checkbox = plannerStore.isShoppingItemChecked(item.key) ? "[x]" : "[ ]";
@@ -233,14 +237,12 @@ function formatItemLine(item: { key: string; name: string; measure: string }) {
 }
 
 function buildListText() {
-  const lines = ["Ostoslista", ""];
+  const lines = ["Ostoslista"];
 
-  freshItems.value.forEach((item) => lines.push(formatItemLine(item)));
-
-  if (pantryItems.value.length > 0) {
-    lines.push("", "Mausteet & kuivatavarat");
-    pantryItems.value.forEach((item) => lines.push(formatItemLine(item)));
-  }
+  groupedItems.value.forEach((group) => {
+    lines.push("", group.label);
+    group.items.forEach((item) => lines.push(formatItemLine(item)));
+  });
 
   return lines.join("\n");
 }

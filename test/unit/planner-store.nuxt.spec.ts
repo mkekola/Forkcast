@@ -36,11 +36,16 @@ describe("planner store: shoppingList", () => {
     });
 
     expect(plannerStore.shoppingList).toEqual([
-      { key: "garlic", name: "Garlic", measure: "5 cloves", isPantryStaple: false },
+      {
+        key: "garlic",
+        name: "Garlic",
+        measure: "5 cloves",
+        category: "hedelmat-vihannekset",
+      },
     ]);
   });
 
-  it("flags spices and pantry staples so they can be shown separately", () => {
+  it("categorizes ingredients so they can be shown in separate sections", () => {
     plannerStore.addMeal({
       day: "monday",
       meal: "dinner",
@@ -55,10 +60,10 @@ describe("planner store: shoppingList", () => {
     });
 
     expect(
-      plannerStore.shoppingList.map((item) => [item.name, item.isPantryStaple]),
+      plannerStore.shoppingList.map((item) => [item.name, item.category]),
     ).toEqual([
-      ["Chicken breast", false],
-      ["Ground Cumin", true],
+      ["Chicken breast", "proteiinit"],
+      ["Ground Cumin", "mausteet"],
     ]);
   });
 

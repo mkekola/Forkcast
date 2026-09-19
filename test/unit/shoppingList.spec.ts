@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { combineMeasures, isPantryStaple } from "../../app/utils/shoppingList";
+import { categorizeIngredient, combineMeasures } from "../../app/utils/shoppingList";
 
 describe("combineMeasures", () => {
   it("sums measures that share a recognized unit", () => {
@@ -48,23 +48,68 @@ describe("combineMeasures", () => {
   });
 });
 
-describe("isPantryStaple", () => {
-  it("recognizes common spices and dried herbs", () => {
-    expect(isPantryStaple("Ground Cumin")).toBe(true);
-    expect(isPantryStaple("Salt")).toBe(true);
-    expect(isPantryStaple("dried oregano")).toBe(true);
-    expect(isPantryStaple("Smoked Paprika")).toBe(true);
+describe("categorizeIngredient", () => {
+  it("recognizes common spices and dried herbs as mausteet", () => {
+    expect(categorizeIngredient("Ground Cumin")).toBe("mausteet");
+    expect(categorizeIngredient("Salt")).toBe("mausteet");
+    expect(categorizeIngredient("dried oregano")).toBe("mausteet");
+    expect(categorizeIngredient("Smoked Paprika")).toBe("mausteet");
   });
 
-  it("recognizes common dry/liquid pantry staples beyond spices", () => {
-    expect(isPantryStaple("Plain Flour")).toBe(true);
-    expect(isPantryStaple("Olive Oil")).toBe(true);
-    expect(isPantryStaple("Soy Sauce")).toBe(true);
+  it("recognizes common dry/liquid pantry staples beyond spices as mausteet", () => {
+    expect(categorizeIngredient("Olive Oil")).toBe("mausteet");
+    expect(categorizeIngredient("Soy Sauce")).toBe("mausteet");
+    expect(categorizeIngredient("Sugar")).toBe("mausteet");
   });
 
-  it("does not flag fresh ingredients as pantry staples", () => {
-    expect(isPantryStaple("Chicken breast")).toBe(false);
-    expect(isPantryStaple("Onion")).toBe(false);
-    expect(isPantryStaple("Fresh spinach")).toBe(false);
+  it("recognizes fruits and vegetables", () => {
+    expect(categorizeIngredient("Onion")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Fresh Spinach")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Apple")).toBe("hedelmat-vihannekset");
+  });
+
+  it("recognizes meat and other proteins", () => {
+    expect(categorizeIngredient("Chicken breast")).toBe("proteiinit");
+    expect(categorizeIngredient("Salmon fillet")).toBe("proteiinit");
+    expect(categorizeIngredient("Chickpeas")).toBe("proteiinit");
+  });
+
+  it("recognizes dairy products", () => {
+    expect(categorizeIngredient("Milk")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Cheddar")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Greek Yogurt")).toBe("maitotuotteet");
+  });
+
+  it("recognizes grains and cereal products", () => {
+    expect(categorizeIngredient("Rice")).toBe("viljatuotteet");
+    expect(categorizeIngredient("Spaghetti")).toBe("viljatuotteet");
+    expect(categorizeIngredient("Plain Flour")).toBe("viljatuotteet");
+  });
+
+  it("prefers longer, more specific matches over generic ones from another category", () => {
+    // "Pepper" alone reads as the spice, but a named bell pepper is a vegetable.
+    expect(categorizeIngredient("Pepper")).toBe("mausteet");
+    expect(categorizeIngredient("Red Pepper")).toBe("hedelmat-vihannekset");
+
+    // "Butter" is dairy, but butter beans are a legume/protein.
+    expect(categorizeIngredient("Butter")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Butter Beans")).toBe("proteiinit");
+
+    // Ground ginger is a spice-rack item; bare ginger reads as the fresh root.
+    expect(categorizeIngredient("Ground Ginger")).toBe("mausteet");
+    expect(categorizeIngredient("Ginger")).toBe("hedelmat-vihannekset");
+
+    // Chili powder/flakes are spices; a bare chili is a fresh vegetable.
+    expect(categorizeIngredient("Chili Powder")).toBe("mausteet");
+    expect(categorizeIngredient("Chili")).toBe("hedelmat-vihannekset");
+
+    // Cornflour/cornstarch are pantry starches, not the vegetable.
+    expect(categorizeIngredient("Cornflour")).toBe("mausteet");
+    expect(categorizeIngredient("Corn")).toBe("hedelmat-vihannekset");
+  });
+
+  it("falls back to 'muu' for ingredients it doesn't recognize", () => {
+    expect(categorizeIngredient("Unobtainium Powder")).toBe("muu");
+    expect(categorizeIngredient("Some Unknown Thing")).toBe("muu");
   });
 });

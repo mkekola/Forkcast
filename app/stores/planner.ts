@@ -1,4 +1,8 @@
-import { combineMeasures, isPantryStaple } from "~/utils/shoppingList";
+import {
+  categorizeIngredient,
+  combineMeasures,
+  type ShoppingCategory,
+} from "~/utils/shoppingList";
 
 export type MealType = "breakfast" | "lunch" | "dinner";
 
@@ -22,7 +26,7 @@ export type ShoppingListItem = {
   key: string;
   name: string;
   measure: string;
-  isPantryStaple: boolean;
+  category: ShoppingCategory;
 };
 
 type PlannerStorage = {
@@ -130,7 +134,7 @@ export const usePlannerStore = defineStore("planner", () => {
         key,
         name,
         measure: combineMeasures(measures),
-        isPantryStaple: isPantryStaple(name),
+        category: categorizeIngredient(name),
       }))
       .sort((firstItem, secondItem) =>
         firstItem.name.localeCompare(secondItem.name, "fi"),

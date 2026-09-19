@@ -36,76 +36,108 @@ const UNIT_ALIASES: Record<string, string> = {
 
 const BARE_COUNT_UNIT = "kpl";
 
-const PANTRY_STAPLE_KEYWORDS = [
-  "salt",
-  "pepper",
-  "paprika",
-  "cumin",
-  "coriander",
-  "turmeric",
-  "cinnamon",
-  "nutmeg",
-  "clove",
-  "allspice",
-  "cardamom",
-  "chili powder",
-  "chilli powder",
-  "chili flakes",
-  "chilli flakes",
-  "pepper flakes",
-  "oregano",
-  "basil",
-  "thyme",
-  "rosemary",
-  "bay leaf",
-  "bay leaves",
-  "sage",
-  "tarragon",
-  "mustard seed",
-  "mustard powder",
-  "fennel seed",
-  "fenugreek",
-  "saffron",
-  "vanilla extract",
-  "vanilla essence",
-  "baking powder",
-  "baking soda",
-  "bicarbonate of soda",
-  "yeast",
-  "cornstarch",
-  "corn starch",
-  "cornflour",
-  "sugar",
-  "curry powder",
-  "garam masala",
-  "five spice",
-  "seasoning",
-  "cocoa powder",
-  "cacao powder",
-  "stock cube",
-  "stock powder",
-  "bouillon",
-  "ground ginger",
-  "smoked paprika",
-  "flour",
-  "vegetable oil",
-  "olive oil",
-  "sesame oil",
-  "soy sauce",
-  "vinegar",
-  "honey",
+export type ShoppingCategory =
+  | "hedelmat-vihannekset"
+  | "proteiinit"
+  | "maitotuotteet"
+  | "viljatuotteet"
+  | "mausteet"
+  | "muu";
+
+export const SHOPPING_CATEGORY_ORDER: ShoppingCategory[] = [
+  "hedelmat-vihannekset",
+  "proteiinit",
+  "maitotuotteet",
+  "viljatuotteet",
+  "mausteet",
+  "muu",
 ];
 
-/**
- * Best-effort check for whether an ingredient is a spice or dry pantry
- * staple, i.e. something a household is likely to already have on hand and
- * rarely needs to restock. Based on a curated keyword list rather than any
- * data from the recipe source, so it won't catch everything.
- */
-export function isPantryStaple(name: string): boolean {
-  const normalized = name.toLowerCase();
+export const SHOPPING_CATEGORY_LABELS: Record<ShoppingCategory, string> = {
+  "hedelmat-vihannekset": "Hedelmät & vihannekset",
+  proteiinit: "Proteiinit",
+  maitotuotteet: "Maitotuotteet",
+  viljatuotteet: "Viljatuotteet",
+  mausteet: "Mausteet & kuivatavarat",
+  muu: "Muut",
+};
 
-  return PANTRY_STAPLE_KEYWORDS.some((keyword) => normalized.includes(keyword));
+const CATEGORY_KEYWORDS: Record<Exclude<ShoppingCategory, "muu">, string[]> = {
+  "hedelmat-vihannekset": [
+    "apple", "banana", "orange", "lemon", "lime", "grape", "strawberry",
+    "strawberries", "blueberry", "blueberries", "raspberry", "raspberries",
+    "blackberry", "blackberries", "mango", "pineapple", "peach", "pear",
+    "plum", "cherry", "cherries", "watermelon", "melon", "kiwi", "apricot",
+    "fig", "date", "pomegranate", "avocado", "tomato", "onion", "garlic",
+    "potato", "sweet potato", "carrot", "celery", "cucumber", "lettuce",
+    "spinach", "kale", "broccoli", "cauliflower", "cabbage", "red pepper",
+    "green pepper", "yellow pepper", "orange pepper", "bell pepper",
+    "courgette", "zucchini", "aubergine", "eggplant", "mushroom",
+    "sweetcorn", "sweet corn", "corn", "green bean", "green beans", "peas",
+    "leek", "radish", "beetroot", "squash", "pumpkin", "parsnip",
+    "artichoke", "asparagus", "chard", "rocket", "watercress", "chili",
+    "chilli", "ginger",
+  ],
+  proteiinit: [
+    "chicken", "beef", "pork", "lamb", "turkey", "duck", "bacon", "sausage",
+    "mince", "steak", "fish", "salmon", "tuna", "cod", "haddock", "mackerel",
+    "shrimp", "prawn", "crab", "lobster", "mussel", "clam", "squid", "egg",
+    "eggs", "tofu", "chickpea", "chickpeas", "lentil", "lentils",
+    "kidney bean", "black bean", "butter bean", "cannellini bean",
+    "edamame", "venison", "mutton", "ham", "chorizo", "salami", "pepperoni",
+    "anchovy", "quail", "rabbit",
+  ],
+  maitotuotteet: [
+    "milk", "cream", "butter", "cheese", "yogurt", "yoghurt", "mozzarella",
+    "cheddar", "parmesan", "feta", "ricotta", "mascarpone", "sour cream",
+    "creme fraiche", "buttermilk", "ghee", "halloumi", "paneer",
+  ],
+  viljatuotteet: [
+    "rice", "pasta", "spaghetti", "macaroni", "noodle", "noodles", "bread",
+    "tortilla", "oats", "oatmeal", "quinoa", "couscous", "barley", "bulgur",
+    "breadcrumb", "breadcrumbs", "cereal", "bun", "baguette", "pita", "naan",
+    "penne", "fusilli", "linguine", "tagliatelle", "lasagne", "lasagna",
+    "flour",
+  ],
+  mausteet: [
+    "salt", "black pepper", "white pepper", "cayenne pepper",
+    "pepper flakes", "peppercorn", "pepper", "paprika", "cumin",
+    "coriander", "turmeric", "cinnamon", "nutmeg", "clove", "allspice",
+    "cardamom", "chili powder", "chilli powder", "chili flakes",
+    "chilli flakes", "oregano", "basil", "thyme", "rosemary", "bay leaf",
+    "bay leaves", "sage", "tarragon", "mustard seed", "mustard powder",
+    "fennel seed", "fenugreek", "saffron", "vanilla extract",
+    "vanilla essence", "baking powder", "baking soda",
+    "bicarbonate of soda", "yeast", "cornstarch", "corn starch",
+    "cornflour", "sugar", "curry powder", "garam masala", "five spice",
+    "seasoning", "cocoa powder", "cacao powder", "stock cube",
+    "stock powder", "bouillon", "ground ginger", "smoked paprika",
+    "vegetable oil", "olive oil", "sesame oil", "soy sauce", "vinegar",
+    "honey",
+  ],
+};
+
+const SORTED_CATEGORY_KEYWORDS: { keyword: string; category: ShoppingCategory }[] =
+  Object.entries(CATEGORY_KEYWORDS)
+    .flatMap(([category, keywords]) =>
+      keywords.map((keyword) => ({ keyword, category: category as ShoppingCategory })),
+    )
+    .sort((a, b) => b.keyword.length - a.keyword.length);
+
+/**
+ * Best-effort classification of an ingredient into a shopping list
+ * category, based on curated keyword lists rather than any data from the
+ * recipe source. Longer, more specific keywords (e.g. "red pepper") are
+ * matched before shorter generic ones (e.g. "pepper") so a vegetable isn't
+ * mistaken for a spice, but this still won't catch everything.
+ */
+export function categorizeIngredient(name: string): ShoppingCategory {
+  const normalized = name.toLowerCase();
+  const match = SORTED_CATEGORY_KEYWORDS.find(({ keyword }) =>
+    normalized.includes(keyword),
+  );
+
+  return match?.category ?? "muu";
 }
 
 const PLURAL_UNITS: Record<string, string> = {
