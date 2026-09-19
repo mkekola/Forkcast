@@ -49,13 +49,17 @@ join public.recipe_ingredients ri on ri.recipe_id = r.id
 where ri.name ilike any (array['%beef%', '%steak%', '%oxtail%', '%brisket%'])
 on conflict do nothing;
 
+-- "ham" is matched as a whole word (\y is Postgres' word-boundary regex
+-- marker), not a plain substring, since a plain '%ham%' also matches
+-- "Graham Cracker Crumbs" and wrongly tags dessert recipes as Pork.
 insert into public.recipe_categories (recipe_id, category)
 select distinct r.id, 'Pork'
 from public.recipes r
 join public.recipe_ingredients ri on ri.recipe_id = r.id
 where ri.name ilike any (array[
-  '%pork%', '%bacon%', '%ham%', '%sausage%', '%chorizo%', '%prosciutto%', '%pancetta%', '%gammon%'
+  '%pork%', '%bacon%', '%sausage%', '%chorizo%', '%prosciutto%', '%pancetta%', '%gammon%'
 ])
+or ri.name ~* '\yham\y'
 on conflict do nothing;
 
 insert into public.recipe_categories (recipe_id, category)
@@ -98,19 +102,24 @@ on conflict do nothing;
 --    regardless of its original category. "mince" is deliberately left out
 --    of this exclusion list - it's redundant (Lamb/Beef/Pork Mince are
 --    already caught by their own keyword) and would otherwise wrongly
---    disqualify a recipe over "Minced Garlic".
+--    disqualify a recipe over "Minced Garlic". "ham" is matched as a whole
+--    word (see the Pork tag above) so it doesn't disqualify "Graham
+--    Cracker Crumbs".
 insert into public.recipe_categories (recipe_id, category)
 select r.id, 'Vegetarian'
 from public.recipes r
 where not exists (
   select 1 from public.recipe_ingredients ri
   where ri.recipe_id = r.id
-  and ri.name ilike any (array[
-    '%chicken%', '%beef%', '%pork%', '%bacon%', '%ham%', '%sausage%', '%chorizo%', '%prosciutto%',
-    '%pancetta%', '%gammon%', '%steak%', '%oxtail%', '%brisket%', '%lamb%', '%goat meat%', '%duck%',
-    '%turkey%', '%veal%', '%venison%', '%meat%', '%fish%', '%prawn%', '%shrimp%', '%salmon%',
-    '%cod%', '%tuna%', '%squid%', '%crab%', '%lobster%', '%mussel%', '%scallop%', '%anchov%',
-    '%seafood%', '%haddock%', '%trout%', '%sardine%', '%gelatin%', '%gelatine%', '%lard%', '%suet%'
-  ])
+  and (
+    ri.name ilike any (array[
+      '%chicken%', '%beef%', '%pork%', '%bacon%', '%sausage%', '%chorizo%', '%prosciutto%',
+      '%pancetta%', '%gammon%', '%steak%', '%oxtail%', '%brisket%', '%lamb%', '%goat meat%', '%duck%',
+      '%turkey%', '%veal%', '%venison%', '%meat%', '%fish%', '%prawn%', '%shrimp%', '%salmon%',
+      '%cod%', '%tuna%', '%squid%', '%crab%', '%lobster%', '%mussel%', '%scallop%', '%anchov%',
+      '%seafood%', '%haddock%', '%trout%', '%sardine%', '%gelatin%', '%gelatine%', '%lard%', '%suet%'
+    ])
+    or ri.name ~* '\yham\y'
+  )
 )
 on conflict do nothing;
