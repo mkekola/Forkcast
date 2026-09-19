@@ -33,89 +33,114 @@
             </div>
           </div>
 
-          <div
-            class="relative h-72 overflow-hidden rounded-[2rem] bg-fork-card ring-1 ring-fork-line shadow-sm md:h-auto"
-          >
+          <div class="relative h-72 md:h-auto">
             <div
-              v-if="inspirationRecipes.length === 0"
-              class="h-full w-full animate-pulse bg-fork-bg"
-            />
+              class="pointer-events-none absolute -top-6 right-2 z-20 -rotate-6 sm:-top-8 sm:right-4"
+              aria-hidden="true"
+            >
+              <p class="font-handwritten text-3xl text-fork-clay sm:text-4xl">
+                Inspiroidu!
+              </p>
 
-            <template v-else>
-              <NuxtLink
-                :to="`/recipes/${currentInspiration?.idMeal}`"
-                class="group block h-full w-full"
+              <svg
+                viewBox="0 0 60 50"
+                class="ml-6 h-9 w-12 text-fork-clay sm:ml-8 sm:h-10 sm:w-14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-                <img
-                  :src="currentInspiration?.strMealThumb"
-                  :alt="currentInspiration?.strMeal"
-                  class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
+                <path d="M6 4c12-2 24 6 28 20 2 7-1 12-6 16" />
+                <path d="M28 40l-8-4" />
+                <path d="M28 40l3-9" />
+              </svg>
+            </div>
+
+            <div
+              class="relative h-full overflow-hidden rounded-[2rem] bg-fork-card ring-1 ring-fork-line shadow-sm"
+            >
+              <div
+                v-if="inspirationRecipes.length === 0"
+                class="h-full w-full animate-pulse bg-fork-bg"
+              />
+
+              <template v-else>
+                <NuxtLink
+                  :to="`/recipes/${currentInspiration?.idMeal}`"
+                  class="group block h-full w-full"
                 >
+                  <img
+                    :src="currentInspiration?.strMealThumb"
+                    :alt="currentInspiration?.strMeal"
+                    class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
+                  >
 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
 
-                <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
-                  <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
-                    Inspiraatio
-                  </p>
+                  <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
+                      Inspiraatio
+                    </p>
 
-                  <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
-                    {{ currentInspiration?.strMeal }}
-                  </h2>
+                    <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
+                      {{ currentInspiration?.strMeal }}
+                    </h2>
+                  </div>
+                </NuxtLink>
+
+                <button
+                  type="button"
+                  class="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
+                  aria-label="Edellinen inspiraatioresepti"
+                  @click.prevent.stop="showPreviousInspiration"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
+                  aria-label="Seuraava inspiraatioresepti"
+                  @click.prevent.stop="showNextInspiration"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
+
+                <div class="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 gap-1.5">
+                  <span
+                    v-for="(recipe, index) in inspirationRecipes"
+                    :key="recipe.idMeal"
+                    class="h-1.5 w-1.5 rounded-full transition"
+                    :class="index === inspirationIndex ? 'bg-white' : 'bg-white/40'"
+                  />
                 </div>
-              </NuxtLink>
-
-              <button
-                type="button"
-                class="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
-                aria-label="Edellinen inspiraatioresepti"
-                @click.prevent.stop="showPreviousInspiration"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-
-              <button
-                type="button"
-                class="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-fork-card/90 text-fork-ink shadow-sm backdrop-blur transition hover:bg-fork-card"
-                aria-label="Seuraava inspiraatioresepti"
-                @click.prevent.stop="showNextInspiration"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
-
-              <div class="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 gap-1.5">
-                <span
-                  v-for="(recipe, index) in inspirationRecipes"
-                  :key="recipe.idMeal"
-                  class="h-1.5 w-1.5 rounded-full transition"
-                  :class="index === inspirationIndex ? 'bg-white' : 'bg-white/40'"
-                />
-              </div>
-            </template>
+              </template>
+            </div>
           </div>
         </div>
       </section>
