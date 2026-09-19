@@ -5,10 +5,31 @@
   >
     <article class="flex h-full flex-col">
       <div class="relative h-52 shrink-0 overflow-hidden bg-stone-200">
+        <div
+          v-if="!isImageLoaded"
+          class="absolute inset-0 flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            class="h-6 w-6 animate-spin text-stone-400"
+            aria-hidden="true"
+          >
+            <path d="M12 3a9 9 0 1 0 9 9" />
+          </svg>
+        </div>
+
         <img
           :src="recipe.image"
           :alt="recipe.title"
           class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          :class="{ 'opacity-0': !isImageLoaded }"
+          @load="isImageLoaded = true"
+          @error="isImageLoaded = true"
         >
 
         <div
@@ -161,6 +182,7 @@ const isDraft = computed(() =>
   plannerStore.getDrafts().some((draft) => draft.recipeId === props.recipe.id),
 );
 const justAddedDraft = ref(false);
+const isImageLoaded = ref(false);
 
 onMounted(() => {
   favoritesStore.loadFavorites();
