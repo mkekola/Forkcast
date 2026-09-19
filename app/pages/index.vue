@@ -325,8 +325,7 @@ const narrowingCategories = computed(() => selectedCategories.value.slice(0, -1)
 // The search box is Finnish, so free text is run through the same
 // dictionary the old quick-search chips used: a typed word like "kana" or
 // "italialainen" becomes a category/area filter, anything else becomes a
-// literal full-text search term. Explicit category chips always win, so the
-// dictionary only kicks in when no chip is selected.
+// literal full-text search term.
 const searchIntent = computed(() => detectSearchIntent(searchQuery.value));
 
 const effectiveBaseCategory = computed(() => {
@@ -341,21 +340,23 @@ const effectiveBaseCategory = computed(() => {
   return searchIntent.value.type === "category" ? searchIntent.value.query : null;
 });
 
+// An area word (e.g. "kiinalainen") always filters by area, chip or no
+// chip - otherwise "Naudanliha" + "kiinalainen" would run a literal text
+// search for the Finnish word against our English data and find nothing,
+// even though Chinese-area beef recipes exist.
 const effectiveArea = computed<string[] | null>(() => {
-  if (baseCategory.value || !searchQuery.value) {
+  if (!searchQuery.value) {
     return null;
   }
 
   return searchIntent.value.type === "area" ? searchIntent.value.query : null;
 });
 
-// With a category chip active, free text narrows further as a literal
-// search term (real ingredient/title matching, done in useRecipesApi).
-// Without one, it's only used literally when it didn't already resolve to
-// a category or area above.
+// Free text only runs as a literal search term once it's confirmed not to
+// be a recognised category/area word, since those are consumed above.
 const effectiveText = computed(() => {
-  if (baseCategory.value) {
-    return searchQuery.value || null;
+  if (!searchQuery.value) {
+    return null;
   }
 
   return searchIntent.value.type === "name" ? searchQuery.value : null;
@@ -390,7 +391,10 @@ const quickSearches = [
 const recipesApi = useRecipesApi();
 
 const INSPIRATION_RECIPE_COUNT = 5;
-const INSPIRATION_STORAGE_KEY = "forkcast-inspiration-of-day";
+// Bumped to v2 because the recipe shape changed (image/title instead of
+// TheMealDB's strMealThumb/strMeal) when search moved to our own database -
+// otherwise anyone with today's cache already set would see broken images.
+const INSPIRATION_STORAGE_KEY = "forkcast-inspiration-of-day-v2";
 
 const inspirationRecipes = ref<RecipeRow[]>([]);
 const inspirationIndex = ref(0);
