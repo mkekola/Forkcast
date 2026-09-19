@@ -122,7 +122,7 @@ const areaTranslations: Record<string, string> = {
   Vietnam: "Vietnamilainen",
 };
 
-type MealDbSearch =
+export type MealDbSearch =
   | {
       type: "name";
       query: string;

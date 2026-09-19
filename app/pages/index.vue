@@ -169,15 +169,15 @@
           <div class="mt-4 flex max-w-xl flex-wrap gap-2">
             <button
               v-for="quickSearch in quickSearches"
-              :key="quickSearch.query"
+              :key="quickSearch.category"
               type="button"
               class="rounded-full border px-4 py-2 text-sm font-bold transition"
               :class="
-                searchQuery === quickSearch.query
+                selectedCategory === quickSearch.category
                   ? 'border-fork-clay bg-fork-clay text-white'
                   : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
               "
-              @click="selectQuickSearch(quickSearch.query)"
+              @click="toggleCategory(quickSearch.category)"
             >
               {{ quickSearch.label }}
             </button>
@@ -208,10 +208,12 @@
           </div>
 
           <p
-            v-if="searchQuery && !pending && !error"
+            v-if="hasSearched && !pending && !error"
             class="mt-3 text-sm font-bold text-fork-clay"
           >
-            {{ recipes.length }} reseptiä haulla “{{ searchQuery }}”
+            {{ recipes.length }} reseptiä
+            <template v-if="selectedCategoryLabel"> kategoriassa {{ selectedCategoryLabel }}</template>
+            <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
           </p>
         </div>
 
@@ -242,9 +244,14 @@
           v-else-if="recipes.length === 0"
           class="rounded-3xl border border-fork-line bg-fork-card p-8 text-fork-muted"
         >
-          Ei reseptejä hakusanalla “{{ searchQuery }}”. Kokeile esimerkiksi
-          hakua <strong>pasta</strong>, <strong>chicken</strong> tai
-          <strong>beef</strong>.
+          <template v-if="searchQuery">
+            Ei reseptejä hakusanalla “{{ searchQuery }}”<template v-if="selectedCategoryLabel"> kategoriassa {{ selectedCategoryLabel }}</template>.
+            Kokeile esimerkiksi hakua <strong>pasta</strong>, <strong>chicken</strong> tai
+            <strong>beef</strong>.
+          </template>
+          <template v-else>
+            Ei reseptejä kategoriassa {{ selectedCategoryLabel }}.
+          </template>
         </div>
 
         <div v-else class="grid gap-6 md:grid-cols-3">
@@ -284,22 +291,46 @@ const searchQuery = computed(() => {
   return typeof route.query.q === "string" ? route.query.q.trim() : "";
 });
 
-const mealDbSearch = computed(() => getMealDbSearch(searchQuery.value));
+const selectedCategory = computed(() => {
+  return typeof route.query.cat === "string" ? route.query.cat : null;
+});
 
-const hasSearched = computed(() => searchQuery.value.length > 0);
+const selectedCategoryLabel = computed(() =>
+  selectedCategory.value ? translateCategory(selectedCategory.value) : null,
+);
+
+// A quick-search chip always narrows by category. When free text is also
+// present, that text is used to filter the category results by title
+// client-side (TheMealDB has no "category + text" endpoint) instead of
+// being interpreted as its own name/area/category search.
+const mealDbSearch = computed(() => {
+  if (selectedCategory.value) {
+    return { type: "category" as const, query: selectedCategory.value };
+  }
+
+  return getMealDbSearch(searchQuery.value);
+});
+
+const isCombinedFilter = computed(
+  () => Boolean(selectedCategory.value) && searchQuery.value.length > 0,
+);
+
+const hasSearched = computed(
+  () => searchQuery.value.length > 0 || Boolean(selectedCategory.value),
+);
 
 const quickSearches = [
-  { label: "Kana", query: "kana" },
-  { label: "Naudanliha", query: "naudanliha" },
-  { label: "Possu", query: "possu" },
-  { label: "Lammas", query: "lammas" },
-  { label: "Kasvis", query: "kasvis" },
-  { label: "Vegaaninen", query: "vegaaninen" },
-  { label: "Pasta", query: "pasta" },
-  { label: "Merenelävät", query: "merenelävät" },
-  { label: "Aamupala", query: "aamupala" },
-  { label: "Lisukkeet", query: "lisukkeet" },
-  { label: "Jälkiruoka", query: "jälkiruoka" },
+  { label: "Kana", category: "Chicken" },
+  { label: "Naudanliha", category: "Beef" },
+  { label: "Possu", category: "Pork" },
+  { label: "Lammas", category: "Lamb" },
+  { label: "Kasvis", category: "Vegetarian" },
+  { label: "Vegaaninen", category: "Vegan" },
+  { label: "Pasta", category: "Pasta" },
+  { label: "Merenelävät", category: "Seafood" },
+  { label: "Aamupala", category: "Breakfast" },
+  { label: "Lisukkeet", category: "Side" },
+  { label: "Jälkiruoka", category: "Dessert" },
 ];
 
 const mealDbApi = useMealDbApi();
@@ -419,7 +450,7 @@ const { data, pending, error } = await useAsyncData<MealDbSearchResponse | null>
       return Promise.resolve(null);
     }
 
-    return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(searchQuery.value));
+    return $fetch<MealDbSearchResponse>(mealDbApi.getSearchUrl(mealDbSearch.value));
   },
   {
     watch: [mealDbSearch],
@@ -431,7 +462,10 @@ function updateSearchQuery(query: string) {
 
   router.push({
     path: "/",
-    query: trimmedQuery ? { q: trimmedQuery } : {},
+    query: {
+      ...(trimmedQuery ? { q: trimmedQuery } : {}),
+      ...(selectedCategory.value ? { cat: selectedCategory.value } : {}),
+    },
   });
 }
 
@@ -439,9 +473,16 @@ function searchRecipes() {
   updateSearchQuery(searchInput.value);
 }
 
-function selectQuickSearch(query: string) {
-  searchInput.value = query;
-  updateSearchQuery(query);
+function toggleCategory(category: string) {
+  const nextCategory = selectedCategory.value === category ? null : category;
+
+  router.push({
+    path: "/",
+    query: {
+      ...(searchQuery.value ? { q: searchQuery.value } : {}),
+      ...(nextCategory ? { cat: nextCategory } : {}),
+    },
+  });
 }
 
 watch(
@@ -451,6 +492,21 @@ watch(
   },
 );
 
+// When a category chip and free text are both active, TheMealDB has no
+// "category + text" endpoint, so the category's results are narrowed by
+// title client-side instead.
+const filteredMeals = computed(() => {
+  const meals = data.value?.meals ?? [];
+
+  if (!isCombinedFilter.value) {
+    return meals;
+  }
+
+  const text = searchQuery.value.toLowerCase();
+
+  return meals.filter((meal) => meal.strMeal.toLowerCase().includes(text));
+});
+
 // TheMealDB's free tier starts failing unrelated requests too if we fetch
 // details for every result in a large category/area (some have 100+), so
 // only the cards visible without scrolling get the real country/category.
@@ -459,7 +515,7 @@ const DETAIL_LOOKUP_LIMIT = 12;
 const mealDetails = ref(new Map<string, MealDbMeal>());
 
 watch(
-  () => data.value?.meals,
+  filteredMeals,
   (meals) => {
     const search = mealDbSearch.value;
 
@@ -484,13 +540,13 @@ watch(
 );
 
 const recipes = computed(() => {
-  if (!searchQuery.value) {
+  if (!hasSearched.value) {
     return [];
   }
 
   const search = mealDbSearch.value;
 
-  return (data.value?.meals ?? []).map((meal, mealIndex) => {
+  return filteredMeals.value.map((meal, mealIndex) => {
     const fullMeal = meal as MealDbMeal;
 
     if (search.type === "category") {

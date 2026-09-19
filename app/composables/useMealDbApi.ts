@@ -1,5 +1,5 @@
 import type { MealDbMeal } from "~/types/mealdb";
-import { getMealDbSearch } from "~/utils/translations";
+import type { MealDbSearch } from "~/utils/translations";
 
 const MEALDB_BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
@@ -29,22 +29,16 @@ function runNextInQueue() {
 }
 
 export function useMealDbApi() {
-  function getSearchUrl(searchQuery: string) {
-    if (!searchQuery) {
-      return `${MEALDB_BASE_URL}/search.php?s=`;
+  function getSearchUrl(search: MealDbSearch) {
+    if (search.type === "category") {
+      return `${MEALDB_BASE_URL}/filter.php?c=${search.query}`;
     }
 
-    const mealDbSearch = getMealDbSearch(searchQuery);
-
-    if (mealDbSearch.type === "category") {
-      return `${MEALDB_BASE_URL}/filter.php?c=${mealDbSearch.query}`;
+    if (search.type === "area") {
+      return `${MEALDB_BASE_URL}/filter.php?a=${search.query}`;
     }
 
-    if (mealDbSearch.type === "area") {
-      return `${MEALDB_BASE_URL}/filter.php?a=${mealDbSearch.query}`;
-    }
-
-    return `${MEALDB_BASE_URL}/search.php?s=${mealDbSearch.query}`;
+    return `${MEALDB_BASE_URL}/search.php?s=${search.query}`;
   }
 
   function getLookupUrl(id: string) {
