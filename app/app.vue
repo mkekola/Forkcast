@@ -24,9 +24,9 @@
       </svg>
       <span
         v-if="draftsCount > 0"
-        class="flex h-5 w-5 items-center justify-center rounded-full bg-fork-clay text-[10px] font-bold text-white"
+        class="flex h-5 min-w-5 items-center justify-center rounded-full bg-fork-clay px-1 text-[10px] font-bold text-white"
       >
-        {{ draftsCount }}
+        {{ draftsBadgeLabel }}
       </span>
     </button>
 
@@ -38,9 +38,9 @@
     >
       <span
         v-if="shoppingListCount > 0"
-        class="flex h-5 w-5 items-center justify-center rounded-full bg-fork-clay text-[10px] font-bold text-white"
+        class="flex h-5 min-w-5 items-center justify-center rounded-full bg-fork-clay px-1 text-[10px] font-bold text-white"
       >
-        {{ shoppingListCount }}
+        {{ shoppingListBadgeLabel }}
       </span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -69,8 +69,14 @@ import { usePlannerStore } from "~/stores/planner";
 
 const plannerStore = usePlannerStore();
 
+function formatBadgeCount(count: number) {
+  return count > 99 ? "99+" : String(count);
+}
+
 const draftsCount = computed(() => plannerStore.getDrafts().length);
 const shoppingListCount = computed(() => plannerStore.shoppingList.length);
+const draftsBadgeLabel = computed(() => formatBadgeCount(draftsCount.value));
+const shoppingListBadgeLabel = computed(() => formatBadgeCount(shoppingListCount.value));
 
 onMounted(() => {
   plannerStore.loadFromStorage();
