@@ -274,6 +274,9 @@ const quickSearches = [
 const mealDbApi = useMealDbApi();
 
 const INSPIRATION_RECIPE_COUNT = 5;
+const INSPIRATION_STORAGE_KEY = "forkcast-inspiration-of-day";
+const INSPIRATION_BATCH_SIZE = INSPIRATION_RECIPE_COUNT + 2;
+const INSPIRATION_MAX_ROUNDS = 4;
 
 const inspirationRecipes = ref<MealDbMeal[]>([]);
 const inspirationIndex = ref(0);
@@ -282,23 +285,77 @@ const currentInspiration = computed(
   () => inspirationRecipes.value[inspirationIndex.value] ?? null,
 );
 
-async function loadInspirationRecipes() {
-  const results = await Promise.all(
-    Array.from({ length: INSPIRATION_RECIPE_COUNT }, () => mealDbApi.fetchRandomMeal()),
-  );
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
 
+function loadCachedInspiration() {
+  if (!import.meta.client) {
+    return false;
+  }
+
+  const stored = localStorage.getItem(INSPIRATION_STORAGE_KEY);
+
+  if (!stored) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as { date: string; meals: MealDbMeal[] };
+
+    if (parsed.date === todayKey() && parsed.meals?.length) {
+      inspirationRecipes.value = parsed.meals;
+      inspirationIndex.value = 0;
+      return true;
+    }
+  } catch {
+    // corrupt cache entry, fall through and fetch a fresh set
+  }
+
+  return false;
+}
+
+async function loadInspirationRecipes() {
+  if (loadCachedInspiration()) {
+    return;
+  }
+
+  // Recipes with a tagged country (strArea) tend to come from TheMealDB's
+  // curated older set and have noticeably better photos than the newer
+  // bulk-added ones, so keep re-rolling random.php until we have enough.
   const seenIds = new Set<string>();
   const uniqueMeals: MealDbMeal[] = [];
 
-  results.forEach((meal) => {
-    if (meal && !seenIds.has(meal.idMeal)) {
-      seenIds.add(meal.idMeal);
-      uniqueMeals.push(meal);
+  for (
+    let round = 0;
+    round < INSPIRATION_MAX_ROUNDS && uniqueMeals.length < INSPIRATION_RECIPE_COUNT;
+    round++
+  ) {
+    const batch = await Promise.all(
+      Array.from({ length: INSPIRATION_BATCH_SIZE }, () => mealDbApi.fetchRandomMeal()),
+    );
+
+    for (const meal of batch) {
+      if (uniqueMeals.length >= INSPIRATION_RECIPE_COUNT) {
+        break;
+      }
+
+      if (meal?.strArea && !seenIds.has(meal.idMeal)) {
+        seenIds.add(meal.idMeal);
+        uniqueMeals.push(meal);
+      }
     }
-  });
+  }
 
   inspirationRecipes.value = uniqueMeals;
   inspirationIndex.value = 0;
+
+  if (import.meta.client && uniqueMeals.length > 0) {
+    localStorage.setItem(
+      INSPIRATION_STORAGE_KEY,
+      JSON.stringify({ date: todayKey(), meals: uniqueMeals }),
+    );
+  }
 }
 
 function showNextInspiration() {
