@@ -5,7 +5,7 @@
 
       <section class="py-14">
         <p
-          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
+          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
         >
           Viikkosuunnitelma
         </p>
@@ -62,7 +62,7 @@
         class="rounded-[2rem] border border-dashed border-fork-line bg-fork-card p-8 text-center shadow-sm"
       >
         <p
-          class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
+          class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
         >
           Suunnitelma tyhjä
         </p>
@@ -344,7 +344,7 @@
       >
         <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
               Ostoslista
             </p>
 

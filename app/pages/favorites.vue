@@ -5,7 +5,7 @@
 
       <section class="py-14">
         <p
-          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
+          class="mb-3 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
         >
           Suosikit
         </p>
@@ -42,7 +42,7 @@
         </svg>
 
         <p
-          class="mt-4 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
+          class="mt-4 text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
         >
           Ei suosikkeja vielä
         </p>

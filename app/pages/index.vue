@@ -10,7 +10,7 @@
           <div
             class="flex flex-col justify-center gap-4 rounded-[2rem] bg-fork-card p-7 ring-1 ring-fork-line shadow-sm md:p-9"
           >
-            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay">
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
               Viikkosi, katettuna.
             </p>
 
@@ -188,7 +188,7 @@
         >
           <div>
             <p
-              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay"
+              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
             >
               Reseptit
             </p>
