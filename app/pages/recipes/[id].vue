@@ -163,34 +163,64 @@
               <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <label class="grid gap-2 text-sm font-bold text-stone-700">
                   Päivä
-                  <select
-                    v-model="selectedDay"
-                    class="rounded-2xl border border-fork-line bg-fork-card px-4 py-3 text-sm outline-none focus:border-fork-ink"
-                  >
-                    <option
-                      v-for="day in days"
-                      :key="day.value"
-                      :value="day.value"
+                  <div class="relative">
+                    <select
+                      v-model="selectedDay"
+                      class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-4 py-3 pr-10 text-sm outline-none focus:border-fork-ink"
                     >
-                      {{ day.label }}
-                    </option>
-                  </select>
+                      <option
+                        v-for="day in days"
+                        :key="day.value"
+                        :value="day.value"
+                      >
+                        {{ day.label }}
+                      </option>
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fork-muted"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </div>
                 </label>
 
                 <label class="grid gap-2 text-sm font-bold text-stone-700">
                   Ateria
-                  <select
-                    v-model="selectedMeal"
-                    class="rounded-2xl border border-fork-line bg-fork-card px-4 py-3 text-sm outline-none focus:border-fork-ink"
-                  >
-                    <option
-                      v-for="meal in mealOptions"
-                      :key="meal.value"
-                      :value="meal.value"
+                  <div class="relative">
+                    <select
+                      v-model="selectedMeal"
+                      class="w-full appearance-none rounded-2xl border border-fork-line bg-fork-card px-4 py-3 pr-10 text-sm outline-none focus:border-fork-ink"
                     >
-                      {{ meal.label }}
-                    </option>
-                  </select>
+                      <option
+                        v-for="meal in mealOptions"
+                        :key="meal.value"
+                        :value="meal.value"
+                      >
+                        {{ meal.label }}
+                      </option>
+                    </select>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fork-muted"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </div>
                 </label>
               </div>
 
