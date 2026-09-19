@@ -49,10 +49,10 @@
                 <img
                   :src="currentInspiration?.strMealThumb"
                   :alt="currentInspiration?.strMeal"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
                 >
 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
 
                 <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
                   <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
