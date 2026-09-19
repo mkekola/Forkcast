@@ -130,13 +130,13 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mb-8 max-w-2xl">
-          <div class="flex gap-3">
+        <div class="mb-8 rounded-[2rem] bg-fork-card p-6 ring-1 ring-fork-line shadow-sm md:p-8">
+          <div class="flex max-w-2xl gap-3">
             <input
               v-model="searchInput"
               type="search"
               placeholder="Hae reseptejä, esim. pasta, kana tai italialainen..."
-              class="w-full rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
+              class="w-full rounded-full border border-fork-line bg-fork-bg px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
               @keyup.enter="searchRecipes"
             >
 
@@ -158,7 +158,7 @@
               :class="
                 searchQuery === quickSearch.query
                   ? 'border-fork-clay bg-fork-clay text-white'
-                  : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
+                  : 'border-fork-line bg-fork-bg text-stone-700 hover:border-fork-ink hover:text-fork-ink'
               "
               @click="selectQuickSearch(quickSearch.query)"
             >
