@@ -20,11 +20,11 @@
         <div class="absolute right-4 top-4 z-10 flex gap-2">
           <button
             type="button"
-            class="flex h-12 w-12 items-center justify-center rounded-full border shadow-lg backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
+            class="flex h-12 w-12 items-center justify-center rounded-full border backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
             :class="
               isDraft || justAddedDraft
-                ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
-                : 'border-white bg-fork-card text-fork-clay shadow-stone-300 hover:bg-fork-clay-soft'
+                ? 'border-fork-clay bg-fork-clay text-white'
+                : 'border-white bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
             "
             :aria-label="isDraft ? 'Lisätty luonnoksiin' : 'Lisää luonnoksiin'"
             @click.prevent.stop="addToDrafts"
@@ -71,11 +71,11 @@
 
           <button
             type="button"
-            class="flex h-12 w-12 items-center justify-center rounded-full border shadow-lg backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
+            class="flex h-12 w-12 items-center justify-center rounded-full border backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
             :class="
               isFavorite
-                ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
-                : 'border-white bg-fork-card text-fork-clay shadow-stone-300 hover:bg-fork-clay-soft'
+                ? 'border-fork-clay bg-fork-clay text-white'
+                : 'border-white bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
             "
             :aria-label="isFavorite ? 'Poista suosikeista' : 'Lisää suosikkeihin'"
             @click.prevent.stop="toggleFavorite"
