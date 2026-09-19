@@ -36,6 +36,78 @@ const UNIT_ALIASES: Record<string, string> = {
 
 const BARE_COUNT_UNIT = "kpl";
 
+const PANTRY_STAPLE_KEYWORDS = [
+  "salt",
+  "pepper",
+  "paprika",
+  "cumin",
+  "coriander",
+  "turmeric",
+  "cinnamon",
+  "nutmeg",
+  "clove",
+  "allspice",
+  "cardamom",
+  "chili powder",
+  "chilli powder",
+  "chili flakes",
+  "chilli flakes",
+  "pepper flakes",
+  "oregano",
+  "basil",
+  "thyme",
+  "rosemary",
+  "bay leaf",
+  "bay leaves",
+  "sage",
+  "tarragon",
+  "mustard seed",
+  "mustard powder",
+  "fennel seed",
+  "fenugreek",
+  "saffron",
+  "vanilla extract",
+  "vanilla essence",
+  "baking powder",
+  "baking soda",
+  "bicarbonate of soda",
+  "yeast",
+  "cornstarch",
+  "corn starch",
+  "cornflour",
+  "sugar",
+  "curry powder",
+  "garam masala",
+  "five spice",
+  "seasoning",
+  "cocoa powder",
+  "cacao powder",
+  "stock cube",
+  "stock powder",
+  "bouillon",
+  "ground ginger",
+  "smoked paprika",
+  "flour",
+  "vegetable oil",
+  "olive oil",
+  "sesame oil",
+  "soy sauce",
+  "vinegar",
+  "honey",
+];
+
+/**
+ * Best-effort check for whether an ingredient is a spice or dry pantry
+ * staple, i.e. something a household is likely to already have on hand and
+ * rarely needs to restock. Based on a curated keyword list rather than any
+ * data from the recipe source, so it won't catch everything.
+ */
+export function isPantryStaple(name: string): boolean {
+  const normalized = name.toLowerCase();
+
+  return PANTRY_STAPLE_KEYWORDS.some((keyword) => normalized.includes(keyword));
+}
+
 const PLURAL_UNITS: Record<string, string> = {
   clove: "cloves",
   can: "cans",

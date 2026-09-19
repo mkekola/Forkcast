@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { combineMeasures } from "../../app/utils/shoppingList";
+import { combineMeasures, isPantryStaple } from "../../app/utils/shoppingList";
 
 describe("combineMeasures", () => {
   it("sums measures that share a recognized unit", () => {
@@ -45,5 +45,26 @@ describe("combineMeasures", () => {
 
   it("returns an empty string for no measures", () => {
     expect(combineMeasures([])).toBe("");
+  });
+});
+
+describe("isPantryStaple", () => {
+  it("recognizes common spices and dried herbs", () => {
+    expect(isPantryStaple("Ground Cumin")).toBe(true);
+    expect(isPantryStaple("Salt")).toBe(true);
+    expect(isPantryStaple("dried oregano")).toBe(true);
+    expect(isPantryStaple("Smoked Paprika")).toBe(true);
+  });
+
+  it("recognizes common dry/liquid pantry staples beyond spices", () => {
+    expect(isPantryStaple("Plain Flour")).toBe(true);
+    expect(isPantryStaple("Olive Oil")).toBe(true);
+    expect(isPantryStaple("Soy Sauce")).toBe(true);
+  });
+
+  it("does not flag fresh ingredients as pantry staples", () => {
+    expect(isPantryStaple("Chicken breast")).toBe(false);
+    expect(isPantryStaple("Onion")).toBe(false);
+    expect(isPantryStaple("Fresh spinach")).toBe(false);
   });
 });

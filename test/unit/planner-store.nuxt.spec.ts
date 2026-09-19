@@ -36,7 +36,29 @@ describe("planner store: shoppingList", () => {
     });
 
     expect(plannerStore.shoppingList).toEqual([
-      { key: "garlic", name: "Garlic", measure: "5 cloves" },
+      { key: "garlic", name: "Garlic", measure: "5 cloves", isPantryStaple: false },
+    ]);
+  });
+
+  it("flags spices and pantry staples so they can be shown separately", () => {
+    plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Curry",
+      recipeImage: "https://example.com/curry.jpg",
+      category: "Curry",
+      ingredients: [
+        { name: "Ground Cumin", measure: "1 tsp" },
+        { name: "Chicken breast", measure: "500 g" },
+      ],
+    });
+
+    expect(
+      plannerStore.shoppingList.map((item) => [item.name, item.isPantryStaple]),
+    ).toEqual([
+      ["Chicken breast", false],
+      ["Ground Cumin", true],
     ]);
   });
 

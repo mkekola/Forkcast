@@ -247,34 +247,74 @@
           viikkoon, jotta sen ainesosat tallentuvat mukaan.
         </div>
 
-        <ul v-else class="mt-6 grid gap-3 md:grid-cols-2">
-          <li
-            v-for="item in plannerStore.shoppingList"
-            :key="item.key"
-            class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
-            :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
-          >
-            <div>
-              <p
-                class="font-bold text-fork-ink"
-                :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
-              >
-                {{ item.name }}
-              </p>
-
-              <p class="mt-1 text-sm text-stone-500">
-                {{ item.measure }}
-              </p>
-            </div>
-
-            <input
-              type="checkbox"
-              class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
-              :checked="plannerStore.isShoppingItemChecked(item.key)"
-              @change="plannerStore.toggleShoppingItem(item.key)"
+        <template v-else>
+          <ul class="mt-6 grid gap-3 md:grid-cols-2">
+            <li
+              v-for="item in freshShoppingItems"
+              :key="item.key"
+              class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
+              :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
             >
-          </li>
-        </ul>
+              <div>
+                <p
+                  class="font-bold text-fork-ink"
+                  :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
+                >
+                  {{ item.name }}
+                </p>
+
+                <p class="mt-1 text-sm text-stone-500">
+                  {{ item.measure }}
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
+                :checked="plannerStore.isShoppingItemChecked(item.key)"
+                @change="plannerStore.toggleShoppingItem(item.key)"
+              >
+            </li>
+          </ul>
+
+          <div v-if="pantryShoppingItems.length > 0" class="mt-8">
+            <p class="text-xs font-bold uppercase tracking-wide text-fork-muted">
+              Mausteet &amp; kuivatavarat
+            </p>
+            <p class="mt-1 text-xs text-fork-muted">
+              Näitä on usein jo kaapissa — tarkista ennen kauppaan lähtöä.
+            </p>
+
+            <ul class="mt-3 grid gap-3 md:grid-cols-2">
+              <li
+                v-for="item in pantryShoppingItems"
+                :key="item.key"
+                class="flex items-start justify-between gap-4 rounded-2xl bg-fork-bg px-4 py-3 transition-opacity"
+                :class="{ 'opacity-45': plannerStore.isShoppingItemChecked(item.key) }"
+              >
+                <div>
+                  <p
+                    class="font-bold text-fork-ink"
+                    :class="{ 'line-through': plannerStore.isShoppingItemChecked(item.key) }"
+                  >
+                    {{ item.name }}
+                  </p>
+
+                  <p class="mt-1 text-sm text-stone-500">
+                    {{ item.measure }}
+                  </p>
+                </div>
+
+                <input
+                  type="checkbox"
+                  class="mt-1 h-5 w-5 rounded border-fork-line accent-fork-green"
+                  :checked="plannerStore.isShoppingItemChecked(item.key)"
+                  @change="plannerStore.toggleShoppingItem(item.key)"
+                >
+              </li>
+            </ul>
+          </div>
+        </template>
       </section>
     </section>
   </main>
@@ -295,6 +335,14 @@ const pendingClearWeek = ref(false);
 const pendingRemovalId = ref<string | null>(null);
 
 const hasPlannedMeals = computed(() => plannerStore.plannedMeals.length > 0);
+
+const freshShoppingItems = computed(() =>
+  plannerStore.shoppingList.filter((item) => !item.isPantryStaple),
+);
+
+const pantryShoppingItems = computed(() =>
+  plannerStore.shoppingList.filter((item) => item.isPantryStaple),
+);
 
 onMounted(() => {
   plannerStore.loadFromStorage();
