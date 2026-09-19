@@ -363,6 +363,11 @@ watch(
   },
 );
 
+// TheMealDB's free tier starts failing unrelated requests too if we fetch
+// details for every result in a large category/area (some have 100+), so
+// only the cards visible without scrolling get the real country/category.
+const DETAIL_LOOKUP_LIMIT = 12;
+
 const mealDetails = ref(new Map<string, MealDbMeal>());
 
 watch(
@@ -374,7 +379,7 @@ watch(
       return;
     }
 
-    for (const meal of meals) {
+    for (const meal of meals.slice(0, DETAIL_LOOKUP_LIMIT)) {
       if (mealDetails.value.has(meal.idMeal)) {
         continue;
       }
@@ -397,17 +402,22 @@ const recipes = computed(() => {
 
   const search = mealDbSearch.value;
 
-  return (data.value?.meals ?? []).map((meal) => {
+  return (data.value?.meals ?? []).map((meal, mealIndex) => {
     const fullMeal = meal as MealDbMeal;
 
     if (search.type === "category") {
       const details = mealDetails.value.get(meal.idMeal);
+      const isLookedUp = mealIndex < DETAIL_LOOKUP_LIMIT;
 
       return {
         id: meal.idMeal,
         title: meal.strMeal,
         category: translateCategory(search.query),
-        area: details ? translateArea(details.strArea ?? details.strCountry) : "Ladataan…",
+        area: details
+          ? translateArea(details.strArea ?? details.strCountry)
+          : isLookedUp
+            ? "Ladataan…"
+            : "Lisätiedot reseptissä",
         description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
       };
@@ -415,11 +425,16 @@ const recipes = computed(() => {
 
     if (search.type === "area") {
       const details = mealDetails.value.get(meal.idMeal);
+      const isLookedUp = mealIndex < DETAIL_LOOKUP_LIMIT;
 
       return {
         id: meal.idMeal,
         title: meal.strMeal,
-        category: details ? translateCategory(details.strCategory) : "Ladataan…",
+        category: details
+          ? translateCategory(details.strCategory)
+          : isLookedUp
+            ? "Ladataan…"
+            : "Lisätiedot reseptissä",
         area: translateArea(search.query),
         description: "Avaa resepti nähdäksesi ainesosat ja valmistusohjeet.",
         image: meal.strMealThumb,
