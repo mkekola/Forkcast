@@ -96,9 +96,74 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipes: {
+        Row: {
+          id: string;
+          title: string;
+          category: string;
+          area: string;
+          instructions: string | null;
+          image: string;
+          youtube: string | null;
+          source: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          title: string;
+          category: string;
+          area: string;
+          instructions?: string | null;
+          image: string;
+          youtube?: string | null;
+          source?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          category?: string;
+          area?: string;
+          instructions?: string | null;
+          image?: string;
+          youtube?: string | null;
+          source?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      recipe_ingredients: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          position: number;
+          name: string;
+          measure: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          position: number;
+          name: string;
+          measure?: string | null;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          position?: number;
+          name?: string;
+          measure?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_random_recipes: {
+        Args: { recipe_count?: number };
+        Returns: Database["public"]["Tables"]["recipes"]["Row"][];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
