@@ -147,7 +147,8 @@
       </section>
 
       <section id="reseptit" class="pb-20">
-        <div class="mb-8">
+        <div class="mb-8 flex items-start justify-between gap-6">
+          <div>
           <div class="flex max-w-2xl gap-3">
             <input
               v-model="searchInput"
@@ -182,6 +183,14 @@
               {{ quickSearch.label }}
             </button>
           </div>
+          </div>
+
+          <img
+            src="/images/cooking-doodle.png"
+            alt=""
+            aria-hidden="true"
+            class="hidden w-40 shrink-0 opacity-90 lg:block"
+          >
         </div>
         <div
           class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
