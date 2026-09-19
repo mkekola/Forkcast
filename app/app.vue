@@ -24,7 +24,7 @@
       </svg>
       <span
         v-if="draftsCount > 0"
-        class="flex h-5 min-w-5 items-center justify-center rounded-full bg-fork-clay px-1 text-[10px] font-bold text-white [font-variant-numeric:lining-nums_tabular-nums]"
+        class="flex h-6 min-w-6 items-center justify-center rounded-full bg-fork-clay px-1 text-[11px] font-semibold leading-none text-white [font-variant-numeric:lining-nums_tabular-nums]"
       >
         {{ draftsBadgeLabel }}
       </span>
@@ -38,7 +38,7 @@
     >
       <span
         v-if="shoppingListCount > 0"
-        class="flex h-5 min-w-5 items-center justify-center rounded-full bg-fork-clay px-1 text-[10px] font-bold text-white [font-variant-numeric:lining-nums_tabular-nums]"
+        class="flex h-6 min-w-6 items-center justify-center rounded-full bg-fork-clay px-1 text-[11px] font-semibold leading-none text-white [font-variant-numeric:lining-nums_tabular-nums]"
       >
         {{ shoppingListBadgeLabel }}
       </span>

@@ -110,7 +110,7 @@
         </svg>
         <span
           v-if="plannedCount > 0"
-          class="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fork-clay px-0.5 text-[9px] font-bold text-white [font-variant-numeric:lining-nums_tabular-nums]"
+          class="absolute -right-2 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-fork-clay px-0.5 text-[10px] font-semibold leading-none text-white [font-variant-numeric:lining-nums_tabular-nums]"
         >
           {{ plannedCountLabel }}
         </span>
