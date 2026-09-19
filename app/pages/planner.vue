@@ -416,8 +416,8 @@ const shoppingListSummary = computed(() => {
   return count === 1 ? "1 tuote" : `${count} tuotetta`;
 });
 
-onMounted(() => {
-  plannerStore.loadFromStorage();
+onMounted(async () => {
+  await plannerStore.loadFromStorage();
 
   collapsedDays.value = new Set(
     days

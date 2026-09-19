@@ -29,22 +29,28 @@ export type ShoppingListItem = {
   category: ShoppingCategory;
 };
 
-type PlannerStorage = {
-  plannedMeals: PlannedMeal[];
-  checkedShoppingItems: string[];
+type PlannedMealRow = {
+  id: string;
+  day: string | null;
+  meal: string | null;
+  recipe_id: string;
+  recipe_name: string;
+  recipe_image: string;
+  category: string;
+  ingredients: Ingredient[] | null;
 };
 
-const STORAGE_KEY = "forkcast-planner";
-
-function createPlannedMealId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function normalizePlannedMeals(meals: PlannedMeal[]) {
-  return meals.map((meal) => ({
-    ...meal,
-    id: meal.id ?? createPlannedMealId(),
-  }));
+function toPlannedMeal(row: PlannedMealRow): PlannedMeal {
+  return {
+    id: row.id,
+    day: row.day,
+    meal: row.meal as MealType | null,
+    recipeId: row.recipe_id,
+    recipeName: row.recipe_name,
+    recipeImage: row.recipe_image,
+    category: row.category,
+    ingredients: row.ingredients ?? undefined,
+  };
 }
 
 export const usePlannerStore = defineStore("planner", () => {
@@ -54,73 +60,68 @@ export const usePlannerStore = defineStore("planner", () => {
   const isDraftsOpen = ref(false);
   const isDragging = ref(false);
 
-  function loadFromStorage() {
+  async function loadFromStorage() {
     if (!import.meta.client) {
       return;
     }
 
-    const storedPlanner = localStorage.getItem(STORAGE_KEY);
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
 
-    if (!storedPlanner) {
-      return;
+    const [mealsResult, checkedResult] = await Promise.all([
+      supabase
+        .from("planned_meals")
+        .select("id, day, meal, recipe_id, recipe_name, recipe_image, category, ingredients")
+        .eq("user_id", userId),
+      supabase
+        .from("checked_shopping_items")
+        .select("item_key")
+        .eq("user_id", userId),
+    ]);
+
+    if (mealsResult.error) {
+      console.error("Failed to load planned meals", mealsResult.error);
+    } else {
+      plannedMeals.value = (mealsResult.data as PlannedMealRow[]).map(toPlannedMeal);
     }
 
-    try {
-      const parsedPlanner = JSON.parse(storedPlanner);
-
-      // Backwards compatibility: old version stored only PlannedMeal[]
-      if (Array.isArray(parsedPlanner)) {
-        plannedMeals.value = normalizePlannedMeals(parsedPlanner);
-        checkedShoppingItems.value = [];
-        return;
-      }
-
-      const plannerStorage = parsedPlanner as PlannerStorage;
-
-      plannedMeals.value = normalizePlannedMeals(
-        plannerStorage.plannedMeals ?? [],
-      );
-      checkedShoppingItems.value = plannerStorage.checkedShoppingItems ?? [];
-    } catch {
-      plannedMeals.value = [];
-      checkedShoppingItems.value = [];
+    if (checkedResult.error) {
+      console.error("Failed to load checked shopping items", checkedResult.error);
+    } else {
+      checkedShoppingItems.value = checkedResult.data.map((row) => row.item_key as string);
     }
   }
 
-  function saveToStorage() {
-    if (!import.meta.client) {
-      return;
-    }
+  async function addMeal(meal: Omit<PlannedMeal, "id">) {
+    const id = crypto.randomUUID();
 
-    const plannerStorage: PlannerStorage = {
-      plannedMeals: plannedMeals.value,
-      checkedShoppingItems: checkedShoppingItems.value,
-    };
+    plannedMeals.value.push({ ...meal, id });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerStorage));
-  }
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
 
-  function addMeal(meal: Omit<PlannedMeal, "id">) {
-    plannedMeals.value.push({
-      ...meal,
-      id: createPlannedMealId(),
+    const { error } = await supabase.from("planned_meals").insert({
+      id,
+      user_id: userId,
+      day: meal.day,
+      meal: meal.meal,
+      recipe_id: meal.recipeId,
+      recipe_name: meal.recipeName,
+      recipe_image: meal.recipeImage,
+      category: meal.category,
+      ingredients: meal.ingredients ?? null,
     });
 
-    saveToStorage();
+    if (error) {
+      console.error("Failed to add meal", error);
+    }
   }
 
-  function addDraft(meal: Omit<PlannedMeal, "id" | "day" | "meal">) {
-    plannedMeals.value.push({
-      ...meal,
-      id: createPlannedMealId(),
-      day: null,
-      meal: null,
-    });
-
-    saveToStorage();
+  async function addDraft(meal: Omit<PlannedMeal, "id" | "day" | "meal">) {
+    await addMeal({ ...meal, day: null, meal: null });
   }
 
-  function assignMeal(plannedMealId: string, day: string, meal: MealType) {
+  async function assignMeal(plannedMealId: string, day: string, meal: MealType) {
     const target = plannedMeals.value.find(
       (plannedMeal) => plannedMeal.id === plannedMealId,
     );
@@ -131,7 +132,19 @@ export const usePlannerStore = defineStore("planner", () => {
 
     target.day = day;
     target.meal = meal;
-    saveToStorage();
+
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
+    const { error } = await supabase
+      .from("planned_meals")
+      .update({ day, meal })
+      .eq("id", plannedMealId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to assign meal", error);
+    }
   }
 
   function getDrafts() {
@@ -139,7 +152,6 @@ export const usePlannerStore = defineStore("planner", () => {
       (plannedMeal) => !plannedMeal.day || !plannedMeal.meal,
     );
   }
-
 
   const shoppingList = computed<ShoppingListItem[]>(() => {
     const measuresByName = new Map<string, { name: string; measures: string[] }>();
@@ -176,12 +188,23 @@ export const usePlannerStore = defineStore("planner", () => {
       );
   });
 
-  function removeMeal(plannedMealId: string) {
+  async function removeMeal(plannedMealId: string) {
     plannedMeals.value = plannedMeals.value.filter(
       (plannedMeal) => plannedMeal.id !== plannedMealId,
     );
 
-    saveToStorage();
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
+    const { error } = await supabase
+      .from("planned_meals")
+      .delete()
+      .eq("id", plannedMealId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to remove meal", error);
+    }
   }
 
   function getMeals(day: string, meal: MealType) {
@@ -194,22 +217,58 @@ export const usePlannerStore = defineStore("planner", () => {
     return checkedShoppingItems.value.includes(itemKey);
   }
 
-  function toggleShoppingItem(itemKey: string) {
+  async function toggleShoppingItem(itemKey: string) {
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
     if (isShoppingItemChecked(itemKey)) {
       checkedShoppingItems.value = checkedShoppingItems.value.filter(
         (checkedItem) => checkedItem !== itemKey,
       );
-    } else {
-      checkedShoppingItems.value.push(itemKey);
+
+      const { error } = await supabase
+        .from("checked_shopping_items")
+        .delete()
+        .eq("user_id", userId)
+        .eq("item_key", itemKey);
+
+      if (error) {
+        console.error("Failed to uncheck shopping item", error);
+      }
+
+      return;
     }
 
-    saveToStorage();
+    checkedShoppingItems.value.push(itemKey);
+
+    const { error } = await supabase
+      .from("checked_shopping_items")
+      .insert({ user_id: userId, item_key: itemKey });
+
+    if (error) {
+      console.error("Failed to check shopping item", error);
+    }
   }
 
-  function clearPlanner() {
+  async function clearPlanner() {
     plannedMeals.value = [];
     checkedShoppingItems.value = [];
-    saveToStorage();
+
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
+    const [mealsResult, checkedResult] = await Promise.all([
+      supabase.from("planned_meals").delete().eq("user_id", userId),
+      supabase.from("checked_shopping_items").delete().eq("user_id", userId),
+    ]);
+
+    if (mealsResult.error) {
+      console.error("Failed to clear planned meals", mealsResult.error);
+    }
+
+    if (checkedResult.error) {
+      console.error("Failed to clear checked shopping items", checkedResult.error);
+    }
   }
 
   return {
