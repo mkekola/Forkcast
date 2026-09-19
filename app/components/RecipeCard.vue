@@ -12,10 +12,6 @@
         >
 
         <div
-          class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-fork-card to-transparent"
-        />
-
-        <div
           class="absolute left-4 top-4 rounded-full bg-fork-card/90 px-3 py-1 text-xs font-bold text-stone-700 backdrop-blur"
         >
           {{ recipe.category }}
