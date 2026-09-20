@@ -15,6 +15,7 @@
     "@nuxtjs/supabase": "^2.0.10",
     "@pinia/nuxt": "^1.0.1",
     "@tailwindcss/vite": "^4.3.3",
+    "mobile-drag-drop": "^3.0.0-rc.0",
     "nuxt": "^4.5.0",
     "pinia": "^4.0.2",
     "tailwindcss": "^4.3.3",
