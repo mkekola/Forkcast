@@ -16,8 +16,7 @@
 
         <p class="mt-4 max-w-2xl leading-7 text-fork-muted">
           Lisää reseptejä viikkoon resepteistä tai luonnoksista, ja raahaa ne
-          haluamaasi päivään ja ateriaan. Luonnoksen voi pudottaa myös
-          suoraan tyhjän päivän päälle.
+          haluamaasi päivään ja ateriaan.
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
