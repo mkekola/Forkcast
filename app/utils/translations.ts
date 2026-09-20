@@ -223,3 +223,26 @@ export function detectSearchIntent(searchTerm: string): SearchIntent {
     }
   );
 }
+
+function capitalize(word: string) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+// Predictive completions for the search box: typing "ita" suggests
+// "Italialainen" before the visitor has to know/finish typing the whole
+// word themselves. Only whole-word dictionary entries are offered (not the
+// English category/area names behind them), since those are what the
+// search box itself actually understands.
+export function getSearchWordSuggestions(prefix: string, limit = 5): string[] {
+  const normalized = prefix.trim().toLowerCase();
+
+  if (!normalized) {
+    return [];
+  }
+
+  return Object.keys(searchTranslations)
+    .filter((word) => word !== normalized && word.startsWith(normalized))
+    .sort()
+    .slice(0, limit)
+    .map(capitalize);
+}

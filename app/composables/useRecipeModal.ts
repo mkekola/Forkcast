@@ -23,6 +23,7 @@ export function useRecipeModal() {
   }
 
   return {
+    open: store.open,
     openOnClick,
     close: store.close,
     closeAndGoBack: store.closeAndGoBack,

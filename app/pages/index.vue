@@ -169,22 +169,107 @@
 
       <section id="reseptit" class="pb-20">
         <div class="mb-8">
-          <div class="flex max-w-2xl gap-3">
-            <input
-              v-model="searchInput"
-              type="search"
-              placeholder="Hae reseptejä, esim. pasta, kana tai italialainen..."
-              class="w-full rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
-              @keyup.enter="searchRecipes"
-            >
+          <div
+            ref="searchContainerRef"
+            class="relative max-w-2xl"
+            @focusout="handleSearchContainerFocusOut"
+          >
+            <div class="flex gap-3">
+              <input
+                v-model="searchInput"
+                type="search"
+                placeholder="Hae reseptejä, esim. pasta, kana tai italialainen..."
+                class="w-full rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-medium outline-none transition placeholder:text-stone-400 focus:border-fork-ink"
+                autocomplete="off"
+                @focus="showSuggestions = true"
+                @keydown="handleSearchKeydown"
+              >
 
-            <button
-              type="button"
-              class="rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-              @click="searchRecipes"
+              <button
+                type="button"
+                class="rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+                @click="searchRecipes"
+              >
+                Hae
+              </button>
+            </div>
+
+            <div
+              v-if="showSuggestions && hasSuggestions"
+              class="absolute inset-x-0 top-full z-20 mt-2 max-h-80 overflow-y-auto rounded-2xl bg-fork-card p-2 shadow-xl ring-1 ring-fork-line"
             >
-              Hae
-            </button>
+              <div v-if="wordSuggestions.length" class="space-y-1">
+                <button
+                  v-for="(word, index) in wordSuggestions"
+                  :key="word"
+                  type="button"
+                  class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold transition"
+                  :class="
+                    activeSuggestionIndex === index
+                      ? 'bg-fork-clay-soft text-fork-clay'
+                      : 'text-fork-ink hover:bg-fork-bg'
+                  "
+                  @click="selectWordSuggestion(word)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-4 w-4 shrink-0 text-fork-muted"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  {{ word }}
+                </button>
+              </div>
+
+              <div
+                v-if="recipeSuggestions.length"
+                class="space-y-1"
+                :class="{ 'mt-2 border-t border-fork-line pt-2': wordSuggestions.length }"
+              >
+                <NuxtLink
+                  v-for="(recipe, recipeIndex) in recipeSuggestions"
+                  v-slot="{ href }"
+                  :key="recipe.id"
+                  :to="`/recipes/${recipe.id}`"
+                  custom
+                >
+                  <a
+                    :href="href"
+                    class="flex items-center gap-3 rounded-xl p-2 transition"
+                    :class="
+                      activeSuggestionIndex === wordSuggestions.length + recipeIndex
+                        ? 'bg-fork-clay-soft'
+                        : 'hover:bg-fork-bg'
+                    "
+                    @click="(event) => selectRecipeSuggestion(event, recipe)"
+                  >
+                    <img
+                      :src="recipe.image"
+                      :alt="recipe.title"
+                      class="h-10 w-10 shrink-0 rounded-lg object-cover"
+                    >
+
+                    <div class="min-w-0 flex-1">
+                      <p class="truncate text-sm font-bold text-fork-ink">
+                        {{ recipe.title }}
+                      </p>
+
+                      <p class="text-xs text-fork-muted">
+                        {{ translateCategory(recipe.category) }}
+                      </p>
+                    </div>
+                  </a>
+                </NuxtLink>
+              </div>
+            </div>
           </div>
 
           <div class="mt-4 flex max-w-xl flex-wrap gap-2">
@@ -352,10 +437,15 @@ import {
   translateArea,
   translateCategory,
   detectSearchIntent,
+  getSearchWordSuggestions,
 } from "~/utils/translations";
 
 import type { Recipe } from "~/types/recipe";
-import { useRecipesApi, type RecipeRow } from "~/composables/useRecipesApi";
+import {
+  useRecipesApi,
+  type RecipeRow,
+  type RecipeSearchResult,
+} from "~/composables/useRecipesApi";
 import { usePlannerStore } from "~/stores/planner";
 import { useRecipeModal } from "~/composables/useRecipeModal";
 
@@ -472,7 +562,7 @@ const currentInspiration = computed(
   () => inspirationRecipes.value[inspirationIndex.value] ?? null,
 );
 
-const { openOnClick } = useRecipeModal();
+const { open: openRecipeModal, openOnClick } = useRecipeModal();
 
 function handleInspirationClick(event: MouseEvent) {
   if (currentInspiration.value) {
@@ -612,7 +702,117 @@ function updateSearchQuery(query: string) {
 }
 
 function searchRecipes() {
+  showSuggestions.value = false;
   updateSearchQuery(searchInput.value);
+}
+
+// Predictive suggestions for the search box: dictionary word completions
+// are instant (plain array filtering), matching recipe titles are fetched
+// live, debounced like DraftsDrawer's recipe search.
+const showSuggestions = ref(false);
+const activeSuggestionIndex = ref(-1);
+const searchContainerRef = ref<HTMLElement | null>(null);
+
+const wordSuggestions = computed(() => getSearchWordSuggestions(searchInput.value));
+
+const recipeSuggestions = ref<RecipeSearchResult[]>([]);
+const RECIPE_SUGGESTION_LIMIT = 4;
+const RECIPE_SUGGESTION_MIN_LENGTH = 2;
+let suggestionsDebounceId: ReturnType<typeof setTimeout> | null = null;
+
+const hasSuggestions = computed(
+  () => wordSuggestions.value.length > 0 || recipeSuggestions.value.length > 0,
+);
+const suggestionCount = computed(
+  () => wordSuggestions.value.length + recipeSuggestions.value.length,
+);
+
+watch([wordSuggestions, recipeSuggestions], () => {
+  activeSuggestionIndex.value = -1;
+});
+
+watch(searchInput, (value) => {
+  if (suggestionsDebounceId !== null) {
+    clearTimeout(suggestionsDebounceId);
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length < RECIPE_SUGGESTION_MIN_LENGTH) {
+    recipeSuggestions.value = [];
+    return;
+  }
+
+  suggestionsDebounceId = setTimeout(async () => {
+    const { results } = await recipesApi.searchRecipes({
+      text: trimmed,
+      pageSize: RECIPE_SUGGESTION_LIMIT,
+    });
+    recipeSuggestions.value = results;
+  }, 250);
+});
+
+function selectWordSuggestion(word: string) {
+  searchInput.value = word;
+  searchRecipes();
+}
+
+function selectRecipeSuggestion(event: MouseEvent, recipe: RecipeSearchResult) {
+  showSuggestions.value = false;
+  openOnClick(event, recipe.id);
+}
+
+function handleSearchContainerFocusOut(event: FocusEvent) {
+  const nextFocusTarget = event.relatedTarget as Node | null;
+
+  if (!searchContainerRef.value?.contains(nextFocusTarget)) {
+    showSuggestions.value = false;
+  }
+}
+
+function handleSearchKeydown(event: KeyboardEvent) {
+  const suggestionsActive = showSuggestions.value && suggestionCount.value > 0;
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+
+    if (suggestionsActive && activeSuggestionIndex.value >= 0) {
+      if (activeSuggestionIndex.value < wordSuggestions.value.length) {
+        selectWordSuggestion(wordSuggestions.value[activeSuggestionIndex.value]);
+        return;
+      }
+
+      const recipe =
+        recipeSuggestions.value[activeSuggestionIndex.value - wordSuggestions.value.length];
+
+      if (recipe) {
+        showSuggestions.value = false;
+        openRecipeModal(recipe.id);
+      }
+
+      return;
+    }
+
+    searchRecipes();
+    return;
+  }
+
+  if (!suggestionsActive) {
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    activeSuggestionIndex.value = (activeSuggestionIndex.value + 1) % suggestionCount.value;
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    activeSuggestionIndex.value =
+      activeSuggestionIndex.value <= 0
+        ? suggestionCount.value - 1
+        : activeSuggestionIndex.value - 1;
+  } else if (event.key === "Escape") {
+    showSuggestions.value = false;
+  }
 }
 
 function toggleCategory(category: string) {
