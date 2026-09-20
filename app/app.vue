@@ -2,7 +2,6 @@
   <div>
     <NuxtPage />
     <BackToTopButton />
-    <TrashDropButton />
 
     <button
       type="button"
