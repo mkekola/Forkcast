@@ -798,7 +798,7 @@ function handleDrop(event: DragEvent, day: string, meal: MealType) {
       category: dragged.category,
       ingredients: dragged.ingredients,
     });
-  } else {
+  } else if (dragged.day !== day || dragged.meal !== meal) {
     plannerStore.assignMeal(dragged.id, day, meal);
   }
 }
