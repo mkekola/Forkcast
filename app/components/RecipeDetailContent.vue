@@ -1,7 +1,7 @@
 <template>
   <div v-if="pending" class="py-20">
     <div
-      class="h-[420px] animate-pulse rounded-[2rem] bg-fork-card ring-1 ring-fork-line"
+      class="h-64 sm:h-[420px] animate-pulse rounded-[2rem] bg-fork-card ring-1 ring-fork-line"
     />
     <div
       class="mt-8 h-10 max-w-lg animate-pulse rounded-full bg-fork-card ring-1 ring-fork-line"
@@ -24,7 +24,7 @@
           <img
             :src="recipe.image"
             :alt="recipe.title"
-            class="h-[420px] w-full object-cover"
+            class="h-64 w-full object-cover sm:h-[420px]"
           >
 
           <div class="absolute left-4 top-4 flex flex-wrap gap-2">

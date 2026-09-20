@@ -25,7 +25,7 @@
     >
       <div
         v-if="recipeId"
-        class="fixed inset-0 z-50 overflow-y-auto p-4 py-10 sm:p-6 sm:py-14"
+        class="fixed inset-0 z-50 overflow-y-auto p-5 py-8 sm:p-6 sm:py-14"
         @click.self="close"
       >
         <div
@@ -33,7 +33,7 @@
           role="dialog"
           aria-modal="true"
           tabindex="-1"
-          class="relative mx-auto w-full max-w-5xl rounded-[2rem] bg-fork-bg p-6 shadow-2xl sm:p-10"
+          class="relative mx-auto w-full max-w-5xl rounded-[1.5rem] bg-fork-bg p-4 shadow-2xl sm:rounded-[2rem] sm:p-10"
           @keydown.esc="close"
         >
           <button
