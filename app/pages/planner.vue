@@ -42,7 +42,7 @@
 
           <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <section class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line">
-              <div class="flex flex-col justify-between gap-4 lg:flex-row-reverse lg:items-center">
+              <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
                   <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
                     Luonnokset
