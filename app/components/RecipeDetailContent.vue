@@ -53,7 +53,7 @@
         <div class="mt-6 flex flex-wrap items-center gap-4">
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
+            class="inline-flex min-w-[13rem] items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
             :class="
               isFavorite
                 ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
@@ -94,7 +94,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
+            class="inline-flex min-w-[13rem] items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
             :class="
               isDraft
                 ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
