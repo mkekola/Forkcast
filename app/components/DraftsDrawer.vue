@@ -215,6 +215,7 @@
               >
               <a
                 :href="href"
+                data-drag-preview
                 class="block"
                 @click="(event) => openOnClick(event, draft.recipeId)"
               >
@@ -354,7 +355,10 @@ function handleDragStart(event: DragEvent, draft: PlannedMeal) {
   event.dataTransfer.effectAllowed = "copyMove";
   event.dataTransfer.setData("application/json", JSON.stringify(draft));
   plannerStore.isDragging = true;
-  setWholeCardAsDragImage(event);
+
+  const card = event.currentTarget as HTMLElement;
+  const preview = card.querySelector<HTMLElement>("[data-drag-preview]") ?? card;
+  setWholeCardAsDragImage(event, preview);
 }
 
 function handleDragEnd() {
