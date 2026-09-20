@@ -500,6 +500,68 @@ onMounted(async () => {
   );
 });
 
+// Auto-scrolls the page while dragging near the top/bottom edge of the
+// viewport, since the day list is often taller than the screen and native
+// drag'n'drop doesn't scroll the page for you. Speed ramps up the closer
+// the cursor gets to the edge.
+const AUTO_SCROLL_EDGE_PX = 100;
+const AUTO_SCROLL_MAX_SPEED = 16;
+let autoScrollSpeed = 0;
+let autoScrollFrameId: number | null = null;
+
+function runAutoScroll() {
+  if (autoScrollSpeed === 0) {
+    autoScrollFrameId = null;
+    return;
+  }
+
+  window.scrollBy(0, autoScrollSpeed);
+  autoScrollFrameId = requestAnimationFrame(runAutoScroll);
+}
+
+function stopAutoScroll() {
+  autoScrollSpeed = 0;
+
+  if (autoScrollFrameId !== null) {
+    cancelAnimationFrame(autoScrollFrameId);
+    autoScrollFrameId = null;
+  }
+}
+
+function handleWindowDragOver(event: DragEvent) {
+  if (!plannerStore.isDragging) {
+    return;
+  }
+
+  const distanceFromTop = event.clientY;
+  const distanceFromBottom = window.innerHeight - event.clientY;
+
+  if (distanceFromTop < AUTO_SCROLL_EDGE_PX) {
+    autoScrollSpeed = -AUTO_SCROLL_MAX_SPEED * (1 - distanceFromTop / AUTO_SCROLL_EDGE_PX);
+  } else if (distanceFromBottom < AUTO_SCROLL_EDGE_PX) {
+    autoScrollSpeed = AUTO_SCROLL_MAX_SPEED * (1 - distanceFromBottom / AUTO_SCROLL_EDGE_PX);
+  } else {
+    autoScrollSpeed = 0;
+  }
+
+  if (autoScrollSpeed !== 0 && autoScrollFrameId === null) {
+    runAutoScroll();
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("dragover", handleWindowDragOver);
+  window.addEventListener("dragend", stopAutoScroll);
+  window.addEventListener("drop", stopAutoScroll);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("dragover", handleWindowDragOver);
+  window.removeEventListener("dragend", stopAutoScroll);
+  window.removeEventListener("drop", stopAutoScroll);
+  stopAutoScroll();
+});
+
 const days = [
   { value: "monday", label: "Maanantai", shortLabel: "Ma" },
   { value: "tuesday", label: "Tiistai", shortLabel: "Ti" },

@@ -117,7 +117,7 @@
                     type="button"
                     class="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
                     :aria-label="`Poista ${draft.recipeName} luonnoksista`"
-                    @click.prevent.stop="askToRemoveMeal(draft.id)"
+                    @click.prevent.stop="plannerStore.removeMeal(draft.id)"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -213,16 +213,6 @@
                   Sijoita viikkoon
                 </button>
               </div>
-
-              <ConfirmInline
-                v-if="pendingRemovalId === draft.id"
-                class="m-3"
-                title="Poistetaanko tämä luonnos?"
-                description="Resepti poistetaan luonnoksista."
-                confirm-label="Poista"
-                @confirm="confirmRemoveMeal(draft.id)"
-                @cancel="cancelRemoveMeal"
-              />
             </div>
           </div>
         </div>
@@ -255,7 +245,6 @@ function handleDragEnd() {
 }
 
 const panelRef = ref<HTMLElement | null>(null);
-const pendingRemovalId = ref<string | null>(null);
 const searchQuery = ref("");
 
 const filteredDrafts = computed(() => {
@@ -301,25 +290,10 @@ function assignDraft(draftId: string) {
   plannerStore.assignMeal(draftId, selection.day, selection.meal);
 }
 
-function askToRemoveMeal(plannedMealId: string) {
-  pendingRemovalId.value = plannedMealId;
-}
-
-function cancelRemoveMeal() {
-  pendingRemovalId.value = null;
-}
-
-function confirmRemoveMeal(plannedMealId: string) {
-  plannerStore.removeMeal(plannedMealId);
-  pendingRemovalId.value = null;
-}
-
 watch(open, (isOpen) => {
   if (!import.meta.client) {
     return;
   }
-
-  document.body.style.overflow = isOpen ? "hidden" : "";
 
   if (isOpen) {
     nextTick(() => panelRef.value?.focus());
@@ -327,6 +301,21 @@ watch(open, (isOpen) => {
     searchQuery.value = "";
   }
 });
+
+// Body scroll is locked while the drawer is open, except mid-drag - the
+// planner page underneath can be taller than the viewport, and locking
+// scroll would make a day below the fold impossible to drag a draft to.
+const shouldLockBodyScroll = computed(() => open.value && !plannerStore.isDragging);
+
+watch(
+  shouldLockBodyScroll,
+  (locked) => {
+    if (import.meta.client) {
+      document.body.style.overflow = locked ? "hidden" : "";
+    }
+  },
+  { immediate: true },
+);
 
 onBeforeUnmount(() => {
   if (import.meta.client) {
