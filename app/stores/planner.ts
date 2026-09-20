@@ -282,15 +282,29 @@ export const usePlannerStore = defineStore("planner", () => {
     }
   }
 
+  // Only clears assigned meals (day + meal set) - drafts (day/meal still
+  // null, not yet placed on a day) are left alone, since "clear the week"
+  // shouldn't also throw away recipes someone was still deciding on.
   async function clearPlanner() {
-    plannedMeals.value = [];
+    const assignedMealIds = plannedMeals.value
+      .filter((plannedMeal) => plannedMeal.day && plannedMeal.meal)
+      .map((plannedMeal) => plannedMeal.id);
+
+    plannedMeals.value = plannedMeals.value.filter(
+      (plannedMeal) => !assignedMealIds.includes(plannedMeal.id),
+    );
     checkedShoppingItems.value = [];
 
     const supabase = useSupabaseClient();
     const userId = await useCurrentUserId();
 
+    const mealsResultPromise =
+      assignedMealIds.length > 0
+        ? supabase.from("planned_meals").delete().eq("user_id", userId).in("id", assignedMealIds)
+        : Promise.resolve({ error: null });
+
     const [mealsResult, checkedResult] = await Promise.all([
-      supabase.from("planned_meals").delete().eq("user_id", userId),
+      mealsResultPromise,
       supabase.from("checked_shopping_items").delete().eq("user_id", userId),
     ]);
 
