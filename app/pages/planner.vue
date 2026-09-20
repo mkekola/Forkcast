@@ -20,22 +20,24 @@
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
-          <div class="flex flex-wrap gap-3">
-            <button
-              type="button"
-              class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-              @click="plannerStore.isShoppingListOpen = true"
-            >
-              Ostoslistaan
-            </button>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+                @click="plannerStore.isShoppingListOpen = true"
+              >
+                Ostoslistaan
+              </button>
 
-            <button
-              type="button"
-              class="rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-bold text-fork-ink transition hover:border-fork-ink"
-              @click="plannerStore.isDraftsOpen = true"
-            >
-              Luonnokset
-            </button>
+              <button
+                type="button"
+                class="rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-bold text-fork-ink transition hover:border-fork-ink"
+                @click="plannerStore.isDraftsOpen = true"
+              >
+                Luonnokset
+              </button>
+            </div>
 
             <button
               type="button"
