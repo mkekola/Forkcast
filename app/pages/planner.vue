@@ -20,25 +20,7 @@
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap gap-3">
-              <button
-                type="button"
-                class="rounded-full bg-fork-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-                @click="plannerStore.isShoppingListOpen = true"
-              >
-                Ostoslistaan
-              </button>
-
-              <button
-                type="button"
-                class="rounded-full border border-fork-line bg-fork-card px-5 py-3 text-sm font-bold text-fork-ink transition hover:border-fork-ink"
-                @click="plannerStore.isDraftsOpen = true"
-              >
-                Luonnokset
-              </button>
-            </div>
-
+          <div class="flex flex-wrap items-center justify-end gap-3">
             <button
               type="button"
               class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
@@ -57,6 +39,111 @@
             @confirm="confirmClearWeek"
             @cancel="cancelClearWeek"
           />
+
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <section class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line">
+              <div class="flex flex-col justify-between gap-4 lg:flex-row-reverse lg:items-center">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
+                    Luonnokset
+                  </p>
+
+                  <h2 class="mt-2 text-2xl font-black tracking-tight">
+                    {{ draftsSummary }}
+                  </h2>
+
+                  <div v-if="visibleDraftThumbnails.length > 0" class="mt-3 flex items-center gap-1.5">
+                    <div
+                      v-for="draft in visibleDraftThumbnails"
+                      :key="draft.id"
+                      class="group relative"
+                    >
+                      <NuxtLink
+                        v-slot="{ href }"
+                        :to="`/recipes/${draft.recipeId}`"
+                        custom
+                      >
+                        <a
+                          :href="href"
+                          :title="draft.recipeName"
+                          draggable="true"
+                          class="block cursor-grab active:cursor-grabbing"
+                          @click="(event) => openOnClick(event, draft.recipeId)"
+                          @dragstart="handleDragStart($event, draft)"
+                          @dragend="handleDragEnd"
+                        >
+                          <img
+                            :src="draft.recipeImage"
+                            :alt="draft.recipeName"
+                            class="h-9 w-9 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                          >
+                        </a>
+                      </NuxtLink>
+
+                      <div
+                        class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-40 -translate-x-1/2 rounded-2xl bg-fork-ink p-2 opacity-0 shadow-xl transition duration-150 group-hover:opacity-100"
+                      >
+                        <img
+                          :src="draft.recipeImage"
+                          :alt="draft.recipeName"
+                          class="h-20 w-full rounded-xl object-cover"
+                        >
+
+                        <p class="mt-1.5 line-clamp-2 text-xs font-bold text-white">
+                          {{ draft.recipeName }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span
+                      v-if="hiddenDraftsCount > 0"
+                      class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-fork-card bg-fork-bg text-xs font-bold text-fork-muted shadow-sm"
+                    >
+                      +{{ hiddenDraftsCount }}
+                    </span>
+                  </div>
+
+                  <p v-else class="mt-1 text-sm text-fork-muted">
+                    Lisää reseptejä luonnoksiin sijoittaaksesi ne viikkoon myöhemmin.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+                  @click="plannerStore.isDraftsOpen = true"
+                >
+                  Avaa luonnokset
+                </button>
+              </div>
+            </section>
+
+            <section class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line">
+              <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
+                    Ostoslista
+                  </p>
+
+                  <h2 class="mt-2 text-2xl font-black tracking-tight">
+                    {{ shoppingListSummary }}
+                  </h2>
+
+                  <p class="mt-1 text-sm text-fork-muted">
+                    Koostettu viikkosuunnitelmaan lisättyjen reseptien ainesosista.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
+                  @click="plannerStore.isShoppingListOpen = true"
+                >
+                  Avaa ostoslista
+                </button>
+              </div>
+            </section>
+          </div>
         </div>
       </section>
 
@@ -396,34 +483,6 @@
           </div>
         </article>
       </section>
-      <section
-        v-if="hasPlannedMeals"
-        class="mt-10 rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line"
-      >
-        <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
-              Ostoslista
-            </p>
-
-            <h2 class="mt-2 text-2xl font-black tracking-tight">
-              {{ shoppingListSummary }}
-            </h2>
-
-            <p class="mt-1 text-sm text-fork-muted">
-              Koostettu viikkosuunnitelmaan lisättyjen reseptien ainesosista.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="inline-flex shrink-0 items-center gap-2 rounded-full bg-fork-clay px-6 py-3 text-sm font-bold text-white transition hover:bg-fork-clay-dark"
-            @click="plannerStore.isShoppingListOpen = true"
-          >
-            Avaa ostoslista →
-          </button>
-        </div>
-      </section>
     </section>
   </main>
 </template>
@@ -491,6 +550,21 @@ const shoppingListSummary = computed(() => {
   const count = plannerStore.shoppingList.length;
   return count === 1 ? "1 tuote" : `${count} tuotetta`;
 });
+
+const draftsSummary = computed(() => {
+  const count = plannerStore.getDrafts().length;
+  return count === 1 ? "1 luonnos" : `${count} luonnosta`;
+});
+
+// Enough thumbnails to fill roughly one row - the rest collapse into a
+// "+N" badge instead of wrapping onto more rows.
+const DRAFT_THUMBNAIL_LIMIT = 8;
+
+const visibleDraftThumbnails = computed(() => plannerStore.getDrafts().slice(0, DRAFT_THUMBNAIL_LIMIT));
+
+const hiddenDraftsCount = computed(() =>
+  Math.max(0, plannerStore.getDrafts().length - DRAFT_THUMBNAIL_LIMIT),
+);
 
 onMounted(async () => {
   await plannerStore.loadFromStorage();
