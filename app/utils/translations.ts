@@ -202,6 +202,20 @@ export function translateCategory(category?: string | null) {
   return categoryTranslations[category] ?? category;
 }
 
+const categoryTranslationsReverse: Record<string, string> = Object.fromEntries(
+  Object.entries(categoryTranslations).map(([category, finnishCategory]) => [
+    finnishCategory,
+    category,
+  ]),
+);
+
+// Favorites are stored with their already-translated (Finnish) category, so
+// recommending more recipes "like your favorites" needs to map that label
+// back to the raw category key the search RPC expects.
+export function reverseTranslateCategory(finnishCategory: string) {
+  return categoryTranslationsReverse[finnishCategory] ?? null;
+}
+
 export function translateArea(area?: string | null) {
   if (!area) {
     return "Tuntematon";
