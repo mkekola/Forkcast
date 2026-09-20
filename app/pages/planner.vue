@@ -88,7 +88,14 @@
         <article
           v-for="day in days"
           :key="day.value"
-          class="rounded-[2rem] border border-fork-line bg-fork-card p-5 shadow-sm"
+          class="rounded-[2rem] border p-5 shadow-sm transition-colors"
+          :class="
+            dayDragOver === day.value
+              ? 'border-fork-clay bg-fork-clay-soft'
+              : 'border-fork-line bg-fork-card'
+          "
+          @dragover.prevent="handleDayDragOver(day.value)"
+          @dragleave="handleDayDragLeave(day.value)"
         >
           <div class="mb-5 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -457,6 +464,42 @@ function slotKey(day: string, meal: MealType) {
 
 const dragOverSlot = ref<string | null>(null);
 
+// A collapsed day has no visible meal slots to drop onto, so hovering a
+// drag over its (still-visible) header for a moment expands it, instead of
+// requiring it to be opened by hand before anything can be dropped there.
+const DAY_EXPAND_DELAY_MS = 500;
+const dayDragOver = ref<string | null>(null);
+let dayExpandTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+function clearDayExpandTimer() {
+  if (dayExpandTimeoutId !== null) {
+    clearTimeout(dayExpandTimeoutId);
+    dayExpandTimeoutId = null;
+  }
+
+  dayDragOver.value = null;
+}
+
+function handleDayDragOver(day: string) {
+  if (!isDayCollapsed(day) || dayDragOver.value === day) {
+    return;
+  }
+
+  clearDayExpandTimer();
+  dayDragOver.value = day;
+
+  dayExpandTimeoutId = setTimeout(() => {
+    toggleDayCollapsed(day);
+    clearDayExpandTimer();
+  }, DAY_EXPAND_DELAY_MS);
+}
+
+function handleDayDragLeave(day: string) {
+  if (dayDragOver.value === day) {
+    clearDayExpandTimer();
+  }
+}
+
 function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
   if (!event.dataTransfer) {
     return;
@@ -470,6 +513,7 @@ function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
 function handleDragEnd() {
   plannerStore.isDragging = false;
   dragOverSlot.value = null;
+  clearDayExpandTimer();
 }
 
 function handleDragOver(event: DragEvent, day: string, meal: MealType) {

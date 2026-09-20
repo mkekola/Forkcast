@@ -10,8 +10,8 @@
     >
       <div
         v-if="open"
-        class="fixed inset-0 z-50 bg-fork-ink/40"
-        :class="{ 'pointer-events-none': plannerStore.isDragging }"
+        class="fixed inset-0 z-50 bg-fork-ink/40 transition-opacity"
+        :class="{ 'pointer-events-none opacity-0': plannerStore.isDragging }"
         @click="open = false"
       />
     </Transition>
