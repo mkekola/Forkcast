@@ -238,16 +238,16 @@
           </div>
 
           <p
-            v-if="hasSearched && !pending && !error"
+            v-if="!pending && !error"
             class="mt-3 text-sm font-bold text-fork-clay"
           >
-            {{ recipes.length }} reseptiä
+            {{ totalCount }} reseptiä
             <template v-if="categoryLabels.length"> kategorioissa {{ categoryLabels.join(" + ") }}</template>
             <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
           </p>
         </div>
 
-        <div v-if="hasSearched && pending" class="grid gap-6 md:grid-cols-3">
+        <div v-if="pending" class="grid gap-6 md:grid-cols-3">
           <div
             v-for="item in 6"
             :key="item"
@@ -256,18 +256,10 @@
         </div>
 
         <div
-          v-else-if="hasSearched && error"
+          v-else-if="error"
           class="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-800"
         >
           Reseptien haku epäonnistui. Kokeile hetken päästä uudelleen.
-        </div>
-
-        <div
-          v-else-if="!hasSearched"
-          class="rounded-3xl border border-dashed border-fork-line bg-fork-card p-8 text-fork-muted"
-        >
-          Hae reseptejä yllä olevalla haulla tai valitse pikahaku
-          aloittaaksesi.
         </div>
 
         <div
@@ -279,18 +271,76 @@
             Kokeile esimerkiksi hakua <strong>pasta</strong>, <strong>chicken</strong> tai
             <strong>beef</strong>.
           </template>
-          <template v-else>
+          <template v-else-if="categoryLabels.length">
             Ei reseptejä kategorioissa {{ categoryLabels.join(" + ") }}.
+          </template>
+          <template v-else>
+            Ei reseptejä.
           </template>
         </div>
 
-        <div v-else class="grid gap-6 md:grid-cols-3">
-          <RecipeCard
-            v-for="recipe in recipes"
-            :key="recipe.id"
-            :recipe="recipe"
-          />
-        </div>
+        <template v-else>
+          <div class="grid gap-6 md:grid-cols-3">
+            <RecipeCard
+              v-for="recipe in recipes"
+              :key="recipe.id"
+              :recipe="recipe"
+            />
+          </div>
+
+          <div
+            v-if="totalPages > 1"
+            class="mt-10 flex items-center justify-center gap-4"
+          >
+            <button
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-full border border-fork-line bg-fork-card text-fork-ink transition hover:border-fork-ink disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage <= 1"
+              aria-label="Edellinen sivu"
+              @click="goToPage(currentPage - 1)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <span class="text-sm font-bold text-fork-muted [font-variant-numeric:tabular-nums]">
+              Sivu {{ currentPage }} / {{ totalPages }}
+            </span>
+
+            <button
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-full border border-fork-line bg-fork-card text-fork-ink transition hover:border-fork-ink disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage >= totalPages"
+              aria-label="Seuraava sivu"
+              @click="goToPage(currentPage + 1)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+        </template>
       </section>
     </section>
   </main>
@@ -305,11 +355,7 @@ import {
 } from "~/utils/translations";
 
 import type { Recipe } from "~/types/recipe";
-import {
-  useRecipesApi,
-  type RecipeRow,
-  type RecipeSearchResult,
-} from "~/composables/useRecipesApi";
+import { useRecipesApi, type RecipeRow } from "~/composables/useRecipesApi";
 import { usePlannerStore } from "~/stores/planner";
 import { useRecipeModal } from "~/composables/useRecipeModal";
 
@@ -386,9 +432,16 @@ const categoryLabels = computed(() =>
   effectiveCategories.value.map((category) => translateCategory(category)),
 );
 
-const hasSearched = computed(
-  () => searchQuery.value.length > 0 || selectedCategories.value.length > 0,
-);
+const PAGE_SIZE = 24;
+
+// Our own database has no reason to require a search before showing
+// anything - the recipe grid always shows a paginated slice of whatever
+// currently matches (the whole catalog, by default).
+const currentPage = computed(() => {
+  const raw = route.query.page;
+  const parsed = typeof raw === "string" ? Number.parseInt(raw, 10) : NaN;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+});
 
 const quickSearches = [
   { label: "Kana", category: "Chicken" },
@@ -530,21 +583,19 @@ onBeforeUnmount(() => {
   stopAutoAdvance();
 });
 
-const { data, pending, error } = await useAsyncData<RecipeSearchResult[]>(
+const { data, pending, error } = await useAsyncData(
   "recipe-search",
   () => {
-    if (!hasSearched.value) {
-      return Promise.resolve([]);
-    }
-
     return recipesApi.searchRecipes({
       categories: effectiveCategories.value,
       area: effectiveArea.value,
       text: effectiveText.value ?? undefined,
+      page: currentPage.value,
+      pageSize: PAGE_SIZE,
     });
   },
   {
-    watch: [effectiveCategories, effectiveArea, effectiveText],
+    watch: [effectiveCategories, effectiveArea, effectiveText, currentPage],
   },
 );
 
@@ -588,6 +639,17 @@ function clearCategories() {
   });
 }
 
+function goToPage(page: number) {
+  router.push({
+    path: "/",
+    query: {
+      ...(searchQuery.value ? { q: searchQuery.value } : {}),
+      ...(selectedCategories.value.length ? { cat: selectedCategories.value.join(",") } : {}),
+      ...(page > 1 ? { page: String(page) } : {}),
+    },
+  });
+}
+
 watch(
   () => route.query.q,
   (newQuery) => {
@@ -595,12 +657,11 @@ watch(
   },
 );
 
-const recipes = computed<Recipe[]>(() => {
-  if (!hasSearched.value) {
-    return [];
-  }
+const totalCount = computed(() => data.value?.totalCount ?? 0);
+const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / PAGE_SIZE)));
 
-  return (data.value ?? []).map((result) => ({
+const recipes = computed<Recipe[]>(() => {
+  return (data.value?.results ?? []).map((result) => ({
     id: result.id,
     title: result.title,
     category: translateCategory(result.category),
