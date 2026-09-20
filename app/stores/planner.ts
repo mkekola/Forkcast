@@ -147,6 +147,34 @@ export const usePlannerStore = defineStore("planner", () => {
     }
   }
 
+  // Turns an already-planned meal back into a draft, e.g. when it's dragged
+  // out of the week onto the drafts card - same as assignMeal in reverse.
+  async function unassignMeal(plannedMealId: string) {
+    const target = plannedMeals.value.find(
+      (plannedMeal) => plannedMeal.id === plannedMealId,
+    );
+
+    if (!target) {
+      return;
+    }
+
+    target.day = null;
+    target.meal = null;
+
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
+    const { error } = await supabase
+      .from("planned_meals")
+      .update({ day: null, meal: null })
+      .eq("id", plannedMealId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Failed to unassign meal", error);
+    }
+  }
+
   function getDrafts() {
     return plannedMeals.value.filter(
       (plannedMeal) => !plannedMeal.day || !plannedMeal.meal,
@@ -285,6 +313,7 @@ export const usePlannerStore = defineStore("planner", () => {
     addMeal,
     addDraft,
     assignMeal,
+    unassignMeal,
     getDrafts,
     removeMeal,
     getMeals,

@@ -85,4 +85,6 @@ onBeforeUnmount(() => {
   document.removeEventListener("click", handleOutsideClick, true);
   document.removeEventListener("keydown", handleKeydown);
 });
+
+defineExpose({ el: cardRef });
 </script>

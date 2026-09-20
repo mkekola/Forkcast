@@ -20,28 +20,14 @@
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
-          <div class="flex flex-wrap items-center justify-end gap-3">
-            <button
-              type="button"
-              class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
-              @click="askToClearWeek"
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <section
+              class="rounded-[2rem] p-6 shadow-sm ring-1 transition-colors"
+              :class="isDraftsDropTarget ? 'bg-fork-clay-soft ring-fork-clay' : 'bg-fork-card ring-fork-line'"
+              @dragover.prevent="handleDraftsDragOver"
+              @dragleave="handleDraftsDragLeave"
+              @drop.prevent="handleDraftsDrop"
             >
-              Tyhjennä viikko
-            </button>
-          </div>
-
-          <ConfirmInline
-            v-if="pendingClearWeek"
-            class="mt-3 max-w-md"
-            title="Tyhjennetäänkö koko viikko?"
-            description="Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit."
-            confirm-label="Tyhjennä"
-            @confirm="confirmClearWeek"
-            @cancel="cancelClearWeek"
-          />
-
-          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <section class="rounded-[2rem] bg-fork-card p-6 shadow-sm ring-1 ring-fork-line">
               <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
                   <p class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark">
@@ -197,25 +183,43 @@
                 v-if="isDayCollapsed(day.value)"
                 class="flex items-center gap-1.5"
               >
-                <NuxtLink
+                <div
                   v-for="plannedMeal in getDayPlannedMeals(day.value)"
-                  v-slot="{ href }"
                   :key="plannedMeal.id"
-                  :to="`/recipes/${plannedMeal.recipeId}`"
-                  custom
+                  class="group relative"
                 >
-                  <a
-                    :href="href"
-                    :title="plannedMeal.recipeName"
-                    @click="(event) => openOnClick(event, plannedMeal.recipeId)"
+                  <NuxtLink
+                    v-slot="{ href }"
+                    :to="`/recipes/${plannedMeal.recipeId}`"
+                    custom
+                  >
+                    <a
+                      :href="href"
+                      class="block"
+                      @click="(event) => openOnClick(event, plannedMeal.recipeId)"
+                    >
+                      <img
+                        :src="plannedMeal.recipeImage"
+                        :alt="plannedMeal.recipeName"
+                        class="h-10 w-10 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                      >
+                    </a>
+                  </NuxtLink>
+
+                  <div
+                    class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-40 -translate-x-1/2 rounded-2xl bg-fork-ink p-2 opacity-0 shadow-xl transition duration-150 group-hover:opacity-100"
                   >
                     <img
                       :src="plannedMeal.recipeImage"
                       :alt="plannedMeal.recipeName"
-                      class="h-10 w-10 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                      class="h-20 w-full rounded-xl object-cover"
                     >
-                  </a>
-                </NuxtLink>
+
+                    <p class="mt-1.5 line-clamp-2 text-xs font-bold text-white">
+                      {{ plannedMeal.recipeName }}
+                    </p>
+                  </div>
+                </div>
 
                 <span
                   v-if="getDayPlannedMeals(day.value).length === 0"
@@ -484,6 +488,27 @@
           </div>
         </article>
       </section>
+
+      <div v-if="hasPlannedMeals" class="mt-6 flex flex-col items-end">
+        <button
+          type="button"
+          class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
+          @click="askToClearWeek"
+        >
+          Tyhjennä viikko
+        </button>
+
+        <ConfirmInline
+          v-if="pendingClearWeek"
+          ref="clearWeekConfirmRef"
+          class="mt-3 max-w-md"
+          title="Tyhjennetäänkö koko viikko?"
+          description="Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit."
+          confirm-label="Tyhjennä"
+          @confirm="confirmClearWeek"
+          @cancel="cancelClearWeek"
+        />
+      </div>
     </section>
   </main>
 </template>
@@ -501,6 +526,7 @@ useSeoMeta({
 });
 
 const pendingClearWeek = ref(false);
+const clearWeekConfirmRef = ref<{ el?: HTMLElement | null } | null>(null);
 
 const pendingRemovalId = ref<string | null>(null);
 
@@ -775,6 +801,39 @@ function handleDrop(event: DragEvent, day: string, meal: MealType) {
   }
 }
 
+// Dragging an already-planned meal onto the drafts card unassigns it (its
+// day/meal go back to null), the reverse of dragging a draft into a slot.
+const isDraftsDropTarget = ref(false);
+
+function handleDraftsDragOver() {
+  isDraftsDropTarget.value = true;
+}
+
+function handleDraftsDragLeave() {
+  isDraftsDropTarget.value = false;
+}
+
+function handleDraftsDrop(event: DragEvent) {
+  isDraftsDropTarget.value = false;
+  plannerStore.isDragging = false;
+
+  const payload = event.dataTransfer?.getData("application/json");
+
+  if (!payload) {
+    return;
+  }
+
+  try {
+    const dragged: PlannedMeal = JSON.parse(payload);
+
+    if (dragged.day || dragged.meal) {
+      plannerStore.unassignMeal(dragged.id);
+    }
+  } catch {
+    // ignore malformed payloads
+  }
+}
+
 const collapsedDays = ref<Set<string>>(new Set());
 
 function isDayCollapsed(day: string) {
@@ -808,6 +867,10 @@ function confirmRemoveMeal(plannedMealId: string) {
 
 function askToClearWeek() {
   pendingClearWeek.value = true;
+
+  nextTick(() => {
+    clearWeekConfirmRef.value?.el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
 }
 
 function cancelClearWeek() {
