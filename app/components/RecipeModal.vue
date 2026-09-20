@@ -25,7 +25,7 @@
     >
       <div
         v-if="recipeId"
-        class="fixed inset-0 z-50 overflow-y-auto p-5 py-8 sm:p-6 sm:py-14"
+        class="fixed inset-0 z-50 overflow-y-auto px-5 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-20"
         @click.self="close"
       >
         <div
