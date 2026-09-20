@@ -66,7 +66,8 @@
                         <a
                           :href="href"
                           draggable="true"
-                          class="block cursor-grab active:cursor-grabbing"
+                          class="block cursor-grab transition active:cursor-grabbing"
+                          :class="{ 'opacity-30 grayscale': draggingMealId === draft.id }"
                           @click="(event) => openOnClick(event, draft.recipeId)"
                           @dragstart="handleDragStart($event, draft)"
                           @dragend="handleDragEnd"
@@ -279,7 +280,8 @@
                   v-for="plannedMeal in getPlannedMeals(day.value, meal.value)"
                   :key="plannedMeal.id"
                   draggable="true"
-                  class="relative cursor-grab overflow-hidden rounded-2xl bg-fork-card shadow-sm active:cursor-grabbing"
+                  class="relative cursor-grab overflow-hidden rounded-2xl bg-fork-card shadow-sm transition active:cursor-grabbing"
+                  :class="{ 'opacity-30 grayscale': draggingMealId === plannedMeal.id }"
                   @dragstart="handleDragStart($event, plannedMeal)"
                   @dragend="handleDragEnd"
                 >
@@ -704,6 +706,10 @@ function handleDayDragLeave(day: string) {
   }
 }
 
+// Faded out in its original slot/thumbnail while being dragged, so it's
+// clear at a glance what's being moved and where it's moving from.
+const draggingMealId = ref<string | null>(null);
+
 function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
   if (!event.dataTransfer) {
     return;
@@ -712,11 +718,13 @@ function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
   event.dataTransfer.effectAllowed = "copyMove";
   event.dataTransfer.setData("application/json", JSON.stringify(plannedMeal));
   plannerStore.isDragging = true;
+  draggingMealId.value = plannedMeal.id;
 }
 
 function handleDragEnd() {
   plannerStore.isDragging = false;
   dragOverSlot.value = null;
+  draggingMealId.value = null;
   clearDayExpandTimer();
 }
 
