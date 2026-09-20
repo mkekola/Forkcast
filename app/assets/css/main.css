@@ -25,6 +25,11 @@ html {
   scroll-behavior: smooth;
   background: #f5efe4;
   font-family: var(--font-sans);
+  /* Modals/drawers lock body scroll (overflow: hidden) while open, which
+     makes the scrollbar disappear and the page get that many pixels wider -
+     visibly shifting everything sideways on open/close. Reserving the
+     gutter permanently means that width never changes. */
+  scrollbar-gutter: stable;
 }
 
 .page-enter-active,
