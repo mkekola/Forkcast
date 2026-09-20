@@ -338,6 +338,7 @@ import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/plann
 import { useRecipeModal } from "~/composables/useRecipeModal";
 import { useRecipesApi, type RecipeSearchResult } from "~/composables/useRecipesApi";
 import { translateCategory } from "~/utils/translations";
+import { setWholeCardAsDragImage } from "~/utils/dragImage";
 
 const open = defineModel<boolean>("open", { default: false });
 
@@ -353,6 +354,7 @@ function handleDragStart(event: DragEvent, draft: PlannedMeal) {
   event.dataTransfer.effectAllowed = "copyMove";
   event.dataTransfer.setData("application/json", JSON.stringify(draft));
   plannerStore.isDragging = true;
+  setWholeCardAsDragImage(event);
 }
 
 function handleDragEnd() {

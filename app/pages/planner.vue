@@ -516,6 +516,7 @@
 <script setup lang="ts">
 import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
 import { useRecipeModal } from "~/composables/useRecipeModal";
+import { setWholeCardAsDragImage } from "~/utils/dragImage";
 
 const plannerStore = usePlannerStore();
 const { openOnClick } = useRecipeModal();
@@ -745,6 +746,7 @@ function handleDragStart(event: DragEvent, plannedMeal: PlannedMeal) {
   event.dataTransfer.setData("application/json", JSON.stringify(plannedMeal));
   plannerStore.isDragging = true;
   draggingMealId.value = plannedMeal.id;
+  setWholeCardAsDragImage(event);
 }
 
 function handleDragEnd() {
