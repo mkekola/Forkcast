@@ -706,6 +706,16 @@ function searchRecipes() {
   updateSearchQuery(searchInput.value);
 }
 
+// Clearing the box back to empty should clear an active text search
+// immediately - text search otherwise only takes effect on submit (Enter /
+// "Hae"), so without this, erasing the box left the old q param (and
+// whatever category/area it implied) silently active until resubmitted.
+watch(searchInput, (value) => {
+  if (value.trim() === "" && searchQuery.value !== "") {
+    updateSearchQuery("");
+  }
+});
+
 // Predictive suggestions for the search box: dictionary word completions
 // are instant (plain array filtering), matching recipe titles are fetched
 // live, debounced like DraftsDrawer's recipe search.
