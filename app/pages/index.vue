@@ -188,6 +188,15 @@
             >
               {{ quickSearch.label }}
             </button>
+
+            <button
+              v-if="selectedCategories.length > 0"
+              type="button"
+              class="rounded-full border border-fork-line bg-fork-card px-4 py-2 text-sm font-bold text-fork-muted transition hover:border-fork-ink hover:text-fork-ink"
+              @click="clearCategories"
+            >
+              Tyhjennä valinnat ✕
+            </button>
           </div>
         </div>
         <div
@@ -520,6 +529,15 @@ function toggleCategory(category: string) {
     query: {
       ...(searchQuery.value ? { q: searchQuery.value } : {}),
       ...(nextCategories.length ? { cat: nextCategories.join(",") } : {}),
+    },
+  });
+}
+
+function clearCategories() {
+  router.push({
+    path: "/",
+    query: {
+      ...(searchQuery.value ? { q: searchQuery.value } : {}),
     },
   });
 }
