@@ -161,9 +161,102 @@
       </div>
 
       <section v-if="hasPlannedMeals" class="space-y-4">
-        <article
-          v-for="day in days"
-          :key="day.value"
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="inline-flex rounded-full border border-fork-line bg-fork-card p-1">
+            <button
+              type="button"
+              class="rounded-full px-4 py-2 text-sm font-bold transition"
+              :class="
+                viewMode === 'week'
+                  ? 'bg-fork-clay text-white'
+                  : 'text-stone-700 hover:text-fork-ink'
+              "
+              @click="setViewMode('week')"
+            >
+              Viikko
+            </button>
+
+            <button
+              type="button"
+              class="rounded-full px-4 py-2 text-sm font-bold transition"
+              :class="
+                viewMode === 'day'
+                  ? 'bg-fork-clay text-white'
+                  : 'text-stone-700 hover:text-fork-ink'
+              "
+              @click="setViewMode('day')"
+            >
+              Päivä
+            </button>
+          </div>
+
+          <div v-if="viewMode === 'day'" class="flex items-center gap-3">
+            <button
+              type="button"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-card hover:text-fork-ink"
+              aria-label="Edellinen päivä"
+              @click="goToPreviousDay"
+              @dragover.prevent="handleCarouselNavDragOver('previous')"
+              @dragleave="handleCarouselNavDragLeave"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                v-for="(day, index) in days"
+                :key="day.value"
+                type="button"
+                :aria-label="`Näytä ${day.label}`"
+                :aria-current="index === currentDayIndex ? 'true' : undefined"
+                class="h-2 rounded-full transition-all"
+                :class="index === currentDayIndex ? 'w-5 bg-fork-clay' : 'w-2 bg-fork-line'"
+                @click="goToDay(index)"
+              />
+            </div>
+
+            <button
+              type="button"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-card hover:text-fork-ink"
+              aria-label="Seuraava päivä"
+              @click="goToNextDay"
+              @dragover.prevent="handleCarouselNavDragOver('next')"
+              @dragleave="handleCarouselNavDragLeave"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div ref="dayCardWrapperRef" @wheel="handleDayWheel">
+          <TransitionGroup :name="dayTransitionName" tag="div" class="relative space-y-4">
+            <article
+              v-for="day in visibleDays"
+              :key="day.value"
           class="rounded-[2rem] border p-5 shadow-sm transition-colors"
           :class="
             dayDragOver === day.value
@@ -231,6 +324,7 @@
             </div>
 
             <button
+              v-if="viewMode === 'week'"
               type="button"
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-fork-muted transition hover:bg-fork-bg hover:text-fork-ink"
               :aria-label="isDayCollapsed(day.value) ? `Näytä ${day.label} kokonaan` : `Pienennä ${day.label}`"
@@ -486,7 +580,9 @@
               </div>
             </section>
           </div>
-        </article>
+            </article>
+          </TransitionGroup>
+        </div>
       </section>
 
       <div v-if="hasPlannedMeals" class="mt-6 flex flex-col items-end">
@@ -602,6 +698,14 @@ onMounted(async () => {
       .filter((day) => getDayPlannedMeals(day.value).length === 0)
       .map((day) => day.value),
   );
+
+  const storedViewMode = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+
+  if (storedViewMode === "week" || storedViewMode === "day") {
+    viewMode.value = storedViewMode;
+  }
+
+  currentDayIndex.value = todayDayIndex();
 });
 
 // Auto-scrolls the page while dragging near the top/bottom edge of the
@@ -683,6 +787,183 @@ const meals: { value: MealType; label: string }[] = [
   { value: "supper", label: "Illallinen" },
 ];
 
+// Whether the week renders as one long list or one day at a time in a
+// carousel - a personal preference, so it's remembered across visits.
+const VIEW_MODE_STORAGE_KEY = "forkcast-planner-view-mode";
+const viewMode = ref<"week" | "day">("week");
+
+function setViewMode(mode: "week" | "day") {
+  viewMode.value = mode;
+
+  if (import.meta.client) {
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+  }
+}
+
+function todayDayIndex() {
+  // Date#getDay() is 0 (Sunday) .. 6 (Saturday); `days` above starts on
+  // Monday, so Sunday needs to wrap around to the last index instead of
+  // the first.
+  const jsDay = new Date().getDay();
+  return (jsDay + 6) % 7;
+}
+
+const currentDayIndex = ref(0);
+
+const visibleDays = computed(() => {
+  return viewMode.value === "day" ? [days[currentDayIndex.value]] : days;
+});
+
+// Which way the day card should slide - set right before currentDayIndex
+// changes, so the TransitionGroup below already has the right enter/leave
+// classes picked by the time the DOM update happens.
+const dayTransitionDirection = ref<"next" | "previous">("next");
+
+const dayTransitionName = computed(() => {
+  if (viewMode.value !== "day") {
+    return undefined;
+  }
+
+  return dayTransitionDirection.value === "next" ? "day-slide-next" : "day-slide-prev";
+});
+
+// Days have wildly different amounts of stuff in their meal slots, so
+// swapping straight to the new day's natural height made the page jump -
+// the outgoing card leaves the document flow (see the CSS) the moment the
+// transition starts, so the wrapper's height would otherwise snap straight
+// to the incoming card's height instead of easing between the two. Lock it
+// to the old height, then animate to the new one once it's known.
+const dayCardWrapperRef = ref<HTMLElement | null>(null);
+const HEIGHT_TRANSITION_MS = 250;
+
+function withHeightTransition(changeDay: () => void) {
+  const wrapper = dayCardWrapperRef.value;
+
+  if (!wrapper) {
+    changeDay();
+    return;
+  }
+
+  const startHeight = wrapper.offsetHeight;
+  changeDay();
+
+  nextTick(() => {
+    const endHeight = wrapper.offsetHeight;
+
+    wrapper.style.transition = "none";
+    wrapper.style.overflow = "hidden";
+    wrapper.style.height = `${startHeight}px`;
+
+    // Force a reflow so the browser registers the starting height as its
+    // own layout before the next frame animates away from it, rather than
+    // collapsing both changes into a single instantaneous jump.
+    void wrapper.offsetHeight;
+
+    requestAnimationFrame(() => {
+      wrapper.style.transition = `height ${HEIGHT_TRANSITION_MS}ms ease`;
+      wrapper.style.height = `${endHeight}px`;
+    });
+
+    setTimeout(() => {
+      wrapper.style.height = "";
+      wrapper.style.overflow = "";
+      wrapper.style.transition = "";
+    }, HEIGHT_TRANSITION_MS);
+  });
+}
+
+function goToPreviousDay() {
+  dayTransitionDirection.value = "previous";
+  withHeightTransition(() => {
+    currentDayIndex.value = (currentDayIndex.value - 1 + days.length) % days.length;
+  });
+}
+
+function goToNextDay() {
+  dayTransitionDirection.value = "next";
+  withHeightTransition(() => {
+    currentDayIndex.value = (currentDayIndex.value + 1) % days.length;
+  });
+}
+
+// Jumping straight to a day (the dot indicators) still needs a direction to
+// slide in from - infer it from which side of the current day it's on.
+function goToDay(index: number) {
+  dayTransitionDirection.value = index >= currentDayIndex.value ? "next" : "previous";
+  withHeightTransition(() => {
+    currentDayIndex.value = index;
+  });
+}
+
+// Hovering a drag over the prev/next arrow for a moment pages the carousel
+// to that day, the same pattern used to expand a collapsed day below.
+const dragHoverNavDirection = ref<"previous" | "next" | null>(null);
+let dragHoverNavTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+function clearDragHoverNavTimer() {
+  if (dragHoverNavTimeoutId !== null) {
+    clearTimeout(dragHoverNavTimeoutId);
+    dragHoverNavTimeoutId = null;
+  }
+
+  dragHoverNavDirection.value = null;
+}
+
+function handleCarouselNavDragOver(direction: "previous" | "next") {
+  if (dragHoverNavDirection.value === direction) {
+    return;
+  }
+
+  clearDragHoverNavTimer();
+  dragHoverNavDirection.value = direction;
+
+  dragHoverNavTimeoutId = setTimeout(() => {
+    if (direction === "previous") {
+      goToPreviousDay();
+    } else {
+      goToNextDay();
+    }
+
+    clearDragHoverNavTimer();
+  }, DRAG_HOVER_DELAY_MS);
+}
+
+function handleCarouselNavDragLeave() {
+  clearDragHoverNavTimer();
+}
+
+// Scrolling over the day card pages the carousel instead of the page - one
+// day per gesture, not one per wheel tick (a single trackpad swipe fires
+// many of those), and small enough deltas (a barely-moved mouse wheel) are
+// ignored so it doesn't trigger on an almost-still cursor.
+const WHEEL_NAV_COOLDOWN_MS = 400;
+const WHEEL_NAV_THRESHOLD = 10;
+let wheelNavOnCooldown = false;
+
+function handleDayWheel(event: WheelEvent) {
+  if (viewMode.value !== "day") {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (wheelNavOnCooldown || Math.abs(event.deltaY) < WHEEL_NAV_THRESHOLD) {
+    return;
+  }
+
+  wheelNavOnCooldown = true;
+
+  if (event.deltaY > 0) {
+    goToNextDay();
+  } else {
+    goToPreviousDay();
+  }
+
+  setTimeout(() => {
+    wheelNavOnCooldown = false;
+  }, WHEEL_NAV_COOLDOWN_MS);
+}
+
 function getPlannedMeals(day: string, meal: MealType) {
   return plannerStore.getMeals(day, meal);
 }
@@ -700,7 +981,8 @@ const dragOverSlot = ref<string | null>(null);
 // A collapsed day has no visible meal slots to drop onto, so hovering a
 // drag over its (still-visible) header for a moment expands it, instead of
 // requiring it to be opened by hand before anything can be dropped there.
-const DAY_EXPAND_DELAY_MS = 500;
+// Also used by the day-carousel's prev/next arrows, above.
+const DRAG_HOVER_DELAY_MS = 500;
 const dayDragOver = ref<string | null>(null);
 let dayExpandTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -724,7 +1006,7 @@ function handleDayDragOver(day: string) {
   dayExpandTimeoutId = setTimeout(() => {
     toggleDayCollapsed(day);
     clearDayExpandTimer();
-  }, DAY_EXPAND_DELAY_MS);
+  }, DRAG_HOVER_DELAY_MS);
 }
 
 function handleDayDragLeave(day: string) {
@@ -754,6 +1036,7 @@ function handleDragEnd() {
   dragOverSlot.value = null;
   draggingMealId.value = null;
   clearDayExpandTimer();
+  clearDragHoverNavTimer();
 }
 
 function handleDragOver(event: DragEvent, day: string, meal: MealType) {
@@ -839,6 +1122,12 @@ function handleDraftsDrop(event: DragEvent) {
 const collapsedDays = ref<Set<string>>(new Set());
 
 function isDayCollapsed(day: string) {
+  // The day carousel only ever renders one day at a time - collapsing it
+  // too would leave nothing to look at (or drop a meal onto).
+  if (viewMode.value === "day") {
+    return false;
+  }
+
   return collapsedDays.value.has(day);
 }
 
