@@ -69,46 +69,47 @@
               </div>
 
               <template v-else>
-                <Transition
-                  mode="out-in"
-                  enter-active-class="transition duration-500 ease-out"
-                  enter-from-class="opacity-0"
-                  enter-to-class="opacity-100"
-                  leave-active-class="transition duration-300 ease-in"
-                  leave-from-class="opacity-100"
-                  leave-to-class="opacity-0"
+                <NuxtLink
+                  v-slot="{ href }"
+                  :to="`/recipes/${currentInspiration?.id}`"
+                  custom
                 >
-                  <NuxtLink
-                    v-slot="{ href }"
-                    :to="`/recipes/${currentInspiration?.id}`"
-                    custom
+                  <a
+                    :href="href"
+                    class="group relative block h-full w-full"
+                    @click="handleInspirationClick"
                   >
-                    <a
-                      :key="currentInspiration?.id"
-                      :href="href"
-                      class="group block h-full w-full"
-                      @click="handleInspirationClick"
+                    <Transition
+                      mode="out-in"
+                      enter-active-class="transition duration-700 ease-out"
+                      enter-from-class="opacity-0"
+                      enter-to-class="opacity-100"
+                      leave-active-class="transition duration-500 ease-in"
+                      leave-from-class="opacity-100"
+                      leave-to-class="opacity-0"
                     >
-                      <img
-                        :src="currentInspiration?.image"
-                        :alt="currentInspiration?.title"
-                        class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
-                      >
+                      <div :key="currentInspiration?.id" class="absolute inset-0">
+                        <img
+                          :src="currentInspiration?.image"
+                          :alt="currentInspiration?.title"
+                          class="h-full w-full object-cover [filter:saturate(1.1)_contrast(1.05)] transition duration-500 group-hover:scale-105"
+                        >
 
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
 
-                      <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
-                          Inspiraatio
-                        </p>
+                        <div class="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/80">
+                            Inspiraatio
+                          </p>
 
-                        <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
-                          {{ currentInspiration?.title }}
-                        </h2>
+                          <h2 class="mt-1 text-lg font-black leading-snug text-white md:text-xl">
+                            {{ currentInspiration?.title }}
+                          </h2>
+                        </div>
                       </div>
-                    </a>
-                  </NuxtLink>
-                </Transition>
+                    </Transition>
+                  </a>
+                </NuxtLink>
 
                 <button
                   type="button"
