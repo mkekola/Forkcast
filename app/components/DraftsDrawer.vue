@@ -398,9 +398,15 @@ watch(recipeSearchQuery, (query) => {
   isSearchingRecipes.value = true;
 
   recipeSearchDebounceId = setTimeout(async () => {
-    const results = await recipesApi.searchRecipes({ text: trimmed });
-    recipeSearchResults.value = results.slice(0, RECIPE_SEARCH_RESULT_LIMIT);
-    isSearchingRecipes.value = false;
+    try {
+      const { results } = await recipesApi.searchRecipes({
+        text: trimmed,
+        pageSize: RECIPE_SEARCH_RESULT_LIMIT,
+      });
+      recipeSearchResults.value = results;
+    } finally {
+      isSearchingRecipes.value = false;
+    }
   }, 300);
 });
 
