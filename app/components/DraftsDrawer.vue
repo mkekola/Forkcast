@@ -96,7 +96,16 @@
               @dragstart="handleDragStart($event, draft)"
               @dragend="handleDragEnd"
             >
-              <NuxtLink :to="`/recipes/${draft.recipeId}`" class="block">
+              <NuxtLink
+                v-slot="{ href }"
+                :to="`/recipes/${draft.recipeId}`"
+                custom
+              >
+              <a
+                :href="href"
+                class="block"
+                @click="(event) => openOnClick(event, draft.recipeId)"
+              >
                 <div class="relative">
                   <img
                     :src="draft.recipeImage"
@@ -134,6 +143,7 @@
                     {{ draft.category }}
                   </span>
                 </div>
+              </a>
               </NuxtLink>
 
               <div class="border-t border-fork-line bg-fork-card p-3">
@@ -223,10 +233,12 @@
 
 <script setup lang="ts">
 import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
+import { useRecipeModal } from "~/composables/useRecipeModal";
 
 const open = defineModel<boolean>("open", { default: false });
 
 const plannerStore = usePlannerStore();
+const { openOnClick } = useRecipeModal();
 
 function handleDragStart(event: DragEvent, draft: PlannedMeal) {
   if (!event.dataTransfer) {

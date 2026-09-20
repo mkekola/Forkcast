@@ -61,6 +61,7 @@
 
     <ShoppingListDrawer v-model:open="plannerStore.isShoppingListOpen" />
     <DraftsDrawer v-model:open="plannerStore.isDraftsOpen" />
+    <RecipeModal />
   </div>
 </template>
 

@@ -109,15 +109,22 @@
               >
                 <NuxtLink
                   v-for="plannedMeal in getDayPlannedMeals(day.value)"
+                  v-slot="{ href }"
                   :key="plannedMeal.id"
                   :to="`/recipes/${plannedMeal.recipeId}`"
-                  :title="plannedMeal.recipeName"
+                  custom
                 >
-                  <img
-                    :src="plannedMeal.recipeImage"
-                    :alt="plannedMeal.recipeName"
-                    class="h-10 w-10 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                  <a
+                    :href="href"
+                    :title="plannedMeal.recipeName"
+                    @click="(event) => openOnClick(event, plannedMeal.recipeId)"
                   >
+                    <img
+                      :src="plannedMeal.recipeImage"
+                      :alt="plannedMeal.recipeName"
+                      class="h-10 w-10 rounded-full border-2 border-fork-card object-cover shadow-sm"
+                    >
+                  </a>
                 </NuxtLink>
 
                 <span
@@ -188,8 +195,14 @@
                   @dragend="handleDragEnd"
                 >
                   <NuxtLink
+                    v-slot="{ href }"
                     :to="`/recipes/${plannedMeal.recipeId}`"
+                    custom
+                  >
+                  <a
+                    :href="href"
                     class="block rounded-2xl transition hover:bg-fork-bg"
+                    @click="(event) => openOnClick(event, plannedMeal.recipeId)"
                   >
                     <div class="relative">
                       <img
@@ -250,6 +263,7 @@
                         {{ plannedMeal.category }}
                       </span>
                     </div>
+                  </a>
                   </NuxtLink>
 
                   <div
@@ -379,8 +393,10 @@
 
 <script setup lang="ts">
 import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
+import { useRecipeModal } from "~/composables/useRecipeModal";
 
 const plannerStore = usePlannerStore();
+const { openOnClick } = useRecipeModal();
 
 useSeoMeta({
   title: "Viikkosuunnitelma · Forkcast",

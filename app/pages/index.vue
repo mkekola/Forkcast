@@ -68,8 +68,14 @@
 
               <template v-else>
                 <NuxtLink
+                  v-slot="{ href }"
                   :to="`/recipes/${currentInspiration?.id}`"
+                  custom
+                >
+                <a
+                  :href="href"
                   class="group block h-full w-full"
+                  @click="handleInspirationClick"
                 >
                   <img
                     :src="currentInspiration?.image"
@@ -88,6 +94,7 @@
                       {{ currentInspiration?.title }}
                     </h2>
                   </div>
+                </a>
                 </NuxtLink>
 
                 <button
@@ -281,6 +288,7 @@ import {
   type RecipeSearchResult,
 } from "~/composables/useRecipesApi";
 import { usePlannerStore } from "~/stores/planner";
+import { useRecipeModal } from "~/composables/useRecipeModal";
 
 const route = useRoute();
 const router = useRouter();
@@ -387,6 +395,14 @@ const inspirationIndex = ref(0);
 const currentInspiration = computed(
   () => inspirationRecipes.value[inspirationIndex.value] ?? null,
 );
+
+const { openOnClick } = useRecipeModal();
+
+function handleInspirationClick(event: MouseEvent) {
+  if (currentInspiration.value) {
+    openOnClick(event, currentInspiration.value.id);
+  }
+}
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
