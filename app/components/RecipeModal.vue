@@ -33,7 +33,7 @@
           role="dialog"
           aria-modal="true"
           tabindex="-1"
-          class="relative mx-auto w-full max-w-3xl rounded-[2rem] bg-fork-bg p-6 shadow-2xl sm:p-10"
+          class="relative mx-auto w-full max-w-5xl rounded-[2rem] bg-fork-bg p-6 shadow-2xl sm:p-10"
           @keydown.esc="close"
         >
           <button
