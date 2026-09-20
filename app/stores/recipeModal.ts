@@ -43,14 +43,7 @@ export const useRecipeModalStore = defineStore("recipeModal", () => {
     const targetScrollY = scrollYBeforeOpen;
     scrollYBeforeOpen = null;
 
-    // Vue Router's own popstate handling resets the scroll position right
-    // after this runs (it doesn't know a modal was involved) - reapplying a
-    // frame later means ours is the one that sticks.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, targetScrollY);
-      });
-    });
+    window.scrollTo({ top: targetScrollY, left: 0, behavior: "instant" });
   }
 
   // Used by the modal's own close button/backdrop click, as opposed to the

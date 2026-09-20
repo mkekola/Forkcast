@@ -685,7 +685,19 @@ const { data, pending, error } = await useAsyncData(
     });
   },
   {
-    watch: [effectiveCategories, effectiveArea, effectiveText, currentPage],
+    // effectiveCategories/effectiveArea return a *new* array every time
+    // they're evaluated, even when its contents are unchanged, and watch()
+    // compares array sources by reference - so watching them directly
+    // re-ran this fetch (flashing the grid to its pending/skeleton state
+    // and back) on any route resolution at all, including the recipe
+    // popup's history.back()-driven one, which never actually changes
+    // these filters. Watch stable string keys instead.
+    watch: [
+      () => effectiveCategories.value.join(","),
+      () => effectiveArea.value?.join(",") ?? "",
+      effectiveText,
+      currentPage,
+    ],
   },
 );
 
