@@ -99,67 +99,75 @@
               Ei reseptejä haulla "{{ recipeSearchQuery }}".
             </p>
 
-            <div
+            <NuxtLink
               v-for="result in recipeSearchResults"
+              v-slot="{ href }"
               :key="result.id"
-              class="flex items-center gap-3 rounded-2xl bg-fork-bg p-2"
+              :to="`/recipes/${result.id}`"
+              custom
             >
-              <img
-                :src="result.image"
-                :alt="result.title"
-                class="h-12 w-12 shrink-0 rounded-xl object-cover"
+              <a
+                :href="href"
+                class="flex items-center gap-3 rounded-2xl bg-fork-bg p-2 transition hover:bg-fork-card"
+                @click="(event) => openOnClick(event, result.id)"
               >
-
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-bold text-fork-ink">
-                  {{ result.title }}
-                </p>
-
-                <p class="text-xs text-fork-muted">
-                  {{ translateCategory(result.category) }}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition"
-                :class="
-                  isRecipeDraft(result.id)
-                    ? 'border-fork-clay bg-fork-clay text-white'
-                    : 'border-fork-line bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
-                "
-                :aria-label="
-                  isRecipeDraft(result.id)
-                    ? `Poista ${result.title} luonnoksista`
-                    : `Lisää ${result.title} luonnoksiin`
-                "
-                @click="toggleRecipeDraft(result)"
-              >
-                <svg
-                  v-if="isRecipeDraft(result.id)"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  class="h-4 w-4"
+                <img
+                  :src="result.image"
+                  :alt="result.title"
+                  class="h-12 w-12 shrink-0 rounded-xl object-cover"
                 >
-                  <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
-                </svg>
 
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-bold text-fork-ink">
+                    {{ result.title }}
+                  </p>
+
+                  <p class="text-xs text-fork-muted">
+                    {{ translateCategory(result.category) }}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition"
+                  :class="
+                    isRecipeDraft(result.id)
+                      ? 'border-fork-clay bg-fork-clay text-white'
+                      : 'border-fork-line bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
+                  "
+                  :aria-label="
+                    isRecipeDraft(result.id)
+                      ? `Poista ${result.title} luonnoksista`
+                      : `Lisää ${result.title} luonnoksiin`
+                  "
+                  @click.prevent.stop="toggleRecipeDraft(result)"
                 >
-                  <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    v-if="isRecipeDraft(result.id)"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="h-4 w-4"
+                  >
+                    <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+                  </svg>
+
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-4 w-4"
+                  >
+                    <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+                  </svg>
+                </button>
+              </a>
+            </NuxtLink>
           </div>
         </div>
 
