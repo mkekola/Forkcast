@@ -216,6 +216,27 @@
                         <button
                           type="button"
                           class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-fork-clay shadow-sm backdrop-blur transition hover:bg-fork-clay-soft focus:outline-none focus:ring-2 focus:ring-fork-clay"
+                          :aria-label="`Kopioi ${plannedMeal.recipeName} samaan kohtaan`"
+                          @click.prevent.stop="copyMeal(plannedMeal)"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="h-3.5 w-3.5"
+                          >
+                            <rect x="9" y="9" width="12" height="12" rx="2" />
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-fork-clay shadow-sm backdrop-blur transition hover:bg-fork-clay-soft focus:outline-none focus:ring-2 focus:ring-fork-clay"
                           :aria-label="`Siirrä ${plannedMeal.recipeName} toiseen ajankohtaan`"
                           @click.prevent.stop="startMovingMeal(plannedMeal.id)"
                         >
@@ -430,6 +451,22 @@ function getMoveSelection(plannedMealId: string, currentDay: string, currentMeal
   }
 
   return moveSelections[plannedMealId];
+}
+
+// A copy button next to the drag handle, since holding ctrl/cmd while
+// dropping (the drag-and-drop way to copy instead of move) isn't something
+// most people would think to try. Copies into the same slot so it can then
+// be dragged wherever it should actually go.
+function copyMeal(plannedMeal: PlannedMeal) {
+  plannerStore.addMeal({
+    day: plannedMeal.day,
+    meal: plannedMeal.meal,
+    recipeId: plannedMeal.recipeId,
+    recipeName: plannedMeal.recipeName,
+    recipeImage: plannedMeal.recipeImage,
+    category: plannedMeal.category,
+    ingredients: plannedMeal.ingredients,
+  });
 }
 
 function startMovingMeal(plannedMealId: string) {
