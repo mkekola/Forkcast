@@ -59,6 +59,94 @@
           </button>
         </div>
 
+        <div class="border-b border-fork-line px-6 py-4">
+          <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-fork-muted">
+            Lisää resepti luonnoksiin
+          </label>
+
+          <input
+            v-model="recipeSearchQuery"
+            type="search"
+            placeholder="Hae kaikista resepteistä…"
+            class="w-full rounded-full border border-fork-line bg-fork-bg px-4 py-2 text-sm outline-none placeholder:text-fork-muted focus:border-fork-ink"
+          >
+
+          <div v-if="recipeSearchQuery.trim()" class="mt-3 max-h-64 space-y-2 overflow-y-auto">
+            <p v-if="isSearchingRecipes" class="text-sm text-fork-muted">
+              Haetaan…
+            </p>
+
+            <p
+              v-else-if="recipeSearchResults.length === 0"
+              class="text-sm text-fork-muted"
+            >
+              Ei reseptejä haulla "{{ recipeSearchQuery }}".
+            </p>
+
+            <div
+              v-for="result in recipeSearchResults"
+              :key="result.id"
+              class="flex items-center gap-3 rounded-2xl bg-fork-bg p-2"
+            >
+              <img
+                :src="result.image"
+                :alt="result.title"
+                class="h-12 w-12 shrink-0 rounded-xl object-cover"
+              >
+
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-bold text-fork-ink">
+                  {{ result.title }}
+                </p>
+
+                <p class="text-xs text-fork-muted">
+                  {{ translateCategory(result.category) }}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition"
+                :class="
+                  isRecipeDraft(result.id)
+                    ? 'border-fork-clay bg-fork-clay text-white'
+                    : 'border-fork-line bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
+                "
+                :aria-label="
+                  isRecipeDraft(result.id)
+                    ? `Poista ${result.title} luonnoksista`
+                    : `Lisää ${result.title} luonnoksiin`
+                "
+                @click="toggleRecipeDraft(result)"
+              >
+                <svg
+                  v-if="isRecipeDraft(result.id)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="h-4 w-4"
+                >
+                  <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+                </svg>
+
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                >
+                  <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div
           v-if="plannerStore.getDrafts().length > 0"
           class="border-b border-fork-line px-6 py-3"
@@ -224,10 +312,13 @@
 <script setup lang="ts">
 import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
 import { useRecipeModal } from "~/composables/useRecipeModal";
+import { useRecipesApi, type RecipeSearchResult } from "~/composables/useRecipesApi";
+import { translateCategory } from "~/utils/translations";
 
 const open = defineModel<boolean>("open", { default: false });
 
 const plannerStore = usePlannerStore();
+const recipesApi = useRecipesApi();
 const { openOnClick } = useRecipeModal();
 
 function handleDragStart(event: DragEvent, draft: PlannedMeal) {
@@ -246,6 +337,62 @@ function handleDragEnd() {
 
 const panelRef = ref<HTMLElement | null>(null);
 const searchQuery = ref("");
+
+// Searches every recipe, not just existing drafts, so a recipe can be added
+// straight from here instead of having to browse to its page first.
+const recipeSearchQuery = ref("");
+const recipeSearchResults = ref<RecipeSearchResult[]>([]);
+const isSearchingRecipes = ref(false);
+const RECIPE_SEARCH_RESULT_LIMIT = 30;
+let recipeSearchDebounceId: ReturnType<typeof setTimeout> | null = null;
+
+watch(recipeSearchQuery, (query) => {
+  if (recipeSearchDebounceId !== null) {
+    clearTimeout(recipeSearchDebounceId);
+  }
+
+  const trimmed = query.trim();
+
+  if (!trimmed) {
+    recipeSearchResults.value = [];
+    isSearchingRecipes.value = false;
+    return;
+  }
+
+  isSearchingRecipes.value = true;
+
+  recipeSearchDebounceId = setTimeout(async () => {
+    const results = await recipesApi.searchRecipes({ text: trimmed });
+    recipeSearchResults.value = results.slice(0, RECIPE_SEARCH_RESULT_LIMIT);
+    isSearchingRecipes.value = false;
+  }, 300);
+});
+
+function isRecipeDraft(recipeId: string) {
+  return plannerStore.getDrafts().some((draft) => draft.recipeId === recipeId);
+}
+
+async function toggleRecipeDraft(result: RecipeSearchResult) {
+  const existingDraft = plannerStore.getDrafts().find((draft) => draft.recipeId === result.id);
+
+  if (existingDraft) {
+    plannerStore.removeMeal(existingDraft.id);
+    return;
+  }
+
+  const details = await recipesApi.getRecipeById(result.id);
+
+  plannerStore.addDraft({
+    recipeId: result.id,
+    recipeName: result.title,
+    recipeImage: result.image,
+    category: translateCategory(result.category),
+    ingredients: details?.recipe_ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      measure: ingredient.measure ?? "",
+    })),
+  });
+}
 
 const filteredDrafts = computed(() => {
   const drafts = plannerStore.getDrafts();
@@ -299,6 +446,7 @@ watch(open, (isOpen) => {
     nextTick(() => panelRef.value?.focus());
   } else {
     searchQuery.value = "";
+    recipeSearchQuery.value = "";
   }
 });
 
