@@ -1,6 +1,6 @@
 <template>
-  <main class="min-h-screen bg-fork-bg text-fork-ink">
-    <section class="mx-auto flex min-h-screen max-w-6xl flex-col px-6 pb-24 pt-10 sm:pb-10">
+  <main class="min-h-screen bg-fork-bg px-6 pb-24 pt-10 text-fork-ink sm:pb-10">
+    <section class="mx-auto max-w-6xl">
       <AppHeader />
 
       <section class="py-14 md:py-20">
