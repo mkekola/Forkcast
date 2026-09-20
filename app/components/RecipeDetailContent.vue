@@ -92,6 +92,43 @@
             {{ isFavorite ? "Suosikeissa" : "Lisää suosikkeihin" }}
           </button>
 
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-bold shadow-sm transition hover:scale-105"
+            :class="
+              isDraft
+                ? 'border-fork-clay bg-fork-clay text-white shadow-fork-clay/20'
+                : 'border-fork-clay-soft bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
+            "
+            @click="toggleDraft"
+          >
+            <svg
+              v-if="isDraft"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="h-5 w-5"
+            >
+              <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+            </svg>
+
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-5 w-5"
+            >
+              <path d="M6 3.75h12a.75.75 0 01.75.75v16.5l-6.75-4-6.75 4V4.5a.75.75 0 01.75-.75z" />
+            </svg>
+
+            {{ isDraft ? "Luonnoksissa" : "Lisää luonnoksiin" }}
+          </button>
+
           <NuxtLink
             v-if="youtubeLink"
             :to="youtubeLink"
@@ -222,19 +259,6 @@
               Lisää viikkoon
             </button>
 
-            <button
-              type="button"
-              class="rounded-full border px-6 py-3 text-sm font-bold transition"
-              :class="
-                isDraft
-                  ? 'border-fork-clay bg-fork-clay text-white'
-                  : 'border-fork-line text-stone-700 hover:border-fork-ink hover:text-fork-ink'
-              "
-              @click="toggleDraft"
-            >
-              {{ isDraft ? "Luonnoksissa" : "Lisää luonnoksiin" }}
-            </button>
-
             <NuxtLink
               v-if="addedTo"
               to="/planner"
@@ -245,17 +269,10 @@
           </div>
 
           <p
-            v-if="addedTo === 'assigned'"
+            v-if="addedTo"
             class="mt-4 text-sm font-semibold text-fork-clay"
           >
             Lisätty viikkosuunnitelmaan!
-          </p>
-
-          <p
-            v-else-if="addedTo === 'draft'"
-            class="mt-4 text-sm font-semibold text-fork-clay"
-          >
-            Lisätty luonnoksiin!
           </p>
         </div>
       </div>
@@ -441,11 +458,6 @@ function toggleDraft() {
 
   if (existingDraft) {
     plannerStore.removeMeal(existingDraft.id);
-
-    if (addedTo.value === "draft") {
-      addedTo.value = null;
-    }
-
     return;
   }
 
@@ -456,8 +468,6 @@ function toggleDraft() {
     category: translatedCategory.value,
     ingredients: ingredients.value,
   });
-
-  addedTo.value = "draft";
 }
 
 function toggleFavorite() {
