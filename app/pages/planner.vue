@@ -65,7 +65,6 @@
                       >
                         <a
                           :href="href"
-                          :title="draft.recipeName"
                           draggable="true"
                           class="block cursor-grab active:cursor-grabbing"
                           @click="(event) => openOnClick(event, draft.recipeId)"
