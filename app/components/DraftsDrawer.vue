@@ -34,6 +34,22 @@
         class="fixed inset-y-0 left-0 z-50 flex w-full flex-col bg-fork-card shadow-2xl sm:max-w-md sm:rounded-r-[2rem]"
         @keydown.esc="open = false"
       >
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 translate-y-2"
+        >
+          <div
+            v-if="removedToast"
+            class="absolute inset-x-6 bottom-5 z-10 rounded-2xl bg-fork-ink px-4 py-3 text-center text-sm font-bold text-white shadow-lg"
+          >
+            {{ removedToast }}
+          </div>
+        </Transition>
+
         <div class="flex items-center justify-between border-b border-fork-line px-6 py-5">
           <h2 id="drafts-heading" class="text-xl font-black">Luonnokset</h2>
 
@@ -205,7 +221,7 @@
                     type="button"
                     class="absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full bg-fork-card/90 text-red-600 shadow-sm backdrop-blur transition hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
                     :aria-label="`Poista ${draft.recipeName} luonnoksista`"
-                    @click.prevent.stop="plannerStore.removeMeal(draft.id)"
+                    @click.prevent.stop="removeDraft(draft)"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -338,6 +354,26 @@ function handleDragEnd() {
 const panelRef = ref<HTMLElement | null>(null);
 const searchQuery = ref("");
 
+// Removing a draft used to ask for confirmation first; now that it doesn't,
+// a brief toast makes it obvious the click actually removed something
+// instead of the card just silently vanishing.
+const REMOVED_TOAST_DURATION_MS = 2000;
+const removedToast = ref<string | null>(null);
+let removedToastTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+function removeDraft(draft: PlannedMeal) {
+  plannerStore.removeMeal(draft.id);
+
+  if (removedToastTimeoutId !== null) {
+    clearTimeout(removedToastTimeoutId);
+  }
+
+  removedToast.value = `${draft.recipeName} poistettu luonnoksista`;
+  removedToastTimeoutId = setTimeout(() => {
+    removedToast.value = null;
+  }, REMOVED_TOAST_DURATION_MS);
+}
+
 // Searches every recipe, not just existing drafts, so a recipe can be added
 // straight from here instead of having to browse to its page first.
 const recipeSearchQuery = ref("");
@@ -447,6 +483,7 @@ watch(open, (isOpen) => {
   } else {
     searchQuery.value = "";
     recipeSearchQuery.value = "";
+    removedToast.value = null;
   }
 });
 
@@ -468,6 +505,10 @@ watch(
 onBeforeUnmount(() => {
   if (import.meta.client) {
     document.body.style.overflow = "";
+  }
+
+  if (removedToastTimeoutId !== null) {
+    clearTimeout(removedToastTimeoutId);
   }
 });
 </script>
