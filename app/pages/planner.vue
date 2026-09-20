@@ -15,7 +15,9 @@
         </h1>
 
         <p class="mt-4 max-w-2xl leading-7 text-fork-muted">
-          Lisää reseptejä viikkoon reseptien omilta sivuilta.
+          Lisää reseptejä viikkoon resepteistä tai luonnoksista, ja raahaa ne
+          haluamaasi päivään ja ateriaan. Luonnoksen voi pudottaa myös
+          suoraan tyhjän päivän päälle.
         </p>
 
         <div v-if="hasPlannedMeals" class="mt-6">
@@ -351,9 +353,22 @@
 
               <div
                 v-else
-                class="mt-3 rounded-2xl border border-dashed border-fork-line p-5 text-center text-sm text-fork-muted"
+                class="mt-3 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-fork-line p-5 text-center text-sm text-fork-muted"
               >
-                Tyhjä
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" />
+                </svg>
+                Raahaa resepti tähän
               </div>
             </section>
           </div>
