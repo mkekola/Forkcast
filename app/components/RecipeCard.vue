@@ -49,7 +49,7 @@
               type="button"
               class="flex h-12 w-12 items-center justify-center rounded-full border backdrop-blur transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-fork-clay focus:ring-offset-2"
               :class="
-                isDraft || justAddedDraft
+                isDraft
                   ? 'border-fork-clay bg-fork-clay text-white'
                   : 'border-white bg-fork-card text-fork-clay hover:bg-fork-clay-soft'
               "
@@ -58,21 +58,7 @@
               @mousedown.stop
             >
               <svg
-                v-if="justAddedDraft"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-6 w-6"
-              >
-                <path d="M5 12l5 5L19 7" />
-              </svg>
-
-              <svg
-                v-else-if="isDraft"
+                v-if="isDraft"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -189,7 +175,6 @@ const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
 const isDraft = computed(() =>
   plannerStore.getDrafts().some((draft) => draft.recipeId === props.recipe.id),
 );
-const justAddedDraft = ref(false);
 const isImageLoaded = ref(false);
 
 onMounted(() => {
@@ -210,11 +195,6 @@ async function toggleDraft() {
     plannerStore.removeMeal(existingDraft.id);
     return;
   }
-
-  justAddedDraft.value = true;
-  setTimeout(() => {
-    justAddedDraft.value = false;
-  }, 1200);
 
   const details = await recipesApi.getRecipeById(props.recipe.id);
 
