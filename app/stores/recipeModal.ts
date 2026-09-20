@@ -5,9 +5,22 @@
 export const useRecipeModalStore = defineStore("recipeModal", () => {
   const openRecipeId = ref<string | null>(null);
 
+  // Vue Router normally saves the current scroll position into the history
+  // entry's state right before it navigates away, so the back button can
+  // restore it. Opening the modal navigates via a raw pushState instead (to
+  // avoid actually leaving the underlying page/route), which Vue Router
+  // never sees - so it never saves that scroll position, and going back
+  // lands at the top instead of where the user was. Save and restore it
+  // ourselves to work around that.
+  let scrollYBeforeOpen: number | null = null;
+
   function open(recipeId: string) {
     if (openRecipeId.value === recipeId) {
       return;
+    }
+
+    if (openRecipeId.value === null && import.meta.client) {
+      scrollYBeforeOpen = window.scrollY;
     }
 
     openRecipeId.value = recipeId;
@@ -19,6 +32,25 @@ export const useRecipeModalStore = defineStore("recipeModal", () => {
 
   function close() {
     openRecipeId.value = null;
+    restoreScroll();
+  }
+
+  function restoreScroll() {
+    if (!import.meta.client || scrollYBeforeOpen === null) {
+      return;
+    }
+
+    const targetScrollY = scrollYBeforeOpen;
+    scrollYBeforeOpen = null;
+
+    // Vue Router's own popstate handling resets the scroll position right
+    // after this runs (it doesn't know a modal was involved) - reapplying a
+    // frame later means ours is the one that sticks.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, targetScrollY);
+      });
+    });
   }
 
   // Used by the modal's own close button/backdrop click, as opposed to the
