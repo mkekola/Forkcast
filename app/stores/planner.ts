@@ -327,6 +327,36 @@ export const usePlannerStore = defineStore("planner", () => {
     }
   }
 
+  // Same as clearPlanner, but scoped to one day - for the day-carousel
+  // view's "clear this day" action. Leaves checkedShoppingItems alone since
+  // other days' meals (and their ingredients) may still be in the list.
+  async function clearDay(day: string) {
+    const dayMealIds = plannedMeals.value
+      .filter((plannedMeal) => plannedMeal.day === day && plannedMeal.meal)
+      .map((plannedMeal) => plannedMeal.id);
+
+    if (dayMealIds.length === 0) {
+      return;
+    }
+
+    plannedMeals.value = plannedMeals.value.filter(
+      (plannedMeal) => !dayMealIds.includes(plannedMeal.id),
+    );
+
+    const supabase = useSupabaseClient();
+    const userId = await useCurrentUserId();
+
+    const { error } = await supabase
+      .from("planned_meals")
+      .delete()
+      .eq("user_id", userId)
+      .in("id", dayMealIds);
+
+    if (error) {
+      console.error("Failed to clear day", error);
+    }
+  }
+
   return {
     plannedMeals,
     checkedShoppingItems,
@@ -344,6 +374,7 @@ export const usePlannerStore = defineStore("planner", () => {
     isShoppingItemChecked,
     toggleShoppingItem,
     clearPlanner,
+    clearDay,
     shoppingList,
   };
 });

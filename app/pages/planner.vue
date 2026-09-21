@@ -555,24 +555,32 @@
         </div>
       </section>
 
-      <div v-if="hasPlannedMeals" class="mt-6 flex flex-col items-end">
+      <div v-if="showClearButton" class="mt-6 flex flex-col items-end">
         <button
           type="button"
           class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-700 transition hover:border-red-300 hover:bg-red-100"
-          @click="askToClearWeek"
+          @click="askToClear"
         >
-          Tyhjennä viikko
+          {{ viewMode === "day" ? `Tyhjennä ${currentDayLabel}` : "Tyhjennä viikko" }}
         </button>
 
         <ConfirmInline
-          v-if="pendingClearWeek"
-          ref="clearWeekConfirmRef"
+          v-if="pendingClear"
+          ref="clearConfirmRef"
           class="mt-3 max-w-md"
-          title="Tyhjennetäänkö koko viikko?"
-          description="Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit."
+          :title="
+            viewMode === 'day'
+              ? `Tyhjennetäänkö ${currentDayLabel}?`
+              : 'Tyhjennetäänkö koko viikko?'
+          "
+          :description="
+            viewMode === 'day'
+              ? 'Tämä poistaa tälle päivälle lisätyt reseptit.'
+              : 'Tämä poistaa kaikki viikkosuunnitelmaan lisätyt reseptit.'
+          "
           confirm-label="Tyhjennä"
-          @confirm="confirmClearWeek"
-          @cancel="cancelClearWeek"
+          @confirm="confirmClear"
+          @cancel="cancelClear"
         />
       </div>
     </section>
@@ -593,8 +601,8 @@ useSeoMeta({
   description: "Suunnittele viikon ateriat ja muodosta ostoslista Forkcastissa.",
 });
 
-const pendingClearWeek = ref(false);
-const clearWeekConfirmRef = ref<{ el?: HTMLElement | null } | null>(null);
+const pendingClear = ref(false);
+const clearConfirmRef = ref<{ el?: HTMLElement | null } | null>(null);
 
 const pendingRemovalId = ref<string | null>(null);
 
@@ -767,6 +775,8 @@ const currentDayIndex = ref(0);
 const visibleDays = computed(() => {
   return viewMode.value === "day" ? [days[currentDayIndex.value]] : days;
 });
+
+const currentDayLabel = computed(() => days[currentDayIndex.value].label.toLowerCase());
 
 // Which way the day card should slide - set right before currentDayIndex
 // changes, so the TransitionGroup below already has the right enter/leave
@@ -1110,20 +1120,35 @@ function confirmRemoveMeal(plannedMealId: string) {
   pendingRemovalId.value = null;
 }
 
-function askToClearWeek() {
-  pendingClearWeek.value = true;
+// In day view, "clear" only affects the currently shown day; in week view
+// it's the whole plan, same as before.
+const showClearButton = computed(() => {
+  if (viewMode.value === "day") {
+    return getDayPlannedMeals(days[currentDayIndex.value].value).length > 0;
+  }
+
+  return hasPlannedMeals.value;
+});
+
+function askToClear() {
+  pendingClear.value = true;
 
   nextTick(() => {
-    clearWeekConfirmRef.value?.el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    clearConfirmRef.value?.el?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 }
 
-function cancelClearWeek() {
-  pendingClearWeek.value = false;
+function cancelClear() {
+  pendingClear.value = false;
 }
 
-function confirmClearWeek() {
-  plannerStore.clearPlanner();
-  pendingClearWeek.value = false;
+function confirmClear() {
+  if (viewMode.value === "day") {
+    plannerStore.clearDay(days[currentDayIndex.value].value);
+  } else {
+    plannerStore.clearPlanner();
+  }
+
+  pendingClear.value = false;
 }
 </script>
