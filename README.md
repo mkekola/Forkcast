@@ -14,16 +14,17 @@ Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellu
 
 ## Ominaisuudet
 
-- Reseptien haku TheMealDB-rajapinnasta
-- Suomenkieliset hakusanat ja pikahaut
-- Reseptien kategorioiden ja alueiden käännökset suomeksi
-- Reseptin tarkempi näkymä aineksilla ja valmistusohjeilla
+- 790 reseptiä, kokonaan suomeksi (otsikot, ohjeet, ainesosat ja mittayksiköt)
+- Vapaa tekstihaku reseptin nimellä sekä suomenkieliset pikahaut/hakusanat
+- Kategoriapohjainen suodatus (esim. "Kana" + "Pasta"), joka perustuu reseptin oikeisiin ainesosiin, ei vain otsikkoon
+- Reseptin tarkempi näkymä ponnahdusikkunana tai omalla sivullaan, aineksilla ja valmistusohjeilla
 - Reseptien tallentaminen suosikkeihin
-- Reseptien lisääminen viikkosuunnitelmaan
-- Useamman reseptin lisääminen samaan ateriaslottiin
-- Ostoslistan muodostaminen suunnitelluista resepteistä
+- Reseptien lisääminen luonnoksiin ja sieltä raahaaminen viikkosuunnitelman päivälle/aterialle
+- Viikko- ja päivänäkymä suunnitelmalle, sekä koko viikon tai yksittäisen päivän tyhjennys
+- Ostoslistan muodostaminen suunnitelluista resepteistä, ryhmiteltynä kategorioihin (proteiinit, maitotuotteet, jne.)
+- Ostoslistan kopiointi leikepöydälle ja lataus tiedostona
 - Ostoslistan tuotteiden merkitseminen tehdyksi
-- Suosikkien, viikkosuunnitelman ja ostoslistan tilan tallennus selaimen localStorageen
+- Suosikkien, viikkosuunnitelman ja ostoslistan tila tallennettuna Supabaseen, sidottuna selaimen anonyymiin kirjautumiseen
 - Satunnainen resepti inspiraatiokortista
 
 ## Teknologiat
@@ -33,18 +34,20 @@ Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellu
 - TypeScript
 - Tailwind CSS
 - Pinia
-- TheMealDB API
-- Vitest
+- Supabase (Postgres-tietokanta, autentikointi, reaaliaikainen REST-rajapinta)
+- Vitest + Vue Test Utils
 - ESLint
 
 ## Arkkitehtuuri
 
 Koodi on jaoteltu vastuualueittain, jotta sivut pysyvät kevyinä ja logiikka on testattavissa erillään käyttöliittymästä:
 
-- `app/composables/` — `useMealDbApi` kokoaa kaiken TheMealDB-rajapinnan tuntemisen yhteen paikkaan, jotta sivut eivät rakenna API-osoitteita itse
-- `app/types/` — jaetut TypeScript-tyypit sekä rajapinnan datalle (`mealdb.ts`) että sovelluksen omalle näyttömallille (`recipe.ts`)
-- `app/stores/` — Pinia-storet (`favorites`, `planner`), jotka sisältävät myös niistä johdetun tilan, kuten ostoslistan kokoamisen
-- `test/` — Vitest-testit puhtaalle logiikalle (käännökset, ostoslistan koostaminen)
+- `app/composables/` — `useRecipesApi` kokoaa kaiken reseptihaun ja -yksityiskohdat yhteen paikkaan; `useRecipeModal` ja `useBodyScrollLock` jaettua ponnahdusikkunalogiikkaa; `useCurrentUserId` anonyymin käyttäjän tunnisteen hakuun
+- `app/types/` — jaetut TypeScript-tyypit sekä Supabasen tietokantaskeemalle (`database.types.ts`) että sovelluksen omalle näyttömallille (`recipe.ts`)
+- `app/stores/` — Pinia-storet (`favorites`, `planner`, `recipeModal`), jotka sisältävät myös niistä johdetun tilan, kuten ostoslistan kokoamisen
+- `app/plugins/` — anonyymi Supabase-kirjautuminen, ponnahdusikkunan selainhistoria-integraatio ja kosketuslaitteiden raahaustuki
+- `supabase/migrations/` — tietokantaskeema: reseptit, suosikit, viikkosuunnitelma, kategoriapohjainen haku ja suomenkielinen tekstihaku
+- `test/` — Vitest-testit puhtaalle logiikalle (käännökset, ostoslistan koostaminen, storet) ja Vue Test Utils -komponenttitestit keskeisimmille käyttöliittymäosille
 
 ## Käyttöönotto
 
@@ -52,6 +55,12 @@ Asenna riippuvuudet:
 
 ```bash
 npm install
+```
+
+Kopioi `.env.example` tiedostoksi `.env` ja täytä oman Supabase-projektisi osoite ja anon-avain (Project Settings → API):
+
+```bash
+cp .env.example .env
 ```
 
 Käynnistä kehityspalvelin:
@@ -69,6 +78,6 @@ npm run lint    # ESLint
 npm run test    # Vitest
 ```
 
-### Rajapinta
+### Tietokanta
 
-Reseptidata haetaan [TheMealDB](https://www.themealdb.com/api.php) -rajapinnasta.
+Reseptit, suosikit, viikkosuunnitelma ja ostoslistan tila ovat Supabase-tietokannassa. Skeema ja siihen tehdyt muutokset löytyvät numeroituina tiedostoina hakemistosta `supabase/migrations/` — ne ajetaan järjestyksessä Supabasen SQL-editorista. Alkuperäinen reseptidata on tuotu kertaluontoisesti [TheMealDB](https://www.themealdb.com/api.php) -rajapinnasta ja käännetty suomeksi; sovellus itse ei enää kutsu TheMealDB:tä ajonaikaisesti.
