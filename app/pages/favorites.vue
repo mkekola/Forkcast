@@ -1,5 +1,21 @@
 <template>
   <main class="min-h-screen bg-fork-bg px-6 pb-24 pt-10 text-fork-ink sm:pb-10">
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-2"
+    >
+      <div
+        v-if="removedToast"
+        class="fixed inset-x-0 bottom-6 z-50 mx-auto w-fit max-w-xs rounded-2xl bg-fork-ink px-4 py-3 text-center text-sm font-bold text-white shadow-lg"
+      >
+        {{ removedToast }}
+      </div>
+    </Transition>
+
     <section class="mx-auto max-w-6xl">
       <AppHeader />
 
@@ -68,6 +84,7 @@
           v-for="recipe in favoritesStore.favorites"
           :key="recipe.id"
           :recipe="recipe"
+          @favorite-removed="handleFavoriteRemoved"
         />
       </div>
 
@@ -210,8 +227,31 @@ function refreshSuggestions() {
   suggestedRecipes.value = shuffled(suggestionPool.value).slice(0, SUGGESTION_COUNT);
 }
 
+// Same brief toast pattern as removing a draft, so it's obvious the click
+// actually removed something instead of the card just silently vanishing.
+const REMOVED_TOAST_DURATION_MS = 2000;
+const removedToast = ref<string | null>(null);
+let removedToastTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+function handleFavoriteRemoved(recipe: Recipe) {
+  if (removedToastTimeoutId !== null) {
+    clearTimeout(removedToastTimeoutId);
+  }
+
+  removedToast.value = `${recipe.title} poistettu suosikeista`;
+  removedToastTimeoutId = setTimeout(() => {
+    removedToast.value = null;
+  }, REMOVED_TOAST_DURATION_MS);
+}
+
 onMounted(async () => {
   await favoritesStore.loadFavorites();
   await loadSuggestions();
+});
+
+onBeforeUnmount(() => {
+  if (removedToastTimeoutId !== null) {
+    clearTimeout(removedToastTimeoutId);
+  }
 });
 </script>

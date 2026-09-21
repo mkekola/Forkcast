@@ -166,6 +166,11 @@ const props = defineProps<{
   recipe: Recipe;
 }>();
 
+// Only fires when a favorite is actively removed (not added), so the
+// favorites page can show a "removed" toast without needing to diff the
+// store's list itself.
+const emit = defineEmits<{ "favorite-removed": [recipe: Recipe] }>();
+
 const favoritesStore = useFavoritesStore();
 const plannerStore = usePlannerStore();
 const recipesApi = useRecipesApi();
@@ -178,7 +183,12 @@ const isDraft = computed(() =>
 const isImageLoaded = ref(false);
 
 function toggleFavorite() {
+  const wasFavorite = isFavorite.value;
   favoritesStore.toggleFavorite(props.recipe);
+
+  if (wasFavorite) {
+    emit("favorite-removed", props.recipe);
+  }
 }
 
 async function toggleDraft() {
