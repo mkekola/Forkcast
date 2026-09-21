@@ -1,5 +1,7 @@
 # Forkcast
 
+[![CI](https://github.com/mkekola/Forkcast/actions/workflows/ci.yml/badge.svg)](https://github.com/mkekola/Forkcast/actions/workflows/ci.yml)
+
 **Forkcast — Viikkosi, katettuna.**
 
 Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellus. Sovelluksessa voi hakea reseptejä, tallentaa suosikkeja, suunnitella viikon ateriat ja muodostaa ostoslistan suunniteltujen reseptien aineksista.
