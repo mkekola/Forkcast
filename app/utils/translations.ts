@@ -1,4 +1,5 @@
 import type { Recipe } from "~/types/recipe";
+import { parseInstructionSteps } from "~/utils/instructions";
 
 const categoryTranslations: Record<string, string> = {
   Beef: "Naudanliha",
@@ -246,13 +247,18 @@ const RECIPE_DESCRIPTION_PREVIEW_LENGTH = 120;
 // translated category/area, and a truncated-instructions description with
 // the same fallback when a recipe has none.
 export function toRecipe(source: RecipeSource): Recipe {
+  // Same "STEP 1"-style labels parseInstructionSteps strips for the detail
+  // page's step list - a raw slice of the instructions text would otherwise
+  // leak that label into the card preview.
+  const previewText = parseInstructionSteps(source.instructions).join(" ");
+
   return {
     id: source.id,
     title: source.title,
     category: translateCategory(source.category),
     area: translateArea(source.area),
-    description: source.instructions
-      ? `${source.instructions.slice(0, RECIPE_DESCRIPTION_PREVIEW_LENGTH)}...`
+    description: previewText
+      ? `${previewText.slice(0, RECIPE_DESCRIPTION_PREVIEW_LENGTH)}...`
       : DEFAULT_RECIPE_DESCRIPTION,
     image: source.image,
   };
