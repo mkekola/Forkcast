@@ -203,3 +203,85 @@ describe("planner store: drafts", () => {
     expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Sipuli"]);
   });
 });
+
+describe("planner store: clearDay", () => {
+  let plannerStore: ReturnType<typeof usePlannerStore>;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    plannerStore = usePlannerStore();
+  });
+
+  it("removes only the assigned meals for the given day", async () => {
+    await plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Monday Dinner",
+      recipeImage: "https://example.com/monday.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.addMeal({
+      day: "tuesday",
+      meal: "lunch",
+      recipeId: "2",
+      recipeName: "Tuesday Lunch",
+      recipeImage: "https://example.com/tuesday.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.clearDay("monday");
+
+    expect(plannerStore.getMeals("monday", "dinner")).toEqual([]);
+    expect(plannerStore.getMeals("tuesday", "lunch").map((item) => item.recipeName)).toEqual([
+      "Tuesday Lunch",
+    ]);
+  });
+
+  it("leaves drafts untouched, since they aren't assigned to any day", async () => {
+    await plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.clearDay("monday");
+
+    expect(plannerStore.drafts.map((item) => item.recipeName)).toEqual(["Draft Recipe"]);
+  });
+
+  it("leaves checked shopping items untouched, unlike clearPlanner", async () => {
+    await plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Monday Dinner",
+      recipeImage: "https://example.com/monday.jpg",
+      category: "Test",
+      ingredients: [{ name: "Suola", measure: "1 tl" }],
+    });
+
+    await plannerStore.toggleShoppingItem("suola");
+    await plannerStore.clearDay("monday");
+
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(true);
+  });
+
+  it("does nothing when the day has no assigned meals", async () => {
+    await plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await expect(plannerStore.clearDay("monday")).resolves.toBeUndefined();
+    expect(plannerStore.drafts).toHaveLength(1);
+  });
+});
