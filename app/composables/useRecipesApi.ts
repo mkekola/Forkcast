@@ -68,7 +68,7 @@ export function useRecipesApi() {
     if (text) {
       query = query.textSearch("search_vector", text, {
         type: "websearch",
-        config: "english",
+        config: "finnish",
       });
     }
 
