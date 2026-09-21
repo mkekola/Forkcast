@@ -53,24 +53,24 @@ describe("planner store: shoppingList", () => {
       recipeName: "Pasta Bolognese",
       recipeImage: "https://example.com/pasta.jpg",
       category: "Pasta",
-      ingredients: [{ name: "Garlic", measure: "2 cloves" }],
+      ingredients: [{ name: "Valkosipuli", measure: "2 kynsi" }],
     });
 
     plannerStore.addMeal({
       day: "tuesday",
       meal: "dinner",
       recipeId: "2",
-      recipeName: "Garlic Butter Chicken",
+      recipeName: "Valkosipulivoikana",
       recipeImage: "https://example.com/chicken.jpg",
       category: "Chicken",
-      ingredients: [{ name: "garlic", measure: "3 cloves" }],
+      ingredients: [{ name: "valkosipuli", measure: "3 kynsi" }],
     });
 
     expect(plannerStore.shoppingList).toEqual([
       {
-        key: "garlic",
-        name: "Garlic",
-        measure: "5 cloves",
+        key: "valkosipuli",
+        name: "Valkosipuli",
+        measure: "5 kynttä",
         category: "hedelmat-vihannekset",
       },
     ]);
@@ -85,16 +85,16 @@ describe("planner store: shoppingList", () => {
       recipeImage: "https://example.com/curry.jpg",
       category: "Curry",
       ingredients: [
-        { name: "Ground Cumin", measure: "1 tsp" },
-        { name: "Chicken breast", measure: "500 g" },
+        { name: "Juustokuminajauhe", measure: "1 tl" },
+        { name: "Kananrinta", measure: "500 g" },
       ],
     });
 
     expect(
       plannerStore.shoppingList.map((item) => [item.name, item.category]),
     ).toEqual([
-      ["Chicken breast", "proteiinit"],
-      ["Ground Cumin", "mausteet"],
+      ["Juustokuminajauhe", "mausteet"],
+      ["Kananrinta", "proteiinit"],
     ]);
   });
 
@@ -107,14 +107,14 @@ describe("planner store: shoppingList", () => {
       recipeImage: "https://example.com/omelette.jpg",
       category: "Breakfast",
       ingredients: [
-        { name: "Zucchini", measure: "1" },
-        { name: "Apple", measure: "2" },
+        { name: "Kesäkurpitsa", measure: "1" },
+        { name: "Omena", measure: "2" },
       ],
     });
 
     expect(plannerStore.shoppingList.map((item) => item.name)).toEqual([
-      "Apple",
-      "Zucchini",
+      "Kesäkurpitsa",
+      "Omena",
     ]);
   });
 });
@@ -192,7 +192,7 @@ describe("planner store: drafts", () => {
       recipeName: "Draft Recipe",
       recipeImage: "https://example.com/draft.jpg",
       category: "Test",
-      ingredients: [{ name: "Onion", measure: "1" }],
+      ingredients: [{ name: "Sipuli", measure: "1" }],
     });
 
     expect(plannerStore.shoppingList).toEqual([]);
@@ -200,6 +200,6 @@ describe("planner store: drafts", () => {
     const draftId = plannerStore.drafts[0].id;
     plannerStore.assignMeal(draftId, "wednesday", "dinner");
 
-    expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Onion"]);
+    expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Sipuli"]);
   });
 });

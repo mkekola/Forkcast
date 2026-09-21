@@ -12,19 +12,19 @@ describe("combineMeasures", () => {
   });
 
   it("handles simple and mixed fractions", () => {
-    expect(combineMeasures(["1/2 cup", "1/2 cup"])).toBe("1 cup");
-    expect(combineMeasures(["1 1/2 tsp", "1/2 tsp"])).toBe("2 tsp");
+    expect(combineMeasures(["1/2 kupillista", "1/2 kupillista"])).toBe("1 kupillista");
+    expect(combineMeasures(["1 1/2 tl", "1/2 tl"])).toBe("2 tl");
   });
 
   it("normalizes unit spelling and casing before summing", () => {
-    expect(combineMeasures(["2 Cloves", "1 clove"])).toBe("3 cloves");
-    expect(combineMeasures(["500g", "1 kilogram"])).toBe("500 g, 1 kg");
+    expect(combineMeasures(["2 Kynsi", "1 kynsi"])).toBe("3 kynttä");
+    expect(combineMeasures(["500g", "1 kg"])).toBe("500 g, 1 kg");
   });
 
   it("pluralizes countable units for sums other than one, keeping singular for one", () => {
-    expect(combineMeasures(["1 clove"])).toBe("1 clove");
-    expect(combineMeasures(["1 clove", "1 clove"])).toBe("2 cloves");
-    expect(combineMeasures(["1 can", "1 can"])).toBe("2 cans");
+    expect(combineMeasures(["1 kynsi"])).toBe("1 kynsi");
+    expect(combineMeasures(["1 kynsi", "1 kynsi"])).toBe("2 kynttä");
+    expect(combineMeasures(["1 tölkki", "1 tölkki"])).toBe("2 tölkkiä");
   });
 
   it("keeps different units as separate segments instead of summing across them", () => {
@@ -32,11 +32,11 @@ describe("combineMeasures", () => {
   });
 
   it("falls back to listing measures it can't confidently parse", () => {
-    expect(combineMeasures(["a pinch", "to taste"])).toBe("a pinch, to taste");
+    expect(combineMeasures(["ripaus suolaa", "maun mukaan"])).toBe("ripaus suolaa, maun mukaan");
   });
 
   it("mixes parsed and unparsed measures without losing either", () => {
-    expect(combineMeasures(["500 g", "a pinch"])).toBe("500 g, a pinch");
+    expect(combineMeasures(["500 g", "ripaus suolaa"])).toBe("500 g, ripaus suolaa");
   });
 
   it("ignores empty measures", () => {
@@ -50,74 +50,70 @@ describe("combineMeasures", () => {
 
 describe("categorizeIngredient", () => {
   it("recognizes common spices and dried herbs as mausteet", () => {
-    expect(categorizeIngredient("Ground Cumin")).toBe("mausteet");
-    expect(categorizeIngredient("Salt")).toBe("mausteet");
-    expect(categorizeIngredient("dried oregano")).toBe("mausteet");
-    expect(categorizeIngredient("Smoked Paprika")).toBe("mausteet");
+    expect(categorizeIngredient("Juustokuminajauhe")).toBe("mausteet");
+    expect(categorizeIngredient("Suola")).toBe("mausteet");
+    expect(categorizeIngredient("Kuivattu oregano")).toBe("mausteet");
+    expect(categorizeIngredient("Savupaprikajauhe")).toBe("mausteet");
   });
 
   it("recognizes common dry/liquid pantry staples beyond spices as mausteet", () => {
-    expect(categorizeIngredient("Olive Oil")).toBe("mausteet");
-    expect(categorizeIngredient("Soy Sauce")).toBe("mausteet");
-    expect(categorizeIngredient("Sugar")).toBe("mausteet");
+    expect(categorizeIngredient("Oliiviöljy")).toBe("mausteet");
+    expect(categorizeIngredient("Soijakastike")).toBe("mausteet");
+    expect(categorizeIngredient("Sokeri")).toBe("mausteet");
   });
 
   it("recognizes fruits and vegetables", () => {
-    expect(categorizeIngredient("Onion")).toBe("hedelmat-vihannekset");
-    expect(categorizeIngredient("Fresh Spinach")).toBe("hedelmat-vihannekset");
-    expect(categorizeIngredient("Apple")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Sipuli")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Tuore pinaatti")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Omena")).toBe("hedelmat-vihannekset");
   });
 
   it("recognizes meat and other proteins", () => {
-    expect(categorizeIngredient("Chicken breast")).toBe("proteiinit");
-    expect(categorizeIngredient("Salmon fillet")).toBe("proteiinit");
-    expect(categorizeIngredient("Chickpeas")).toBe("proteiinit");
+    expect(categorizeIngredient("Kananrinta")).toBe("proteiinit");
+    expect(categorizeIngredient("Lohifilee")).toBe("proteiinit");
+    expect(categorizeIngredient("Kikherneet")).toBe("proteiinit");
   });
 
   it("recognizes dairy products", () => {
-    expect(categorizeIngredient("Milk")).toBe("maitotuotteet");
-    expect(categorizeIngredient("Cheddar")).toBe("maitotuotteet");
-    expect(categorizeIngredient("Greek Yogurt")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Maito")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Cheddarjuusto")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Kreikkalainen jogurtti")).toBe("maitotuotteet");
   });
 
   it("recognizes grains and cereal products", () => {
-    expect(categorizeIngredient("Rice")).toBe("viljatuotteet");
-    expect(categorizeIngredient("Spaghetti")).toBe("viljatuotteet");
-    expect(categorizeIngredient("Plain Flour")).toBe("viljatuotteet");
+    expect(categorizeIngredient("Riisi")).toBe("viljatuotteet");
+    expect(categorizeIngredient("Spagetti")).toBe("viljatuotteet");
+    expect(categorizeIngredient("Vehnäjauho")).toBe("viljatuotteet");
   });
 
   it("prefers longer, more specific matches over generic ones from another category", () => {
-    // "Pepper" alone reads as the spice, but a named bell pepper is a vegetable.
-    expect(categorizeIngredient("Pepper")).toBe("mausteet");
-    expect(categorizeIngredient("Red Pepper")).toBe("hedelmat-vihannekset");
+    // "Pippuri" alone reads as the spice, but a named bell pepper is a vegetable.
+    expect(categorizeIngredient("Pippuri")).toBe("mausteet");
+    expect(categorizeIngredient("Punainen paprika")).toBe("hedelmat-vihannekset");
 
-    // "Butter" is dairy, but butter beans are a legume/protein.
-    expect(categorizeIngredient("Butter")).toBe("maitotuotteet");
-    expect(categorizeIngredient("Butter Beans")).toBe("proteiinit");
+    // "Voi" is dairy, but butter beans are a legume/protein.
+    expect(categorizeIngredient("Voi")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Voipavut")).toBe("proteiinit");
 
     // Ground ginger is a spice-rack item; bare ginger reads as the fresh root.
-    expect(categorizeIngredient("Ground Ginger")).toBe("mausteet");
-    expect(categorizeIngredient("Ginger")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Inkiväärijauhe")).toBe("mausteet");
+    expect(categorizeIngredient("Inkivääri")).toBe("hedelmat-vihannekset");
 
     // Chili powder/flakes are spices; a bare chili is a fresh vegetable.
-    expect(categorizeIngredient("Chili Powder")).toBe("mausteet");
-    expect(categorizeIngredient("Chili")).toBe("hedelmat-vihannekset");
-
-    // Cornflour/cornstarch are pantry starches, not the vegetable.
-    expect(categorizeIngredient("Cornflour")).toBe("mausteet");
-    expect(categorizeIngredient("Corn")).toBe("hedelmat-vihannekset");
+    expect(categorizeIngredient("Chilijauhe")).toBe("mausteet");
+    expect(categorizeIngredient("Punainen chili")).toBe("hedelmat-vihannekset");
 
     // Sauces and liquid stocks are pantry items, not the fresh protein or dairy.
-    expect(categorizeIngredient("Fish Sauce")).toBe("mausteet");
-    expect(categorizeIngredient("Fish")).toBe("proteiinit");
-    expect(categorizeIngredient("Chicken Stock")).toBe("mausteet");
-    expect(categorizeIngredient("Chicken breast")).toBe("proteiinit");
-    expect(categorizeIngredient("Coconut Milk")).toBe("mausteet");
-    expect(categorizeIngredient("Milk")).toBe("maitotuotteet");
+    expect(categorizeIngredient("Kalakastike")).toBe("mausteet");
+    expect(categorizeIngredient("Kalafilee")).toBe("proteiinit");
+    expect(categorizeIngredient("Kanaliemi")).toBe("mausteet");
+    expect(categorizeIngredient("Kananrinta")).toBe("proteiinit");
+    expect(categorizeIngredient("Kookosmaito")).toBe("mausteet");
+    expect(categorizeIngredient("Maito")).toBe("maitotuotteet");
   });
 
   it("falls back to 'muu' for ingredients it doesn't recognize", () => {
-    expect(categorizeIngredient("Unobtainium Powder")).toBe("muu");
-    expect(categorizeIngredient("Some Unknown Thing")).toBe("muu");
+    expect(categorizeIngredient("Unobtainium-jauhe")).toBe("muu");
+    expect(categorizeIngredient("Tuntematon aine")).toBe("muu");
   });
 });
