@@ -173,7 +173,7 @@ const { openOnClick } = useRecipeModal();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.recipe.id));
 const isDraft = computed(() =>
-  plannerStore.getDrafts().some((draft) => draft.recipeId === props.recipe.id),
+  plannerStore.drafts.some((draft) => draft.recipeId === props.recipe.id),
 );
 const isImageLoaded = ref(false);
 
@@ -182,9 +182,9 @@ function toggleFavorite() {
 }
 
 async function toggleDraft() {
-  const existingDraft = plannerStore
-    .getDrafts()
-    .find((draft) => draft.recipeId === props.recipe.id);
+  const existingDraft = plannerStore.drafts.find(
+    (draft) => draft.recipeId === props.recipe.id,
+  );
 
   if (existingDraft) {
     plannerStore.removeMeal(existingDraft.id);

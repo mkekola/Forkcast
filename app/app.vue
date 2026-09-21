@@ -74,7 +74,7 @@ function formatBadgeCount(count: number) {
   return count > 99 ? "99+" : String(count);
 }
 
-const draftsCount = computed(() => plannerStore.getDrafts().length);
+const draftsCount = computed(() => plannerStore.drafts.length);
 const shoppingListCount = computed(() => plannerStore.shoppingList.length);
 const draftsBadgeLabel = computed(() => formatBadgeCount(draftsCount.value));
 const shoppingListBadgeLabel = computed(() => formatBadgeCount(shoppingListCount.value));

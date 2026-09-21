@@ -409,7 +409,7 @@ const isDraft = computed(() => {
   }
 
   const recipeId = recipe.value.id;
-  return plannerStore.getDrafts().some((draft) => draft.recipeId === recipeId);
+  return plannerStore.drafts.some((draft) => draft.recipeId === recipeId);
 });
 
 const translatedArea = computed(() => {
@@ -440,7 +440,7 @@ function toggleDraft() {
   }
 
   const recipeId = recipe.value.id;
-  const existingDraft = plannerStore.getDrafts().find((draft) => draft.recipeId === recipeId);
+  const existingDraft = plannerStore.drafts.find((draft) => draft.recipeId === recipeId);
 
   if (existingDraft) {
     plannerStore.removeMeal(existingDraft.id);

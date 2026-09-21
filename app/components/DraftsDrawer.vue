@@ -172,7 +172,7 @@
         </div>
 
         <div
-          v-if="plannerStore.getDrafts().length > 0"
+          v-if="plannerStore.drafts.length > 0"
           class="border-b border-fork-line px-6 py-3"
         >
           <input
@@ -185,7 +185,7 @@
 
         <div class="flex-1 overflow-y-auto px-6 py-5">
           <div
-            v-if="plannerStore.getDrafts().length === 0"
+            v-if="plannerStore.drafts.length === 0"
             class="rounded-2xl bg-fork-bg p-5 text-sm text-fork-muted"
           >
             Ei luonnoksia. Lisää resepti luonnoksiin sen omalta sivulta, niin
@@ -425,11 +425,11 @@ watch(recipeSearchQuery, (query) => {
 });
 
 function isRecipeDraft(recipeId: string) {
-  return plannerStore.getDrafts().some((draft) => draft.recipeId === recipeId);
+  return plannerStore.drafts.some((draft) => draft.recipeId === recipeId);
 }
 
 async function toggleRecipeDraft(result: RecipeSearchResult) {
-  const existingDraft = plannerStore.getDrafts().find((draft) => draft.recipeId === result.id);
+  const existingDraft = plannerStore.drafts.find((draft) => draft.recipeId === result.id);
 
   if (existingDraft) {
     plannerStore.removeMeal(existingDraft.id);
@@ -451,7 +451,7 @@ async function toggleRecipeDraft(result: RecipeSearchResult) {
 }
 
 const filteredDrafts = computed(() => {
-  const drafts = plannerStore.getDrafts();
+  const drafts = plannerStore.drafts;
   const query = searchQuery.value.trim().toLowerCase();
 
   if (!query) {

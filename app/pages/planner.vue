@@ -676,7 +676,7 @@ const shoppingListSummary = computed(() => {
 });
 
 const draftsSummary = computed(() => {
-  const count = plannerStore.getDrafts().length;
+  const count = plannerStore.drafts.length;
   return count === 1 ? "1 luonnos" : `${count} luonnosta`;
 });
 
@@ -684,10 +684,10 @@ const draftsSummary = computed(() => {
 // "+N" badge instead of wrapping onto more rows.
 const DRAFT_THUMBNAIL_LIMIT = 8;
 
-const visibleDraftThumbnails = computed(() => plannerStore.getDrafts().slice(0, DRAFT_THUMBNAIL_LIMIT));
+const visibleDraftThumbnails = computed(() => plannerStore.drafts.slice(0, DRAFT_THUMBNAIL_LIMIT));
 
 const hiddenDraftsCount = computed(() =>
-  Math.max(0, plannerStore.getDrafts().length - DRAFT_THUMBNAIL_LIMIT),
+  Math.max(0, plannerStore.drafts.length - DRAFT_THUMBNAIL_LIMIT),
 );
 
 onMounted(async () => {

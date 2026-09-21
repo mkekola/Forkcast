@@ -187,11 +187,9 @@ export const usePlannerStore = defineStore("planner", () => {
     }
   }
 
-  function getDrafts() {
-    return plannedMeals.value.filter(
-      (plannedMeal) => !plannedMeal.day || !plannedMeal.meal,
-    );
-  }
+  const drafts = computed(() =>
+    plannedMeals.value.filter((plannedMeal) => !plannedMeal.day || !plannedMeal.meal),
+  );
 
   const shoppingList = computed<ShoppingListItem[]>(() => {
     const measuresByName = new Map<string, { name: string; measures: string[] }>();
@@ -340,7 +338,7 @@ export const usePlannerStore = defineStore("planner", () => {
     addDraft,
     assignMeal,
     unassignMeal,
-    getDrafts,
+    drafts,
     removeMeal,
     getMeals,
     isShoppingItemChecked,

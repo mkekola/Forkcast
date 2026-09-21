@@ -160,7 +160,7 @@ describe("planner store: drafts", () => {
       ingredients: [],
     });
 
-    expect(plannerStore.getDrafts().map((item) => item.recipeName)).toEqual([
+    expect(plannerStore.drafts.map((item) => item.recipeName)).toEqual([
       "Draft Recipe",
     ]);
     expect(plannerStore.getMeals("monday", "dinner").map((item) => item.recipeName)).toEqual([
@@ -177,10 +177,10 @@ describe("planner store: drafts", () => {
       ingredients: [],
     });
 
-    const draftId = plannerStore.getDrafts()[0].id;
+    const draftId = plannerStore.drafts[0].id;
     plannerStore.assignMeal(draftId, "tuesday", "lunch");
 
-    expect(plannerStore.getDrafts()).toEqual([]);
+    expect(plannerStore.drafts).toEqual([]);
     expect(plannerStore.getMeals("tuesday", "lunch").map((item) => item.recipeName)).toEqual([
       "Draft Recipe",
     ]);
@@ -197,7 +197,7 @@ describe("planner store: drafts", () => {
 
     expect(plannerStore.shoppingList).toEqual([]);
 
-    const draftId = plannerStore.getDrafts()[0].id;
+    const draftId = plannerStore.drafts[0].id;
     plannerStore.assignMeal(draftId, "wednesday", "dinner");
 
     expect(plannerStore.shoppingList.map((item) => item.name)).toEqual(["Onion"]);
