@@ -712,9 +712,17 @@ function updateSearchQuery(query: string) {
   });
 }
 
+// Scrolls the search bar to the top of the viewport so results that were
+// off-screen (below the hero) become visible right away, instead of leaving
+// the visitor looking at the hero with no obvious sign anything happened.
+function scrollSearchIntoView() {
+  searchContainerRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function searchRecipes() {
   showSuggestions.value = false;
   updateSearchQuery(searchInput.value);
+  scrollSearchIntoView();
 }
 
 // Clearing the box back to empty should clear an active text search
@@ -849,6 +857,8 @@ function toggleCategory(category: string) {
       ...(nextCategories.length ? { cat: nextCategories.join(",") } : {}),
     },
   });
+
+  scrollSearchIntoView();
 }
 
 function clearCategories() {
