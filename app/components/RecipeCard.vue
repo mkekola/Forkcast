@@ -177,11 +177,6 @@ const isDraft = computed(() =>
 );
 const isImageLoaded = ref(false);
 
-onMounted(() => {
-  favoritesStore.loadFavorites();
-  plannerStore.loadFromStorage();
-});
-
 function toggleFavorite() {
   favoritesStore.toggleFavorite(props.recipe);
 }

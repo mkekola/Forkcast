@@ -416,11 +416,6 @@ const translatedArea = computed(() => {
   return translateArea(recipe.value?.area);
 });
 
-onMounted(() => {
-  plannerStore.loadFromStorage();
-  favoritesStore.loadFavorites();
-});
-
 function addRecipeToPlanner() {
   if (!recipe.value) {
     return;

@@ -60,36 +60,48 @@ export const usePlannerStore = defineStore("planner", () => {
   const isDraftsOpen = ref(false);
   const isDragging = ref(false);
 
-  async function loadFromStorage() {
+  // Every page (via AppHeader) and every RecipeCard/RecipeDetailContent
+  // instance calls this on mount, so a 24-card grid would otherwise fire 24
+  // redundant fetches - cache the in-flight/completed request and hand
+  // every caller the same one instead of starting a new one each time.
+  let loadPromise: Promise<void> | null = null;
+
+  function loadFromStorage() {
     if (!import.meta.client) {
-      return;
+      return Promise.resolve();
     }
 
-    const supabase = useSupabaseClient();
-    const userId = await useCurrentUserId();
+    if (!loadPromise) {
+      loadPromise = (async () => {
+        const supabase = useSupabaseClient();
+        const userId = await useCurrentUserId();
 
-    const [mealsResult, checkedResult] = await Promise.all([
-      supabase
-        .from("planned_meals")
-        .select("id, day, meal, recipe_id, recipe_name, recipe_image, category, ingredients")
-        .eq("user_id", userId),
-      supabase
-        .from("checked_shopping_items")
-        .select("item_key")
-        .eq("user_id", userId),
-    ]);
+        const [mealsResult, checkedResult] = await Promise.all([
+          supabase
+            .from("planned_meals")
+            .select("id, day, meal, recipe_id, recipe_name, recipe_image, category, ingredients")
+            .eq("user_id", userId),
+          supabase
+            .from("checked_shopping_items")
+            .select("item_key")
+            .eq("user_id", userId),
+        ]);
 
-    if (mealsResult.error) {
-      console.error("Failed to load planned meals", mealsResult.error);
-    } else {
-      plannedMeals.value = (mealsResult.data as PlannedMealRow[]).map(toPlannedMeal);
+        if (mealsResult.error) {
+          console.error("Failed to load planned meals", mealsResult.error);
+        } else {
+          plannedMeals.value = (mealsResult.data as PlannedMealRow[]).map(toPlannedMeal);
+        }
+
+        if (checkedResult.error) {
+          console.error("Failed to load checked shopping items", checkedResult.error);
+        } else {
+          checkedShoppingItems.value = checkedResult.data.map((row) => row.item_key as string);
+        }
+      })();
     }
 
-    if (checkedResult.error) {
-      console.error("Failed to load checked shopping items", checkedResult.error);
-    } else {
-      checkedShoppingItems.value = checkedResult.data.map((row) => row.item_key as string);
-    }
+    return loadPromise;
   }
 
   async function addMeal(meal: Omit<PlannedMeal, "id">) {

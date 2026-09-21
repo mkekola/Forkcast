@@ -114,9 +114,11 @@
 
 <script setup lang="ts">
 import { usePlannerStore } from "~/stores/planner";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const route = useRoute();
 const plannerStore = usePlannerStore();
+const favoritesStore = useFavoritesStore();
 
 const links = [
   { label: "Reseptit", to: "/" },
@@ -135,7 +137,11 @@ function isActiveLink(path: string) {
   return route.path.startsWith(path);
 }
 
+// AppHeader is present on every page, so this is the one place that needs
+// to kick these off - components that just read favorites/drafts (RecipeCard,
+// RecipeDetailContent) don't call loadFavorites/loadFromStorage themselves.
 onMounted(() => {
   plannerStore.loadFromStorage();
+  favoritesStore.loadFavorites();
 });
 </script>

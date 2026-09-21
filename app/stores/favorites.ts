@@ -14,32 +14,43 @@ type FavoriteRow = {
 export const useFavoritesStore = defineStore("favorites", () => {
   const favorites = ref<FavoriteRecipe[]>([]);
 
-  async function loadFavorites() {
+  // Every RecipeCard/RecipeDetailContent instance calls this on mount, so a
+  // grid of cards would otherwise fire one redundant fetch per card - cache
+  // the in-flight/completed request and hand every caller the same one.
+  let loadPromise: Promise<void> | null = null;
+
+  function loadFavorites() {
     if (!import.meta.client) {
-      return;
+      return Promise.resolve();
     }
 
-    const supabase = useSupabaseClient();
-    const userId = await useCurrentUserId();
+    if (!loadPromise) {
+      loadPromise = (async () => {
+        const supabase = useSupabaseClient();
+        const userId = await useCurrentUserId();
 
-    const { data, error } = await supabase
-      .from("favorites")
-      .select("recipe_id, title, category, area, description, image")
-      .eq("user_id", userId);
+        const { data, error } = await supabase
+          .from("favorites")
+          .select("recipe_id, title, category, area, description, image")
+          .eq("user_id", userId);
 
-    if (error) {
-      console.error("Failed to load favorites", error);
-      return;
+        if (error) {
+          console.error("Failed to load favorites", error);
+          return;
+        }
+
+        favorites.value = (data as FavoriteRow[]).map((row) => ({
+          id: row.recipe_id,
+          title: row.title,
+          category: row.category,
+          area: row.area,
+          description: row.description,
+          image: row.image,
+        }));
+      })();
     }
 
-    favorites.value = (data as FavoriteRow[]).map((row) => ({
-      id: row.recipe_id,
-      title: row.title,
-      category: row.category,
-      area: row.area,
-      description: row.description,
-      image: row.image,
-    }));
+    return loadPromise;
   }
 
   function isFavorite(recipeId: string) {
