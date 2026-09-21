@@ -43,32 +43,22 @@ Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellu
 ## Arkkitehtuuri
 
 ```mermaid
-graph TB
+graph LR
     subgraph Client["Selain — Nuxt 4 / Vue 3 SPA"]
-        Pages["Sivut<br/>Etusivu · Reseptisivu · Suosikit · Viikkosuunnitelma"]
-        Components["Komponentit<br/>RecipeCard · RecipeModal<br/>DraftsDrawer · ShoppingListDrawer"]
-        Stores["Pinia-storet<br/>favorites · planner · recipeModal"]
-        Composables["Composablet<br/>useRecipesApi · useRecipeModal<br/>useBodyScrollLock · useCurrentUserId"]
-        Plugins["Pluginit<br/>Anonyymi kirjautuminen<br/>Historia-integraatio · Raahaustuki"]
-
-        Pages --> Components
-        Components --> Stores
-        Stores --> Composables
-        Plugins -.-> Stores
+        Pages["Sivut<br/>Etusivu · Reseptisivu<br/>Suosikit · Viikkosuunnitelma"] --> Components["Komponentit<br/>RecipeCard · RecipeModal<br/>DraftsDrawer · ShoppingListDrawer"] --> Stores["Pinia-storet<br/>favorites · planner · recipeModal"] --> Composables["Composablet<br/>useRecipesApi · useCurrentUserId"]
     end
 
     subgraph Supabase["Supabase"]
         Auth["Auth<br/>Anonyymi kirjautuminen"]
-        DB[("Postgres<br/>recipes · recipe_ingredients<br/>recipe_categories · favorites<br/>planned_meals · checked_shopping_items")]
-        RPC["RPC-funktiot<br/>search_recipes_by_categories<br/>get_random_recipes"]
+        DB[("Postgres<br/>recipes · favorites<br/>planned_meals · ostoslista")]
+        RPC["RPC-haku<br/>kategoriat"]
 
-        DB --- RPC
+        Auth -.->|"user id"| DB
     end
 
+    Composables -->|"kirjautuminen"| Auth
     Composables -->|"REST + RLS"| DB
     Composables -->|"kategoriahaku"| RPC
-    Plugins -->|"signInAnonymously"| Auth
-    Auth -.->|"user id rajaa rivit"| DB
 ```
 
 Koodi on jaoteltu vastuualueittain, jotta sivut pysyvät kevyinä ja logiikka on testattavissa erillään käyttöliittymästä:
