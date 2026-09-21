@@ -123,11 +123,7 @@
 import RecipeCard from "~/components/RecipeCard.vue";
 import { useFavoritesStore } from "~/stores/favorites";
 import { useRecipesApi } from "~/composables/useRecipesApi";
-import {
-  translateArea,
-  translateCategory,
-  reverseTranslateCategory,
-} from "~/utils/translations";
+import { reverseTranslateCategory, toRecipe } from "~/utils/translations";
 import type { Recipe } from "~/types/recipe";
 
 const favoritesStore = useFavoritesStore();
@@ -204,16 +200,7 @@ async function loadSuggestions() {
 
   suggestionPool.value = results
     .filter((result) => !favoriteIds.has(result.id))
-    .map((result) => ({
-      id: result.id,
-      title: result.title,
-      category: translateCategory(result.category),
-      area: translateArea(result.area),
-      description: result.instructions
-        ? `${result.instructions.slice(0, 120)}...`
-        : "Herkullinen resepti viikon suunnitteluun.",
-      image: result.image,
-    }));
+    .map(toRecipe);
 
   suggestionCategoryLabel.value = finnishCategory;
   suggestedRecipes.value = shuffled(suggestionPool.value).slice(0, SUGGESTION_COUNT);

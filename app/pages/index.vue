@@ -434,10 +434,10 @@
 <script setup lang="ts">
 import RecipeCard from "~/components/RecipeCard.vue";
 import {
-  translateArea,
   translateCategory,
   detectSearchIntent,
   getSearchWordSuggestions,
+  toRecipe,
 } from "~/utils/translations";
 
 import type { Recipe } from "~/types/recipe";
@@ -883,15 +883,6 @@ const totalCount = computed(() => data.value?.totalCount ?? 0);
 const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / PAGE_SIZE)));
 
 const recipes = computed<Recipe[]>(() => {
-  return (data.value?.results ?? []).map((result) => ({
-    id: result.id,
-    title: result.title,
-    category: translateCategory(result.category),
-    area: translateArea(result.area),
-    description: result.instructions
-      ? `${result.instructions.slice(0, 120)}...`
-      : "Herkullinen resepti viikon suunnitteluun.",
-    image: result.image,
-  }));
+  return (data.value?.results ?? []).map(toRecipe);
 });
 </script>

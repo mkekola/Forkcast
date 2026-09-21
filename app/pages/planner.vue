@@ -331,20 +331,10 @@
               :aria-expanded="!isDayCollapsed(day.value)"
               @click="toggleDayCollapsed(day.value)"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+              <ChevronDownIcon
                 class="h-5 w-5 transition-transform"
                 :class="{ '-rotate-90': isDayCollapsed(day.value) }"
-                aria-hidden="true"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
+              />
             </button>
           </div>
 
@@ -494,19 +484,9 @@
                             {{ dayOption.shortLabel }}
                           </option>
                         </select>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                        <ChevronDownIcon
                           class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
-                          aria-hidden="true"
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
+                        />
                       </div>
 
                       <div class="relative">
@@ -522,19 +502,9 @@
                             {{ mealOption.label }}
                           </option>
                         </select>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
+                        <ChevronDownIcon
                           class="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-fork-muted"
-                          aria-hidden="true"
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
+                        />
                       </div>
                     </div>
 
@@ -613,6 +583,7 @@
 import { usePlannerStore, type MealType, type PlannedMeal } from "~/stores/planner";
 import { useRecipeModal } from "~/composables/useRecipeModal";
 import { setWholeCardAsDragImage } from "~/utils/dragImage";
+import { DAYS as days, MEAL_OPTIONS as meals } from "~/utils/planner";
 
 const plannerStore = usePlannerStore();
 const { openOnClick } = useRecipeModal();
@@ -769,23 +740,6 @@ onBeforeUnmount(() => {
   window.removeEventListener("drop", stopAutoScroll);
   stopAutoScroll();
 });
-
-const days = [
-  { value: "monday", label: "Maanantai", shortLabel: "Ma" },
-  { value: "tuesday", label: "Tiistai", shortLabel: "Ti" },
-  { value: "wednesday", label: "Keskiviikko", shortLabel: "Ke" },
-  { value: "thursday", label: "Torstai", shortLabel: "To" },
-  { value: "friday", label: "Perjantai", shortLabel: "Pe" },
-  { value: "saturday", label: "Lauantai", shortLabel: "La" },
-  { value: "sunday", label: "Sunnuntai", shortLabel: "Su" },
-];
-
-const meals: { value: MealType; label: string }[] = [
-  { value: "breakfast", label: "Aamupala" },
-  { value: "lunch", label: "Lounas" },
-  { value: "dinner", label: "Päivällinen" },
-  { value: "supper", label: "Illallinen" },
-];
 
 // Whether the week renders as one long list or one day at a time in a
 // carousel - a personal preference, so it's remembered across visits.

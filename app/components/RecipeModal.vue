@@ -42,19 +42,7 @@
             aria-label="Sulje resepti"
             @click="close"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-5 w-5"
-              aria-hidden="true"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <CloseIcon />
           </button>
 
           <RecipeDetailContent :key="recipeId" :recipe-id="recipeId" />

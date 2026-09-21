@@ -1,3 +1,5 @@
+import type { Recipe } from "~/types/recipe";
+
 const categoryTranslations: Record<string, string> = {
   Beef: "Naudanliha",
   Breakfast: "Aamupala",
@@ -222,6 +224,38 @@ export function translateArea(area?: string | null) {
   }
 
   return areaTranslations[area] ?? area;
+}
+
+// Shape shared by both RecipeSearchResult (search results) and
+// RecipeRow/RecipeDetail (a single recipe's own data) - anything with
+// enough fields to become a Recipe card.
+type RecipeSource = {
+  id: string;
+  title: string;
+  category: string;
+  area: string;
+  instructions: string | null;
+  image: string;
+};
+
+const DEFAULT_RECIPE_DESCRIPTION = "Herkullinen resepti viikon suunnitteluun.";
+const RECIPE_DESCRIPTION_PREVIEW_LENGTH = 120;
+
+// The recipe grid, favorite suggestions, and a recipe's own favorite-toggle
+// payload all turn API data into the same Recipe shape the same way -
+// translated category/area, and a truncated-instructions description with
+// the same fallback when a recipe has none.
+export function toRecipe(source: RecipeSource): Recipe {
+  return {
+    id: source.id,
+    title: source.title,
+    category: translateCategory(source.category),
+    area: translateArea(source.area),
+    description: source.instructions
+      ? `${source.instructions.slice(0, RECIPE_DESCRIPTION_PREVIEW_LENGTH)}...`
+      : DEFAULT_RECIPE_DESCRIPTION,
+    image: source.image,
+  };
 }
 
 // Our own search box is Finnish but the recipe data is English, so a typed

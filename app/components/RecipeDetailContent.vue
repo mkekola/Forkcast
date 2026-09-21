@@ -193,19 +193,9 @@
                     {{ day.label }}
                   </option>
                 </select>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                <ChevronDownIcon
                   class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fork-muted"
-                  aria-hidden="true"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
+                />
               </div>
             </label>
 
@@ -224,19 +214,9 @@
                     {{ meal.label }}
                   </option>
                 </select>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                <ChevronDownIcon
                   class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fork-muted"
-                  aria-hidden="true"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
+                />
               </div>
             </label>
           </div>
@@ -317,9 +297,10 @@
 <script setup lang="ts">
 import { usePlannerStore, type MealType } from "~/stores/planner";
 import { useFavoritesStore } from "~/stores/favorites";
-import { translateArea, translateCategory } from "~/utils/translations";
+import { translateArea, translateCategory, toRecipe } from "~/utils/translations";
 import { parseInstructionSteps } from "~/utils/instructions";
 import { useRecipesApi } from "~/composables/useRecipesApi";
+import { DAYS as days, MEAL_OPTIONS as mealOptions } from "~/utils/planner";
 
 const props = defineProps<{
   recipeId: string;
@@ -332,23 +313,6 @@ const recipesApi = useRecipesApi();
 const selectedDay = ref("monday");
 const selectedMeal = ref<MealType>("dinner");
 const addedTo = ref<"assigned" | "draft" | null>(null);
-
-const days = [
-  { value: "monday", label: "Maanantai" },
-  { value: "tuesday", label: "Tiistai" },
-  { value: "wednesday", label: "Keskiviikko" },
-  { value: "thursday", label: "Torstai" },
-  { value: "friday", label: "Perjantai" },
-  { value: "saturday", label: "Lauantai" },
-  { value: "sunday", label: "Sunnuntai" },
-];
-
-const mealOptions: { value: MealType; label: string }[] = [
-  { value: "breakfast", label: "Aamupala" },
-  { value: "lunch", label: "Lounas" },
-  { value: "dinner", label: "Päivällinen" },
-  { value: "supper", label: "Illallinen" },
-];
 
 const recipeAsyncData = useAsyncData(
   () => `recipe-detail-${props.recipeId}`,
@@ -461,15 +425,6 @@ function toggleFavorite() {
     return;
   }
 
-  favoritesStore.toggleFavorite({
-    id: recipe.value.id,
-    title: recipe.value.title,
-    category: translatedCategory.value,
-    area: translatedArea.value,
-    description: recipe.value.instructions
-      ? `${recipe.value.instructions.slice(0, 120)}...`
-      : "Herkullinen resepti viikon suunnitteluun.",
-    image: recipe.value.image,
-  });
+  favoritesStore.toggleFavorite(toRecipe(recipe.value));
 }
 </script>
