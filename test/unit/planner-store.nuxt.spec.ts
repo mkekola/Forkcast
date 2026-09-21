@@ -285,3 +285,127 @@ describe("planner store: clearDay", () => {
     expect(plannerStore.drafts).toHaveLength(1);
   });
 });
+
+describe("planner store: unassignMeal", () => {
+  let plannerStore: ReturnType<typeof usePlannerStore>;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    plannerStore = usePlannerStore();
+  });
+
+  it("turns an assigned meal back into a draft", async () => {
+    await plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Kana-currypata",
+      recipeImage: "https://example.com/curry.jpg",
+      category: "Kana",
+      ingredients: [],
+    });
+
+    const mealId = plannerStore.getMeals("monday", "dinner")[0].id;
+    await plannerStore.unassignMeal(mealId);
+
+    expect(plannerStore.getMeals("monday", "dinner")).toEqual([]);
+    expect(plannerStore.drafts.map((item) => item.recipeName)).toEqual(["Kana-currypata"]);
+  });
+});
+
+describe("planner store: clearPlanner", () => {
+  let plannerStore: ReturnType<typeof usePlannerStore>;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    plannerStore = usePlannerStore();
+  });
+
+  it("clears every assigned meal across all days", async () => {
+    await plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Monday Dinner",
+      recipeImage: "https://example.com/monday.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.addMeal({
+      day: "friday",
+      meal: "lunch",
+      recipeId: "2",
+      recipeName: "Friday Lunch",
+      recipeImage: "https://example.com/friday.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.clearPlanner();
+
+    expect(plannerStore.getMeals("monday", "dinner")).toEqual([]);
+    expect(plannerStore.getMeals("friday", "lunch")).toEqual([]);
+  });
+
+  it("leaves drafts untouched", async () => {
+    await plannerStore.addDraft({
+      recipeId: "1",
+      recipeName: "Draft Recipe",
+      recipeImage: "https://example.com/draft.jpg",
+      category: "Test",
+      ingredients: [],
+    });
+
+    await plannerStore.clearPlanner();
+
+    expect(plannerStore.drafts.map((item) => item.recipeName)).toEqual(["Draft Recipe"]);
+  });
+
+  it("also clears checked shopping items, unlike clearDay", async () => {
+    await plannerStore.addMeal({
+      day: "monday",
+      meal: "dinner",
+      recipeId: "1",
+      recipeName: "Monday Dinner",
+      recipeImage: "https://example.com/monday.jpg",
+      category: "Test",
+      ingredients: [{ name: "Suola", measure: "1 tl" }],
+    });
+
+    await plannerStore.toggleShoppingItem("suola");
+    await plannerStore.clearPlanner();
+
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(false);
+  });
+});
+
+describe("planner store: shopping item checkboxes", () => {
+  let plannerStore: ReturnType<typeof usePlannerStore>;
+
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    plannerStore = usePlannerStore();
+  });
+
+  it("reports an item as unchecked until it's toggled", () => {
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(false);
+  });
+
+  it("checks and unchecks an item on repeated toggles", async () => {
+    await plannerStore.toggleShoppingItem("suola");
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(true);
+
+    await plannerStore.toggleShoppingItem("suola");
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(false);
+  });
+
+  it("tracks multiple checked items independently", async () => {
+    await plannerStore.toggleShoppingItem("suola");
+    await plannerStore.toggleShoppingItem("sipuli");
+
+    expect(plannerStore.isShoppingItemChecked("suola")).toBe(true);
+    expect(plannerStore.isShoppingItemChecked("sipuli")).toBe(true);
+    expect(plannerStore.isShoppingItemChecked("valkosipuli")).toBe(false);
+  });
+});
