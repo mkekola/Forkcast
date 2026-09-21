@@ -12,7 +12,7 @@ describe("combineMeasures", () => {
   });
 
   it("handles simple and mixed fractions", () => {
-    expect(combineMeasures(["1/2 kupillista", "1/2 kupillista"])).toBe("1 kupillista");
+    expect(combineMeasures(["1/2 dl", "1/2 dl"])).toBe("1 dl");
     expect(combineMeasures(["1 1/2 tl", "1/2 tl"])).toBe("2 tl");
   });
 

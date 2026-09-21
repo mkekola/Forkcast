@@ -1,9 +1,11 @@
-// Recognizes the Finnish measure vocabulary translateMeasure() (the
-// one-off translation script, see scratch-measure-translate.mjs) produces,
-// plus the SI units it leaves untouched (g/kg/ml/l are already the correct
-// Finnish abbreviations). Maps each recognized form to one canonical
-// singular key, which combineMeasures uses to sum quantities and
-// displayUnit/PLURAL_UNITS below uses to pick the right form to show.
+// Recognizes the Finnish measure vocabulary the ingredient-translation
+// pass left in recipe_ingredients.measure - metric units (g/kg/ml/dl/l are
+// already correct Finnish) plus countable units (kynsi, tölkki, etc).
+// Imperial units (cup/oz/lb) were converted to metric at the data level
+// rather than recognized here, so they never reach this parser. Maps each
+// recognized form to one canonical singular key, which combineMeasures
+// uses to sum quantities and displayUnit/PLURAL_UNITS below uses to pick
+// the right form to show.
 const UNIT_ALIASES: Record<string, string> = {
   g: "g",
   kg: "kg",
@@ -12,11 +14,6 @@ const UNIT_ALIASES: Record<string, string> = {
   l: "l",
   rkl: "rkl",
   tl: "tl",
-  kupillista: "kupillista",
-  paunaa: "pauna",
-  pauna: "pauna",
-  unssia: "unssi",
-  unssi: "unssi",
   ripaus: "ripaus",
   tilkka: "tilkka",
   kourallinen: "kourallinen",
@@ -142,14 +139,12 @@ export function categorizeIngredient(name: string): ShoppingCategory {
 }
 
 // Finnish numeral agreement uses partitive singular after any count other
-// than one ("2 paunaa", not "2 paunat"), unlike English's plain "-s"
+// than one ("2 tölkkiä", not "2 tölkki"), unlike English's plain "-s"
 // plural - so this maps each countable unit to the form shown when
-// quantity !== 1. Units left out (rkl, tl, g/kg/ml/dl/l, kupillista) are
-// already quantity-invariant in Finnish, so they fall through to the
-// unchanged `unit` value in displayUnit() below.
+// quantity !== 1. Units left out (rkl, tl, g/kg/ml/dl/l) are already
+// quantity-invariant in Finnish, so they fall through to the unchanged
+// `unit` value in displayUnit() below.
 const PLURAL_UNITS: Record<string, string> = {
-  pauna: "paunaa",
-  unssi: "unssia",
   ripaus: "ripausta",
   tilkka: "tilkkaa",
   kourallinen: "kourallista",
