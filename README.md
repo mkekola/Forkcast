@@ -10,7 +10,7 @@ Forkcast on viikkosuunnitteluun tarkoitettu resepti- ja ateriasuunnittelusovellu
 
 | Etusivu | Reseptin tiedot | Viikkosuunnitelma |
 | --- | --- | --- |
-| <img src="docs/screenshots/forkcast-fp.png" width="400"> | <img src="docs/screenshots/forkcast-recipe.png" width="380"> | <img src="docs/screenshots/forkcast-planner.png" width="360"> |
+| <img src="docs/screenshots/forkcast-fp.png?v=2" width="400"> | <img src="docs/screenshots/forkcast-recipe.png?v=2" width="380"> | <img src="docs/screenshots/forkcast-planner.png?v=2" width="360"> |
 
 ## Ominaisuudet
 
