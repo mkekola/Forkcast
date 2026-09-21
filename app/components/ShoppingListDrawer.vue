@@ -259,21 +259,11 @@ function downloadList() {
   URL.revokeObjectURL(url);
 }
 
+useBodyScrollLock(open);
+
 watch(open, (isOpen) => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  document.body.style.overflow = isOpen ? "hidden" : "";
-
   if (isOpen) {
     nextTick(() => panelRef.value?.focus());
-  }
-});
-
-onBeforeUnmount(() => {
-  if (import.meta.client) {
-    document.body.style.overflow = "";
   }
 });
 </script>

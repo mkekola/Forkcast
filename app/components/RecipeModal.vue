@@ -65,21 +65,11 @@ function close() {
   recipeModalStore.closeAndGoBack();
 }
 
+useBodyScrollLock(() => !!recipeId.value);
+
 watch(recipeId, (isOpen) => {
-  if (!import.meta.client) {
-    return;
-  }
-
-  document.body.style.overflow = isOpen ? "hidden" : "";
-
   if (isOpen) {
     nextTick(() => panelRef.value?.focus());
-  }
-});
-
-onBeforeUnmount(() => {
-  if (import.meta.client) {
-    document.body.style.overflow = "";
   }
 });
 </script>

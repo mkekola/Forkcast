@@ -462,23 +462,9 @@ watch(open, (isOpen) => {
 // Body scroll is locked while the drawer is open, except mid-drag - the
 // planner page underneath can be taller than the viewport, and locking
 // scroll would make a day below the fold impossible to drag a draft to.
-const shouldLockBodyScroll = computed(() => open.value && !plannerStore.isDragging);
-
-watch(
-  shouldLockBodyScroll,
-  (locked) => {
-    if (import.meta.client) {
-      document.body.style.overflow = locked ? "hidden" : "";
-    }
-  },
-  { immediate: true },
-);
+useBodyScrollLock(() => open.value && !plannerStore.isDragging);
 
 onBeforeUnmount(() => {
-  if (import.meta.client) {
-    document.body.style.overflow = "";
-  }
-
   if (removedToastTimeoutId !== null) {
     clearTimeout(removedToastTimeoutId);
   }
