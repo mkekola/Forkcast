@@ -168,6 +168,27 @@
       </section>
 
       <section id="reseptit" class="pb-20">
+        <div class="mb-8 flex items-center gap-4">
+          <div>
+            <p
+              class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
+            >
+              Reseptit
+            </p>
+
+            <h2 class="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+              Mitä tänään tekisi mieli?
+            </h2>
+          </div>
+
+          <img
+            src="/images/cooking-doodle.png"
+            alt=""
+            aria-hidden="true"
+            class="hidden w-20 shrink-0 opacity-90 lg:block"
+          >
+        </div>
+
         <div class="mb-8">
           <div
             ref="searchContainerRef"
@@ -272,64 +293,42 @@
             </div>
           </div>
 
-          <div class="mt-4 flex max-w-xl flex-wrap gap-2">
-            <button
-              v-for="quickSearch in quickSearches"
-              :key="quickSearch.category"
-              type="button"
-              class="rounded-full border px-4 py-2 text-sm font-bold transition"
-              :class="
-                selectedCategories.includes(quickSearch.category)
-                  ? 'border-fork-clay bg-fork-clay text-white'
-                  : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
-              "
-              @click="toggleCategory(quickSearch.category)"
-            >
-              {{ quickSearch.label }}
-            </button>
-
-            <button
-              v-if="selectedCategories.length > 0"
-              type="button"
-              class="rounded-full border border-fork-line bg-fork-card px-4 py-2 text-sm font-bold text-fork-muted transition hover:border-fork-ink hover:text-fork-ink"
-              @click="clearCategories"
-            >
-              Tyhjennä valinnat ✕
-            </button>
-          </div>
-        </div>
-        <div
-          class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"
-        >
-          <div class="flex items-center gap-4">
-            <div>
-              <p
-                class="text-sm font-bold uppercase tracking-[0.22em] text-fork-clay-dark"
+          <div class="mt-4 flex flex-wrap items-end justify-between gap-2">
+            <div class="flex max-w-xl flex-wrap gap-2">
+              <button
+                v-for="quickSearch in quickSearches"
+                :key="quickSearch.category"
+                type="button"
+                class="rounded-full border px-4 py-2 text-sm font-bold transition"
+                :class="
+                  selectedCategories.includes(quickSearch.category)
+                    ? 'border-fork-clay bg-fork-clay text-white'
+                    : 'border-fork-line bg-fork-card text-stone-700 hover:border-fork-ink hover:text-fork-ink'
+                "
+                @click="toggleCategory(quickSearch.category)"
               >
-                Reseptit
-              </p>
+                {{ quickSearch.label }}
+              </button>
 
-              <h2 class="mt-3 text-3xl font-black tracking-tight md:text-4xl">
-                Mitä tänään tekisi mieli?
-              </h2>
+              <button
+                v-if="selectedCategories.length > 0"
+                type="button"
+                class="rounded-full border border-fork-line bg-fork-card px-4 py-2 text-sm font-bold text-fork-muted transition hover:border-fork-ink hover:text-fork-ink"
+                @click="clearCategories"
+              >
+                Tyhjennä valinnat ✕
+              </button>
             </div>
 
-            <img
-              src="/images/cooking-doodle.png"
-              alt=""
-              aria-hidden="true"
-              class="hidden w-20 shrink-0 opacity-90 lg:block"
+            <p
+              v-if="!pending && !error"
+              class="text-sm font-bold text-fork-clay"
             >
+              {{ totalCount }} reseptiä
+              <template v-if="categoryLabels.length"> kategorioissa {{ categoryLabels.join(" + ") }}</template>
+              <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
+            </p>
           </div>
-
-          <p
-            v-if="!pending && !error"
-            class="mt-3 text-sm font-bold text-fork-clay"
-          >
-            {{ totalCount }} reseptiä
-            <template v-if="categoryLabels.length"> kategorioissa {{ categoryLabels.join(" + ") }}</template>
-            <template v-if="searchQuery"> haulla “{{ searchQuery }}”</template>
-          </p>
         </div>
 
         <div v-if="pending" class="grid gap-6 md:grid-cols-3">
